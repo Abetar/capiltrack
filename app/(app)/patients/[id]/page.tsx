@@ -4,6 +4,11 @@ import { getPatientTimeline } from "@/lib/patient/getPatientTimeline";
 import Link from "next/link";
 import DeletePatientButton from "@/components/patients/DeletePatientButton";
 
+import type {
+  ConsultationFull,
+  ProcedureFull,
+} from "@/types/prisma";
+
 export default async function PatientPage({
   params,
 }: {
@@ -94,10 +99,7 @@ export default async function PatientPage({
           <ActivityRow label="Consultas" value={patient.consultations.length} />
           <ActivityRow label="Tratamientos" value={patient.treatments.length} />
           <ActivityRow label="Fotos" value={patient.photos.length} />
-          <ActivityRow
-            label="Transplantes"
-            value={patient.transplants.length}
-          />
+          <ActivityRow label="Transplantes" value={patient.transplants.length} />
         </div>
       </div>
 
@@ -107,7 +109,7 @@ export default async function PatientPage({
         <h2 style={cardTitle}>Historia clínica</h2>
 
         <div style={{ marginTop: 30 }}>
-          {events.map((event) => {
+          {events.map((event: (typeof events)[number]) => {
             if (event.type === "consultation") {
               return (
                 <ConsultationEvent
@@ -181,7 +183,11 @@ function TimelineWrapper({
 /* CONSULTATION EVENT */
 /* ========================= */
 
-function ConsultationEvent({ consultation }: { consultation: any }) {
+function ConsultationEvent({
+  consultation,
+}: {
+  consultation: ConsultationFull;
+}) {
   const zoneLabels: Record<string, string> = {
     frontal: "Frontal",
     crown: "Coronilla",
@@ -216,17 +222,19 @@ function ConsultationEvent({ consultation }: { consultation: any }) {
           <div style={sectionLabel}>Fotos clínicas</div>
 
           <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
-            {consultation.photos.map((photo: any) => (
-              <div key={photo.id} style={photoCard}>
-                <img src={photo.url} style={photoStyle} />
+            {consultation.photos.map(
+              (photo: (typeof consultation.photos)[number]) => (
+                <div key={photo.id} style={photoCard}>
+                  <img src={photo.url} style={photoStyle} />
 
-                {photo.zone && (
-                  <div style={photoZone}>
-                    {zoneLabels[photo.zone] || photo.zone}
-                  </div>
-                )}
-              </div>
-            ))}
+                  {photo.zone && (
+                    <div style={photoZone}>
+                      {zoneLabels[photo.zone] || photo.zone}
+                    </div>
+                  )}
+                </div>
+              )
+            )}
           </div>
         </div>
       )}
@@ -235,12 +243,14 @@ function ConsultationEvent({ consultation }: { consultation: any }) {
         <div style={{ marginTop: 16 }}>
           <div style={sectionLabel}>Métricas capilares</div>
 
-          {consultation.metrics.map((m: any) => (
-            <div key={m.id} style={metricRow}>
-              {m.zone ? zoneLabels[m.zone] || m.zone : "Zona"} —{" "}
-              {m.density ?? "—"} grafts/cm²
-            </div>
-          ))}
+          {consultation.metrics.map(
+            (m: (typeof consultation.metrics)[number]) => (
+              <div key={m.id} style={metricRow}>
+                {m.zone ? zoneLabels[m.zone] || m.zone : "Zona"} —{" "}
+                {m.density ?? "—"} grafts/cm²
+              </div>
+            )
+          )}
         </div>
       )}
     </TimelineWrapper>
@@ -255,7 +265,11 @@ function TreatmentEvent({
   treatment,
   patientId,
 }: {
-  treatment: any;
+  treatment: {
+    id: string;
+    medication: string;
+    startDate: Date | null;
+  };
   patientId: string;
 }) {
   return (
@@ -287,7 +301,7 @@ function TransplantEvent({
   procedure,
   patientId,
 }: {
-  procedure: any;
+  procedure: ProcedureFull;
   patientId: string;
 }) {
   return (
@@ -342,69 +356,3 @@ function ActivityRow({ label, value }: { label: string; value: number }) {
     </div>
   );
 }
-
-/* ========================= */
-/* STYLES */
-/* ========================= */
-
-const cardStyle = {
-  background: "white",
-  border: "1px solid #E5E7EB",
-  borderRadius: 12,
-  padding: 24,
-};
-
-const cardTitle = {
-  fontSize: 18,
-  fontWeight: 600,
-  marginBottom: 18,
-  color: "#1F2937",
-};
-
-const eventTitle = {
-  fontWeight: 600,
-  fontSize: 15,
-  color: "#111827",
-};
-
-const eventSubtitle = {
-  fontSize: 14,
-  color: "#6B7280",
-  marginTop: 4,
-};
-
-const sectionLabel = {
-  fontSize: 13,
-  fontWeight: 600,
-  color: "#374151",
-  marginBottom: 6,
-};
-
-const metricRow = {
-  fontSize: 14,
-  color: "#374151",
-  marginBottom: 4,
-};
-
-const photoCard = {
-  position: "relative" as const,
-};
-
-const photoStyle: React.CSSProperties = {
-  width: 110,
-  height: 110,
-  objectFit: "cover",
-  borderRadius: 10,
-  border: "1px solid #E5E7EB",
-};
-
-const photoZone = {
-  position: "absolute" as const,
-  bottom: 6,
-  left: 6,
-  background: "rgba(0,0,0,0.65)",
-  color: "white",
-  fontSize: 11,
-  padding: "2px 6px",
-  borderRadius: 6,
-};
