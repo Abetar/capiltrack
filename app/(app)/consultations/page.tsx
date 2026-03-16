@@ -1,6 +1,16 @@
 import { prisma } from "@/lib/db/prisma";
 import { getCurrentUser } from "@/lib/auth/getCurrentUser";
 import Link from "next/link";
+import { Prisma } from "@prisma/client";
+
+type ConsultationWithRelations =
+  Prisma.ConsultationGetPayload<{
+    include: {
+      patient: true;
+      photos: true;
+      metrics: true;
+    };
+  }>;
 
 export default async function ConsultationsPage({
   searchParams,
@@ -49,17 +59,18 @@ export default async function ConsultationsPage({
       : {}),
   };
 
-  const consultations = await prisma.consultation.findMany({
-    where: whereClause,
-    include: {
-      patient: true,
-      photos: true,
-      metrics: true,
-    },
-    orderBy: {
-      date: "desc",
-    },
-  });
+  const consultations: ConsultationWithRelations[] =
+    await prisma.consultation.findMany({
+      where: whereClause,
+      include: {
+        patient: true,
+        photos: true,
+        metrics: true,
+      },
+      orderBy: {
+        date: "desc",
+      },
+    });
 
   const totalConsultations = consultations.length;
 
@@ -77,7 +88,10 @@ export default async function ConsultationsPage({
         ).toFixed(1)
       : "—";
 
-  const totalPhotos = consultations.reduce((acc, c) => acc + c.photos.length, 0);
+  const totalPhotos = consultations.reduce(
+    (acc, c) => acc + c.photos.length,
+    0
+  );
 
   return (
     <div>
@@ -108,11 +122,7 @@ export default async function ConsultationsPage({
 
           <div>
             <label style={labelStyle}>Filtrar por Norwood</label>
-            <select
-              name="norwood"
-              defaultValue={norwood}
-              style={inputStyle}
-            >
+            <select name="norwood" defaultValue={norwood} style={inputStyle}>
               <option value="">Todos</option>
               <option value="1">Norwood 1</option>
               <option value="2">Norwood 2</option>
@@ -162,7 +172,9 @@ export default async function ConsultationsPage({
           <tbody>
             {consultations.map((c) => (
               <tr key={c.id} style={tr}>
-                <td style={td}>{new Date(c.date).toLocaleDateString()}</td>
+                <td style={td}>
+                  {new Date(c.date).toLocaleDateString()}
+                </td>
 
                 <td style={td}>
                   {c.patient.firstName} {c.patient.lastName ?? ""}
