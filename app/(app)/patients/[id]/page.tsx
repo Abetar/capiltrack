@@ -4,11 +4,6 @@ import { getPatientTimeline } from "@/lib/patient/getPatientTimeline";
 import Link from "next/link";
 import DeletePatientButton from "@/components/patients/DeletePatientButton";
 
-import type {
-  ConsultationFull,
-  ProcedureFull,
-} from "@/types/prisma";
-
 export default async function PatientPage({
   params,
 }: {
@@ -67,7 +62,7 @@ export default async function PatientPage({
         <DeletePatientButton patientId={patient.id} />
       </div>
 
-      {/* GRID SUPERIOR */}
+      {/* GRID */}
 
       <div
         style={{
@@ -147,46 +142,27 @@ export default async function PatientPage({
   );
 }
 
-/* ========================= */
-/* TIMELINE WRAPPER */
-/* ========================= */
-
-function TimelineWrapper({
-  children,
-  color,
-}: {
-  children: React.ReactNode;
-  color: string;
-}) {
-  return (
-    <div
-      style={{
-        display: "flex",
-        gap: 16,
-        marginBottom: 30,
-      }}
-    >
-      <div
-        style={{
-          width: 10,
-          borderRadius: 6,
-          background: color,
-        }}
-      />
-
-      <div style={{ flex: 1 }}>{children}</div>
-    </div>
-  );
-}
-
-/* ========================= */
 /* CONSULTATION EVENT */
-/* ========================= */
 
 function ConsultationEvent({
   consultation,
 }: {
-  consultation: ConsultationFull;
+  consultation: {
+    id: string;
+    patientId: string;
+    date: Date;
+    norwoodLevel: number | null;
+    photos: {
+      id: string;
+      url: string;
+      zone: string | null;
+    }[];
+    metrics: {
+      id: string;
+      zone: string | null;
+      density: number | null;
+    }[];
+  };
 }) {
   const zoneLabels: Record<string, string> = {
     frontal: "Frontal",
@@ -222,19 +198,17 @@ function ConsultationEvent({
           <div style={sectionLabel}>Fotos clínicas</div>
 
           <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
-            {consultation.photos.map(
-              (photo: (typeof consultation.photos)[number]) => (
-                <div key={photo.id} style={photoCard}>
-                  <img src={photo.url} style={photoStyle} />
+            {consultation.photos.map((photo) => (
+              <div key={photo.id} style={photoCard}>
+                <img src={photo.url} style={photoStyle} />
 
-                  {photo.zone && (
-                    <div style={photoZone}>
-                      {zoneLabels[photo.zone] || photo.zone}
-                    </div>
-                  )}
-                </div>
-              )
-            )}
+                {photo.zone && (
+                  <div style={photoZone}>
+                    {zoneLabels[photo.zone] || photo.zone}
+                  </div>
+                )}
+              </div>
+            ))}
           </div>
         </div>
       )}
@@ -243,23 +217,19 @@ function ConsultationEvent({
         <div style={{ marginTop: 16 }}>
           <div style={sectionLabel}>Métricas capilares</div>
 
-          {consultation.metrics.map(
-            (m: (typeof consultation.metrics)[number]) => (
-              <div key={m.id} style={metricRow}>
-                {m.zone ? zoneLabels[m.zone] || m.zone : "Zona"} —{" "}
-                {m.density ?? "—"} grafts/cm²
-              </div>
-            )
-          )}
+          {consultation.metrics.map((m) => (
+            <div key={m.id} style={metricRow}>
+              {m.zone ? zoneLabels[m.zone] || m.zone : "Zona"} —{" "}
+              {m.density ?? "—"} grafts/cm²
+            </div>
+          ))}
         </div>
       )}
     </TimelineWrapper>
   );
 }
 
-/* ========================= */
 /* TREATMENT EVENT */
-/* ========================= */
 
 function TreatmentEvent({
   treatment,
@@ -274,10 +244,7 @@ function TreatmentEvent({
 }) {
   return (
     <TimelineWrapper color="#059669">
-      <Link
-        href={`/patients/${patientId}/treatments`}
-        style={{ textDecoration: "none" }}
-      >
+      <Link href={`/patients/${patientId}/treatments`} style={{ textDecoration: "none" }}>
         <div style={{ cursor: "pointer" }}>
           <div style={eventTitle}>
             Tratamiento iniciado —{" "}
@@ -293,27 +260,25 @@ function TreatmentEvent({
   );
 }
 
-/* ========================= */
 /* TRANSPLANT EVENT */
-/* ========================= */
 
 function TransplantEvent({
   procedure,
   patientId,
 }: {
-  procedure: ProcedureFull;
+  procedure: {
+    id: string;
+    date: Date;
+    grafts: number | null;
+  };
   patientId: string;
 }) {
   return (
     <TimelineWrapper color="#9333EA">
-      <Link
-        href={`/patients/${patientId}/procedures`}
-        style={{ textDecoration: "none" }}
-      >
+      <Link href={`/patients/${patientId}/procedures`} style={{ textDecoration: "none" }}>
         <div style={{ cursor: "pointer" }}>
           <div style={eventTitle}>
-            Procedimiento de injerto —{" "}
-            {new Date(procedure.date).toLocaleDateString()}
+            Procedimiento de injerto — {new Date(procedure.date).toLocaleDateString()}
           </div>
 
           <div style={eventSubtitle}>
@@ -325,34 +290,103 @@ function TransplantEvent({
   );
 }
 
-/* ========================= */
-/* UI HELPERS */
-/* ========================= */
+/* WRAPPER */
+
+function TimelineWrapper({
+  children,
+  color,
+}: {
+  children: React.ReactNode;
+  color: string;
+}) {
+  return (
+    <div style={{ display: "flex", gap: 16, marginBottom: 30 }}>
+      <div style={{ width: 10, borderRadius: 6, background: color }} />
+      <div style={{ flex: 1 }}>{children}</div>
+    </div>
+  );
+}
+
+/* UI */
 
 function InfoRow({ label, value }: { label: string; value: string }) {
   return (
     <div style={{ marginBottom: 14 }}>
       <div style={{ fontSize: 12, color: "#6B7280" }}>{label}</div>
-
-      <div style={{ fontSize: 15, color: "#1F2937", fontWeight: 500 }}>
-        {value}
-      </div>
+      <div style={{ fontSize: 15, color: "#1F2937", fontWeight: 500 }}>{value}</div>
     </div>
   );
 }
 
 function ActivityRow({ label, value }: { label: string; value: number }) {
   return (
-    <div
-      style={{
-        display: "flex",
-        justifyContent: "space-between",
-        marginBottom: 14,
-      }}
-    >
+    <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 14 }}>
       <span style={{ color: "#374151", fontSize: 14 }}>{label}</span>
-
       <span style={{ fontWeight: 600, color: "#111827" }}>{value}</span>
     </div>
   );
 }
+
+/* STYLES */
+
+const cardStyle = {
+  background: "white",
+  border: "1px solid #E5E7EB",
+  borderRadius: 12,
+  padding: 24,
+};
+
+const cardTitle = {
+  fontSize: 18,
+  fontWeight: 600,
+  marginBottom: 18,
+  color: "#1F2937",
+};
+
+const eventTitle = {
+  fontWeight: 600,
+  fontSize: 15,
+  color: "#111827",
+};
+
+const eventSubtitle = {
+  fontSize: 14,
+  color: "#6B7280",
+  marginTop: 4,
+};
+
+const sectionLabel = {
+  fontSize: 13,
+  fontWeight: 600,
+  color: "#374151",
+  marginBottom: 6,
+};
+
+const metricRow = {
+  fontSize: 14,
+  color: "#374151",
+  marginBottom: 4,
+};
+
+const photoCard = {
+  position: "relative" as const,
+};
+
+const photoStyle: React.CSSProperties = {
+  width: 110,
+  height: 110,
+  objectFit: "cover",
+  borderRadius: 10,
+  border: "1px solid #E5E7EB",
+};
+
+const photoZone = {
+  position: "absolute" as const,
+  bottom: 6,
+  left: 6,
+  background: "rgba(0,0,0,0.65)",
+  color: "white",
+  fontSize: 11,
+  padding: "2px 6px",
+  borderRadius: 6,
+};
