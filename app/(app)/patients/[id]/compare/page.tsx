@@ -59,7 +59,9 @@ export default async function ComparePage({
       </h1>
 
       {zones.map((zone) => {
-        const zonePhotos = photos.filter((p) => p.zone === zone);
+        const zonePhotos = photos.filter(
+          (p: (typeof photos)[number]) => p.zone === zone
+        );
 
         if (zonePhotos.length < 2) return null;
 
