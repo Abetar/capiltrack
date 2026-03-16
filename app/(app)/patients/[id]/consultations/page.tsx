@@ -108,7 +108,7 @@ export default async function PatientConsultationsPage({
         </div>
       )}
 
-      {consultations.map((c) => (
+      {consultations.map((c: (typeof consultations)[number]) => (
         <Link
           key={c.id}
           href={`/patients/${patient.id}/consultations/${c.id}`}
