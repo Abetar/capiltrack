@@ -138,12 +138,10 @@ export default async function DashboardPage() {
 
   const monthCounts = Array(12).fill(0);
 
-  consultationsYear.forEach(
-    (c: (typeof consultationsYear)[number]) => {
-      const month = new Date(c.date).getMonth();
-      monthCounts[month]++;
-    }
-  );
+  consultationsYear.forEach((c: (typeof consultationsYear)[number]) => {
+    const month = new Date(c.date).getMonth();
+    monthCounts[month]++;
+  });
 
   const chartData = months.map((m, i) => ({
     date: m,

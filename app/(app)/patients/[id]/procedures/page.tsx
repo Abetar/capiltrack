@@ -74,7 +74,7 @@ export default async function PatientProceduresPage({
         </div>
       )}
 
-      {procedures.map((p) => (
+      {procedures.map((p: (typeof procedures)[number]) => (
         <div
           key={p.id}
           style={{

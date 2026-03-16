@@ -161,34 +161,32 @@ export default async function ConsultationsPage({
           </thead>
 
           <tbody>
-            {consultations.map(
-              (c: (typeof consultations)[number]) => (
-                <tr key={c.id} style={tr}>
-                  <td style={td}>
-                    {new Date(c.date).toLocaleDateString()}
-                  </td>
+            {consultations.map((c: (typeof consultations)[number]) => (
+              <tr key={c.id} style={tr}>
+                <td style={td}>
+                  {new Date(c.date).toLocaleDateString()}
+                </td>
 
-                  <td style={td}>
-                    {c.patient.firstName} {c.patient.lastName ?? ""}
-                  </td>
+                <td style={td}>
+                  {c.patient.firstName} {c.patient.lastName ?? ""}
+                </td>
 
-                  <td style={td}>{c.norwoodLevel ?? "—"}</td>
+                <td style={td}>{c.norwoodLevel ?? "—"}</td>
 
-                  <td style={td}>{c.photos.length}</td>
+                <td style={td}>{c.photos.length}</td>
 
-                  <td style={td}>{c.metrics.length}</td>
+                <td style={td}>{c.metrics.length}</td>
 
-                  <td style={td}>
-                    <Link
-                      href={`/patients/${c.patientId}/consultations/${c.id}`}
-                      style={viewButton}
-                    >
-                      Ver
-                    </Link>
-                  </td>
-                </tr>
-              )
-            )}
+                <td style={td}>
+                  <Link
+                    href={`/patients/${c.patientId}/consultations/${c.id}`}
+                    style={viewButton}
+                  >
+                    Ver
+                  </Link>
+                </td>
+              </tr>
+            ))}
           </tbody>
         </table>
 
