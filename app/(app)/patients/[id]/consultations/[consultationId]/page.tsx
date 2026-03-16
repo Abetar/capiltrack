@@ -48,7 +48,9 @@ export default async function ConsultationPage({
     macro: "Macro",
   };
 
-  const photosWithoutZone = consultation.photos.filter((p) => !p.zone);
+  const photosWithoutZone = consultation.photos.filter(
+    (p: (typeof consultation.photos)[number]) => !p.zone
+  );
 
   return (
     <div style={{ maxWidth: 900 }}>
@@ -141,37 +143,39 @@ export default async function ConsultationPage({
             </div>
           )}
 
-          {consultation.metrics.map((m) => (
-            <div
-              key={m.id}
-              style={{
-                marginTop: 8,
-                padding: 12,
-                border: "1px solid #E5E7EB",
-                borderRadius: 8,
-              }}
-            >
-              <div>
-                <strong>Densidad:</strong> {m.density ?? "—"} grafts/cm²
-              </div>
-
-              <div>
-                <strong>Grosor:</strong> {m.thickness ?? "—"} μm
-              </div>
-
-              {m.zone && (
+          {consultation.metrics.map(
+            (m: (typeof consultation.metrics)[number]) => (
+              <div
+                key={m.id}
+                style={{
+                  marginTop: 8,
+                  padding: 12,
+                  border: "1px solid #E5E7EB",
+                  borderRadius: 8,
+                }}
+              >
                 <div>
-                  <strong>Zona:</strong> {zoneLabels[m.zone] || m.zone}
+                  <strong>Densidad:</strong> {m.density ?? "—"} grafts/cm²
                 </div>
-              )}
 
-              {m.notes && (
                 <div>
-                  <strong>Notas:</strong> {m.notes}
+                  <strong>Grosor:</strong> {m.thickness ?? "—"} μm
                 </div>
-              )}
-            </div>
-          ))}
+
+                {m.zone && (
+                  <div>
+                    <strong>Zona:</strong> {zoneLabels[m.zone] || m.zone}
+                  </div>
+                )}
+
+                {m.notes && (
+                  <div>
+                    <strong>Notas:</strong> {m.notes}
+                  </div>
+                )}
+              </div>
+            )
+          )}
         </div>
       </div>
 
@@ -197,7 +201,9 @@ export default async function ConsultationPage({
         {/* FOTOS POR ZONA */}
 
         {zones.map((zone) => {
-          const zonePhotos = consultation.photos.filter((p) => p.zone === zone);
+          const zonePhotos = consultation.photos.filter(
+            (p: (typeof consultation.photos)[number]) => p.zone === zone
+          );
 
           if (zonePhotos.length === 0) return null;
 
