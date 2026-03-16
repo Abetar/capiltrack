@@ -1,22 +1,24 @@
-import { PrismaClient } from "@prisma/client"
-import { PrismaNeon } from "@prisma/adapter-neon"
+import { PrismaClient } from "@prisma/client";
+import { PrismaNeon } from "@prisma/adapter-neon";
 
-console.log("DATABASE_URL:", process.env.DATABASE_URL)
-
-const globalForPrisma = globalThis as unknown as {
-  prisma: PrismaClient | undefined
+if (!process.env.DATABASE_URL) {
+  throw new Error("DATABASE_URL no está definida");
 }
 
+const globalForPrisma = globalThis as unknown as {
+  prisma: PrismaClient | undefined;
+};
+
 const adapter = new PrismaNeon({
-  connectionString: process.env.DATABASE_URL!,
-})
+  connectionString: process.env.DATABASE_URL,
+});
 
 export const prisma =
   globalForPrisma.prisma ??
   new PrismaClient({
     adapter,
-  })
+  });
 
 if (process.env.NODE_ENV !== "production") {
-  globalForPrisma.prisma = prisma
+  globalForPrisma.prisma = prisma;
 }
