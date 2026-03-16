@@ -32,8 +32,8 @@ export default async function PatientProceduresPage({
 
   const totalProcedures = procedures.length;
 
-  const totalGrafts = procedures.reduce(
-    (acc: number, p: (typeof procedures)[number]) => acc + (p.grafts ?? 0),
+  const totalGrafts = procedures.reduce<number>(
+    (acc, p) => acc + (p.grafts ?? 0),
     0
   );
 
@@ -92,8 +92,6 @@ export default async function PatientProceduresPage({
         </Link>
       </div>
 
-      {/* EMPTY */}
-
       {procedures.length === 0 && (
         <div
           style={{
@@ -104,8 +102,6 @@ export default async function PatientProceduresPage({
           No hay procedimientos registrados
         </div>
       )}
-
-      {/* LIST */}
 
       {procedures.map((p: (typeof procedures)[number]) => (
         <div
