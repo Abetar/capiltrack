@@ -61,13 +61,23 @@ export default async function ProceduresPage({
 
   const totalProcedures = procedures.length;
 
-  const totalGrafts = procedures.reduce((acc, p) => acc + (p.grafts ?? 0), 0);
+  const totalGrafts = procedures.reduce(
+    (acc: number, p: (typeof procedures)[number]) => acc + (p.grafts ?? 0),
+    0
+  );
+
+  const graftProcedures = procedures.filter(
+    (p: (typeof procedures)[number]) => p.grafts !== null
+  );
 
   const avgGrafts =
-    procedures.length > 0
+    graftProcedures.length > 0
       ? Math.round(
-          procedures.reduce((acc, p) => acc + (p.grafts ?? 0), 0) /
-            procedures.filter((p) => p.grafts !== null).length || 0
+          graftProcedures.reduce(
+            (acc: number, p: (typeof procedures)[number]) =>
+              acc + (p.grafts ?? 0),
+            0
+          ) / graftProcedures.length
         )
       : 0;
 
@@ -100,11 +110,7 @@ export default async function ProceduresPage({
 
           <div>
             <label style={labelStyle}>Filtrar por técnica</label>
-            <select
-              name="technique"
-              defaultValue={technique}
-              style={inputStyle}
-            >
+            <select name="technique" defaultValue={technique} style={inputStyle}>
               <option value="">Todas</option>
               <option value="FUE">FUE</option>
               <option value="FUT">FUT</option>
@@ -149,7 +155,7 @@ export default async function ProceduresPage({
           </thead>
 
           <tbody>
-            {procedures.map((p) => (
+            {procedures.map((p: (typeof procedures)[number]) => (
               <tr key={p.id} style={tr}>
                 <td style={td}>{new Date(p.date).toLocaleDateString()}</td>
 

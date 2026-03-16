@@ -1,8 +1,15 @@
 import { prisma } from "@/lib/db/prisma";
 import { getCurrentUser } from "@/lib/auth/getCurrentUser";
-// import Link from "next/link";
+import Link from "next/link";
+import DeleteProcedureButton from "@/components/procedures/DeleteProcedureButton";
 
-export default async function ProceduresPage() {
+export default async function PatientProceduresPage({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  const { id } = await params;
+
   const user = await getCurrentUser();
 
   if (!user) {
@@ -11,13 +18,11 @@ export default async function ProceduresPage() {
 
   const procedures = await prisma.transplantProcedure.findMany({
     where: {
+      patientId: id,
       clinicId: user.clinicId,
     },
     orderBy: {
       date: "desc",
-    },
-    include: {
-      patient: true,
     },
   });
 
@@ -35,9 +40,7 @@ export default async function ProceduresPage() {
   );
 
   const avgGrafts =
-    procedures.length > 0
-      ? Math.round(totalGrafts / procedures.length)
-      : 0;
+    totalProcedures > 0 ? Math.round(totalGrafts / totalProcedures) : 0;
 
   return (
     <div style={{ maxWidth: 900 }}>
@@ -72,67 +75,118 @@ export default async function ProceduresPage() {
             {avgGrafts}
           </div>
         </div>
+
+        <Link
+          href={`/patients/${id}/procedures/new`}
+          style={{
+            background: "#2C6BED",
+            color: "white",
+            padding: "10px 16px",
+            borderRadius: 8,
+            textDecoration: "none",
+            fontSize: 14,
+            fontWeight: 500,
+          }}
+        >
+          + Nuevo procedimiento
+        </Link>
       </div>
 
-      {/* LIST */}
+      {procedures.length === 0 && (
+        <div
+          style={{
+            color: "#6B7280",
+            fontSize: 14,
+          }}
+        >
+          No hay procedimientos registrados
+        </div>
+      )}
 
-      <div
-        style={{
-          background: "white",
-          border: "1px solid #E5E7EB",
-          borderRadius: 12,
-        }}
-      >
-        {procedures.length === 0 && (
-          <p style={{ padding: 20, color: "#6B7280" }}>
-            No hay procedimientos registrados.
-          </p>
-        )}
+      {procedures.map((p: (typeof procedures)[number]) => (
+        <div
+          key={p.id}
+          style={{
+            background: "white",
+            border: "1px solid #E5E7EB",
+            borderRadius: 12,
+            padding: 20,
+            marginBottom: 16,
+          }}
+        >
+          {/* HEADER CARD */}
 
-        {procedures.map((p: (typeof procedures)[number]) => (
           <div
-            key={p.id}
             style={{
-              padding: 20,
-              borderBottom: "1px solid #F3F4F6",
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              marginBottom: 6,
             }}
           >
-            <div style={{ fontWeight: 600 }}>
+            <div
+              style={{
+                fontWeight: 600,
+              }}
+            >
               {p.technique || "Procedimiento capilar"}
             </div>
 
-            <div
-              style={{
-                fontSize: 13,
-                color: "#6B7280",
-                marginTop: 4,
-              }}
-            >
-              {p.patient.firstName} {p.patient.lastName ?? ""}
-            </div>
-
-            <div
-              style={{
-                fontSize: 13,
-                color: "#6B7280",
-                marginTop: 4,
-              }}
-            >
-              {p.grafts ? `${p.grafts} grafts` : ""}
-            </div>
-
-            <div
-              style={{
-                fontSize: 13,
-                color: "#6B7280",
-                marginTop: 4,
-              }}
-            >
-              Fecha: {new Date(p.date).toLocaleDateString()}
-            </div>
+            <DeleteProcedureButton procedureId={p.id} patientId={id} />
           </div>
-        ))}
-      </div>
+
+          {/* GRAFTS */}
+
+          <div
+            style={{
+              fontSize: 14,
+              color: "#374151",
+              marginBottom: 6,
+            }}
+          >
+            {p.grafts ? `${p.grafts} grafts` : ""}
+          </div>
+
+          {/* DATE */}
+
+          <div
+            style={{
+              fontSize: 13,
+              color: "#6B7280",
+            }}
+          >
+            Fecha: {new Date(p.date).toLocaleDateString()}
+          </div>
+
+          {/* ZONES */}
+
+          {(p.donorArea || p.recipientArea) && (
+            <div
+              style={{
+                marginTop: 8,
+                fontSize: 13,
+                color: "#6B7280",
+              }}
+            >
+              {p.donorArea && <>Zona donante: {p.donorArea} </>}
+              {p.recipientArea && <>• Zona receptora: {p.recipientArea}</>}
+            </div>
+          )}
+
+          {/* NOTES */}
+
+          {p.notes && (
+            <div
+              style={{
+                marginTop: 10,
+                fontSize: 14,
+              }}
+            >
+              {p.notes}
+            </div>
+          )}
+        </div>
+      ))}
     </div>
   );
 }
