@@ -2,17 +2,6 @@ import { prisma } from "@/lib/db/prisma";
 import { getCurrentUser } from "@/lib/auth/getCurrentUser";
 import Link from "next/link";
 import ProgressChart from "@/components/metrics/ProgressChart";
-import type { Prisma } from "@prisma/client";
-
-type HairMetricWithConsultation = Prisma.HairMetricGetPayload<{
-  include: {
-    consultation: {
-      select: {
-        date: true;
-      };
-    };
-  };
-}>;
 
 export default async function PatientProgressPage({
   params,
@@ -27,20 +16,19 @@ export default async function PatientProgressPage({
     return <div>No autorizado</div>;
   }
 
-  const metrics: HairMetricWithConsultation[] =
-    await prisma.hairMetric.findMany({
-      where: {
-        patientId: id,
-        clinicId: user.clinicId,
-      },
-      include: {
-        consultation: {
-          select: {
-            date: true,
-          },
+  const metrics = await prisma.hairMetric.findMany({
+    where: {
+      patientId: id,
+      clinicId: user.clinicId,
+    },
+    include: {
+      consultation: {
+        select: {
+          date: true,
         },
       },
-    });
+    },
+  });
 
   const zones = [
     "frontal",
@@ -83,19 +71,26 @@ export default async function PatientProgressPage({
 
       {zones.map((zone) => {
         const zoneMetrics = metrics
-          .filter((m) => m.zone === zone)
-          .sort((a, b) => {
-            const aDate = getMetricDate(a).getTime();
-            const bDate = getMetricDate(b).getTime();
-            return aDate - bDate;
-          });
+          .filter((m: (typeof metrics)[number]) => m.zone === zone)
+          .sort(
+            (
+              a: (typeof metrics)[number],
+              b: (typeof metrics)[number]
+            ) => {
+              const aDate = getMetricDate(a).getTime();
+              const bDate = getMetricDate(b).getTime();
+              return aDate - bDate;
+            }
+          );
 
         if (zoneMetrics.length === 0) return null;
 
-        const chartData = zoneMetrics.map((m) => ({
-          date: getMetricDate(m).toLocaleDateString(),
-          density: m.density ?? 0,
-        }));
+        const chartData = zoneMetrics.map(
+          (m: (typeof zoneMetrics)[number]) => ({
+            date: getMetricDate(m).toLocaleDateString(),
+            density: m.density ?? 0,
+          })
+        );
 
         return (
           <div
@@ -112,14 +107,10 @@ export default async function PatientProgressPage({
               {zoneLabels[zone]}
             </h2>
 
-            {/* GRÁFICA */}
-
             <ProgressChart data={chartData} />
 
-            {/* LISTA NUMÉRICA */}
-
             <div style={{ marginTop: 16 }}>
-              {zoneMetrics.map((m) => (
+              {zoneMetrics.map((m: (typeof zoneMetrics)[number]) => (
                 <div
                   key={m.id}
                   style={{
@@ -133,7 +124,9 @@ export default async function PatientProgressPage({
                     {getMetricDate(m).toLocaleDateString()}
                   </span>
 
-                  <span>{m.density ?? "—"} grafts/cm²</span>
+                  <span>
+                    {m.density ?? "—"} grafts/cm²
+                  </span>
                 </div>
               ))}
             </div>
