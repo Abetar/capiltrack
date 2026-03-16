@@ -1,7 +1,6 @@
 import { prisma } from "@/lib/db/prisma";
 import { getCurrentUser } from "@/lib/auth/getCurrentUser";
 import Link from "next/link";
-import DeleteTreatmentButton from "@/components/treatments/DeleteTreatmentButton";
 
 export default async function PatientTreatmentsPage({
   params,
@@ -74,7 +73,7 @@ export default async function PatientTreatmentsPage({
         </div>
       )}
 
-      {treatments.map((t) => (
+      {treatments.map((t: (typeof treatments)[number]) => (
         <div
           key={t.id}
           style={{
@@ -85,51 +84,70 @@ export default async function PatientTreatmentsPage({
             marginBottom: 16,
           }}
         >
-          {/* HEADER CARD */}
+          {/* MEDICAMENTO */}
 
           <div
             style={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
+              fontWeight: 600,
               marginBottom: 6,
             }}
           >
+            {t.medication}
+          </div>
+
+          {/* DOSIS */}
+
+          {t.dosage && (
             <div
               style={{
-                fontWeight: 600,
+                fontSize: 13,
+                color: "#6B7280",
               }}
             >
-              {t.medication}
+              Dosis: {t.dosage}
             </div>
+          )}
 
-            <DeleteTreatmentButton
-              treatmentId={t.id}
-              patientId={id}
-            />
-          </div>
+          {/* FRECUENCIA */}
 
-          <div
-            style={{
-              fontSize: 14,
-              color: "#374151",
-              marginBottom: 4,
-            }}
-          >
-            {t.dosage || "—"} {t.frequency ? `• ${t.frequency}` : ""}
-          </div>
+          {t.frequency && (
+            <div
+              style={{
+                fontSize: 13,
+                color: "#6B7280",
+              }}
+            >
+              Frecuencia: {t.frequency}
+            </div>
+          )}
+
+          {/* FECHAS */}
 
           <div
             style={{
               fontSize: 13,
               color: "#6B7280",
+              marginTop: 6,
             }}
           >
             Inicio:{" "}
             {t.startDate
               ? new Date(t.startDate).toLocaleDateString()
-              : "No registrado"}
+              : "—"}
           </div>
+
+          {t.endDate && (
+            <div
+              style={{
+                fontSize: 13,
+                color: "#6B7280",
+              }}
+            >
+              Fin: {new Date(t.endDate).toLocaleDateString()}
+            </div>
+          )}
+
+          {/* NOTAS */}
 
           {t.notes && (
             <div
