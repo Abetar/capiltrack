@@ -1,26 +1,129 @@
 @import "tailwindcss";
 
+/*
+Base variables
+*/
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #F8FAFC;
+  --foreground: #111827;
+
+  --border: #E5E7EB;
+  --input: #D1D5DB;
+
+  --primary: #2C6BED;
+  --primary-hover: #1F56D9;
+
+  --card: #FFFFFF;
 }
+
+/*
+Font configuration
+*/
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+/*
+Reset
+*/
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
 }
 
 body {
+  margin: 0;
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans), system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/*
+Form elements
+*/
+
+input,
+button,
+textarea,
+select {
+  font-family: inherit;
+}
+
+/*
+Input focus style
+*/
+
+input:focus,
+textarea:focus,
+select:focus {
+  outline: none;
+  border-color: var(--primary);
+}
+
+/*
+Links
+*/
+
+a {
+  color: var(--primary);
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+/*
+Card utility
+*/
+
+.ui-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+}
+
+/*
+Input utility
+*/
+
+.ui-input {
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: 8px;
+  border: 1px solid var(--input);
+  font-size: 14px;
+}
+
+/*
+Button utility
+*/
+
+.ui-button {
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: 8px;
+  border: none;
+  background: var(--primary);
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.ui-button:hover {
+  background: var(--primary-hover);
 }

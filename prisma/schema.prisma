@@ -1,0 +1,232 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Clinic {
+  id        String   @id @default(cuid())
+  name      String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  users     User[]
+  patients  Patient[]
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String?
+  password  String?
+
+  role      String   @default("OWNER")
+
+  clinicId  String
+  clinic    Clinic   @relation(fields: [clinicId], references: [id])
+
+  accounts  Account[]
+  sessions  Session[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([clinicId])
+}
+
+model Patient {
+  id        String   @id @default(cuid())
+
+  clinicId  String
+  clinic    Clinic   @relation(fields: [clinicId], references: [id])
+
+  firstName String
+  lastName  String?
+
+  birthDate DateTime?
+  gender    String?
+
+  phone     String?
+  email     String?
+
+  notes     String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  consultations Consultation[]
+  treatments    Treatment[]
+  photos        Photo[]
+  metrics       HairMetric[]
+  transplants   TransplantProcedure[]
+
+  @@index([clinicId])
+}
+
+model Consultation {
+  id        String   @id @default(cuid())
+
+  clinicId  String
+
+  patientId String
+  patient   Patient  @relation(fields: [patientId], references: [id], onDelete: Cascade)
+
+  date      DateTime @default(now())
+
+  norwoodLevel Int?
+
+  notes     String?
+
+  createdAt DateTime @default(now())
+
+  photos    Photo[]
+  metrics   HairMetric[]
+
+  @@index([clinicId])
+}
+
+model HairMetric {
+  id        String   @id @default(cuid())
+
+  clinicId  String
+
+  patientId String
+  patient   Patient  @relation(fields: [patientId], references: [id], onDelete: Cascade)
+
+  consultationId String?
+  consultation   Consultation? @relation(fields: [consultationId], references: [id])
+
+  zone      String?
+
+  density   Float?
+  thickness Float?
+
+  notes     String?
+
+  createdAt DateTime @default(now())
+
+  @@index([clinicId])
+}
+
+model Photo {
+  id        String   @id @default(cuid())
+
+  clinicId  String
+
+  patientId String
+  patient   Patient  @relation(fields: [patientId], references: [id], onDelete: Cascade)
+
+  consultationId String?
+  consultation   Consultation? @relation(fields: [consultationId], references: [id])
+
+  url       String
+
+  zone      String?
+
+  notes     String?
+
+  createdAt DateTime @default(now())
+
+  @@index([clinicId])
+}
+
+model Treatment {
+  id        String   @id @default(cuid())
+
+  clinicId  String
+
+  patientId String
+  patient   Patient  @relation(fields: [patientId], references: [id], onDelete: Cascade)
+
+  medication String
+
+  dosage     String?
+  frequency  String?
+
+  startDate  DateTime?
+  endDate    DateTime?
+
+  notes      String?
+
+  createdAt DateTime @default(now())
+
+  @@index([clinicId])
+}
+
+model TransplantProcedure {
+  id        String   @id @default(cuid())
+
+  clinicId  String
+
+  patientId String
+  patient   Patient  @relation(fields: [patientId], references: [id], onDelete: Cascade)
+
+  date      DateTime
+
+  technique String?
+  method    String?
+
+  grafts    Int?
+
+  donorArea String?
+  recipientArea String?
+
+  notes     String?
+
+  createdAt DateTime @default(now())
+
+  @@index([clinicId])
+}
+
+/*
+AUTH MODELS (NextAuth / Auth.js)
+*/
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+
+  userId       String
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  expires      DateTime
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+model PasswordResetToken {
+  id        String   @id @default(cuid())
+  email     String
+  token     String   @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+}
