@@ -64,22 +64,22 @@ export default async function ConsultationsPage({
   const totalConsultations = consultations.length;
 
   const consultationsWithNorwood = consultations.filter(
-    (c: (typeof consultations)[number]) => c.norwoodLevel !== null
+    (c: (typeof consultations)[number]) => c.norwoodLevel !== null,
   );
 
   const avgNorwood =
     consultationsWithNorwood.length > 0
       ? (
           consultationsWithNorwood.reduce(
-            (acc, c) => acc + (c.norwoodLevel ?? 0),
-            0
+            (acc: number, c) => acc + (c.norwoodLevel ?? 0),
+            0,
           ) / consultationsWithNorwood.length
         ).toFixed(1)
       : "—";
 
   const totalPhotos = consultations.reduce(
     (acc, c) => acc + c.photos.length,
-    0
+    0,
   );
 
   return (
@@ -161,9 +161,7 @@ export default async function ConsultationsPage({
           <tbody>
             {consultations.map((c) => (
               <tr key={c.id} style={tr}>
-                <td style={td}>
-                  {new Date(c.date).toLocaleDateString()}
-                </td>
+                <td style={td}>{new Date(c.date).toLocaleDateString()}</td>
 
                 <td style={td}>
                   {c.patient.firstName} {c.patient.lastName ?? ""}
@@ -196,13 +194,7 @@ export default async function ConsultationsPage({
   );
 }
 
-function StatCard({
-  title,
-  value,
-}: {
-  title: string;
-  value: string;
-}) {
+function StatCard({ title, value }: { title: string; value: string }) {
   return (
     <div style={statCard}>
       <div style={statLabel}>{title}</div>
