@@ -64,22 +64,24 @@ export default async function ConsultationsPage({
   const totalConsultations = consultations.length;
 
   const consultationsWithNorwood = consultations.filter(
-    (c: (typeof consultations)[number]) => c.norwoodLevel !== null,
+    (c: (typeof consultations)[number]) => c.norwoodLevel !== null
   );
 
   const avgNorwood =
     consultationsWithNorwood.length > 0
       ? (
           consultationsWithNorwood.reduce(
-            (acc: number, c) => acc + (c.norwoodLevel ?? 0),
-            0,
+            (acc: number, c: (typeof consultations)[number]) =>
+              acc + (c.norwoodLevel ?? 0),
+            0
           ) / consultationsWithNorwood.length
         ).toFixed(1)
       : "—";
 
   const totalPhotos = consultations.reduce(
-    (acc, c) => acc + c.photos.length,
-    0,
+    (acc: number, c: (typeof consultations)[number]) =>
+      acc + c.photos.length,
+    0
   );
 
   return (
