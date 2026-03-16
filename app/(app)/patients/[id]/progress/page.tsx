@@ -2,6 +2,17 @@ import { prisma } from "@/lib/db/prisma";
 import { getCurrentUser } from "@/lib/auth/getCurrentUser";
 import Link from "next/link";
 import ProgressChart from "@/components/metrics/ProgressChart";
+import type { Prisma } from "@prisma/client";
+
+type HairMetricWithConsultation = Prisma.HairMetricGetPayload<{
+  include: {
+    consultation: {
+      select: {
+        date: true;
+      };
+    };
+  };
+}>;
 
 export default async function PatientProgressPage({
   params,
@@ -16,21 +27,30 @@ export default async function PatientProgressPage({
     return <div>No autorizado</div>;
   }
 
-  const metrics = await prisma.hairMetric.findMany({
-    where: {
-      patientId: id,
-      clinicId: user.clinicId,
-    },
-    include: {
-      consultation: {
-        select: {
-          date: true,
+  const metrics: HairMetricWithConsultation[] =
+    await prisma.hairMetric.findMany({
+      where: {
+        patientId: id,
+        clinicId: user.clinicId,
+      },
+      include: {
+        consultation: {
+          select: {
+            date: true,
+          },
         },
       },
-    },
-  });
+    });
 
-  const zones = ["frontal", "crown", "donor", "left", "right", "top", "macro"];
+  const zones = [
+    "frontal",
+    "crown",
+    "donor",
+    "left",
+    "right",
+    "top",
+    "macro",
+  ];
 
   const zoneLabels: Record<string, string> = {
     frontal: "Frontal",
@@ -113,9 +133,7 @@ export default async function PatientProgressPage({
                     {getMetricDate(m).toLocaleDateString()}
                   </span>
 
-                  <span>
-                    {m.density ?? "—"} grafts/cm²
-                  </span>
+                  <span>{m.density ?? "—"} grafts/cm²</span>
                 </div>
               ))}
             </div>
