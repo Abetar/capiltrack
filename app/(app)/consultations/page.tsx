@@ -1,16 +1,6 @@
 import { prisma } from "@/lib/db/prisma";
 import { getCurrentUser } from "@/lib/auth/getCurrentUser";
 import Link from "next/link";
-import { Prisma } from "@prisma/client";
-
-type ConsultationWithRelations =
-  Prisma.ConsultationGetPayload<{
-    include: {
-      patient: true;
-      photos: true;
-      metrics: true;
-    };
-  }>;
 
 export default async function ConsultationsPage({
   searchParams,
@@ -59,23 +49,22 @@ export default async function ConsultationsPage({
       : {}),
   };
 
-  const consultations: ConsultationWithRelations[] =
-    await prisma.consultation.findMany({
-      where: whereClause,
-      include: {
-        patient: true,
-        photos: true,
-        metrics: true,
-      },
-      orderBy: {
-        date: "desc",
-      },
-    });
+  const consultations = await prisma.consultation.findMany({
+    where: whereClause,
+    include: {
+      patient: true,
+      photos: true,
+      metrics: true,
+    },
+    orderBy: {
+      date: "desc",
+    },
+  });
 
   const totalConsultations = consultations.length;
 
   const consultationsWithNorwood = consultations.filter(
-    (c) => c.norwoodLevel !== null
+    (c: (typeof consultations)[number]) => c.norwoodLevel !== null
   );
 
   const avgNorwood =
