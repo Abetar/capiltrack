@@ -138,10 +138,12 @@ export default async function DashboardPage() {
 
   const monthCounts = Array(12).fill(0);
 
-  consultationsYear.forEach((c) => {
-    const month = new Date(c.date).getMonth();
-    monthCounts[month]++;
-  });
+  consultationsYear.forEach(
+    (c: (typeof consultationsYear)[number]) => {
+      const month = new Date(c.date).getMonth();
+      monthCounts[month]++;
+    }
+  );
 
   const chartData = months.map((m, i) => ({
     date: m,
@@ -173,31 +175,35 @@ export default async function DashboardPage() {
           <p style={emptyText}>No hay alertas clínicas activas.</p>
         ) : (
           <div style={alertsContainer}>
-            {patientsWithoutFollowup.map((p) => (
-              <Link
-                key={`follow-${p.id}`}
-                href={`/patients/${p.id}`}
-                style={{ textDecoration: "none" }}
-              >
-                <div style={alertCardRed}>
-                  ⚠ Paciente sin consulta en 90 días — {p.firstName}{" "}
-                  {p.lastName ?? ""}
-                </div>
-              </Link>
-            ))}
+            {patientsWithoutFollowup.map(
+              (p: (typeof patientsWithoutFollowup)[number]) => (
+                <Link
+                  key={`follow-${p.id}`}
+                  href={`/patients/${p.id}`}
+                  style={{ textDecoration: "none" }}
+                >
+                  <div style={alertCardRed}>
+                    ⚠ Paciente sin consulta en 90 días — {p.firstName}{" "}
+                    {p.lastName ?? ""}
+                  </div>
+                </Link>
+              )
+            )}
 
-            {treatmentsWithoutControl.map((t) => (
-              <Link
-                key={`treatment-${t.id}`}
-                href={`/patients/${t.patientId}`}
-                style={{ textDecoration: "none" }}
-              >
-                <div style={alertCardOrange}>
-                  💊 Tratamiento activo sin consulta de control —{" "}
-                  {t.patient.firstName} {t.patient.lastName ?? ""}
-                </div>
-              </Link>
-            ))}
+            {treatmentsWithoutControl.map(
+              (t: (typeof treatmentsWithoutControl)[number]) => (
+                <Link
+                  key={`treatment-${t.id}`}
+                  href={`/patients/${t.patientId}`}
+                  style={{ textDecoration: "none" }}
+                >
+                  <div style={alertCardOrange}>
+                    💊 Tratamiento activo sin consulta de control —{" "}
+                    {t.patient.firstName} {t.patient.lastName ?? ""}
+                  </div>
+                </Link>
+              )
+            )}
           </div>
         )}
       </div>
@@ -214,27 +220,29 @@ export default async function DashboardPage() {
           <p style={emptyText}>Aún no hay actividad registrada.</p>
         ) : (
           <div style={activityList}>
-            {recentConsultations.map((c) => (
-              <Link
-                key={c.id}
-                href={`/patients/${c.patientId}`}
-                style={{ textDecoration: "none" }}
-              >
-                <div style={activityCard}>
-                  <div>
-                    <div style={activityName}>
-                      {c.patient.firstName} {c.patient.lastName ?? ""}
+            {recentConsultations.map(
+              (c: (typeof recentConsultations)[number]) => (
+                <Link
+                  key={c.id}
+                  href={`/patients/${c.patientId}`}
+                  style={{ textDecoration: "none" }}
+                >
+                  <div style={activityCard}>
+                    <div>
+                      <div style={activityName}>
+                        {c.patient.firstName} {c.patient.lastName ?? ""}
+                      </div>
+
+                      <div style={activityType}>Consulta clínica</div>
                     </div>
 
-                    <div style={activityType}>Consulta clínica</div>
+                    <div style={activityDate}>
+                      {new Date(c.date).toLocaleDateString()}
+                    </div>
                   </div>
-
-                  <div style={activityDate}>
-                    {new Date(c.date).toLocaleDateString()}
-                  </div>
-                </div>
-              </Link>
-            ))}
+                </Link>
+              )
+            )}
           </div>
         )}
       </div>
