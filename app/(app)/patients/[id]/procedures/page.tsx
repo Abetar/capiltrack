@@ -26,6 +26,22 @@ export default async function PatientProceduresPage({
     },
   });
 
+  /* ========================= */
+  /* STATS */
+  /* ========================= */
+
+  const totalProcedures = procedures.length;
+
+  const totalGrafts = procedures.reduce(
+    (acc: number, p: (typeof procedures)[number]) => acc + (p.grafts ?? 0),
+    0
+  );
+
+  const avgGrafts =
+    procedures.length > 0
+      ? Math.round(totalGrafts / procedures.length)
+      : 0;
+
   return (
     <div style={{ maxWidth: 900 }}>
       {/* HEADER */}
@@ -38,14 +54,27 @@ export default async function PatientProceduresPage({
           marginBottom: 30,
         }}
       >
-        <h1
-          style={{
-            fontSize: 26,
-            fontWeight: 600,
-          }}
-        >
-          Procedimientos
-        </h1>
+        <div>
+          <h1
+            style={{
+              fontSize: 26,
+              fontWeight: 600,
+            }}
+          >
+            Procedimientos
+          </h1>
+
+          <div
+            style={{
+              fontSize: 13,
+              color: "#6B7280",
+              marginTop: 4,
+            }}
+          >
+            {totalProcedures} procedimientos • {totalGrafts} grafts • promedio{" "}
+            {avgGrafts}
+          </div>
+        </div>
 
         <Link
           href={`/patients/${id}/procedures/new`}
@@ -63,6 +92,8 @@ export default async function PatientProceduresPage({
         </Link>
       </div>
 
+      {/* EMPTY */}
+
       {procedures.length === 0 && (
         <div
           style={{
@@ -73,6 +104,8 @@ export default async function PatientProceduresPage({
           No hay procedimientos registrados
         </div>
       )}
+
+      {/* LIST */}
 
       {procedures.map((p: (typeof procedures)[number]) => (
         <div
@@ -103,13 +136,10 @@ export default async function PatientProceduresPage({
               {p.technique || "Procedimiento capilar"}
             </div>
 
-            <DeleteProcedureButton
-              procedureId={p.id}
-              patientId={id}
-            />
+            <DeleteProcedureButton procedureId={p.id} patientId={id} />
           </div>
 
-          {/* Datos principales */}
+          {/* GRAFTS */}
 
           <div
             style={{
@@ -121,7 +151,7 @@ export default async function PatientProceduresPage({
             {p.grafts ? `${p.grafts} grafts` : ""}
           </div>
 
-          {/* Fecha */}
+          {/* DATE */}
 
           <div
             style={{
@@ -132,7 +162,7 @@ export default async function PatientProceduresPage({
             Fecha: {new Date(p.date).toLocaleDateString()}
           </div>
 
-          {/* Zonas */}
+          {/* ZONES */}
 
           {(p.donorArea || p.recipientArea) && (
             <div
@@ -147,7 +177,7 @@ export default async function PatientProceduresPage({
             </div>
           )}
 
-          {/* Notas */}
+          {/* NOTES */}
 
           {p.notes && (
             <div
