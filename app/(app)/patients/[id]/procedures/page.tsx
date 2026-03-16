@@ -32,15 +32,15 @@ export default async function PatientProceduresPage({
 
   const totalProcedures = procedures.length;
 
-  const totalGrafts = procedures.reduce<number>(
-    (acc, p) => acc + (p.grafts ?? 0),
+  const totalGrafts = procedures.reduce(
+    (acc: number, p: (typeof procedures)[number]) => {
+      return acc + (p.grafts ?? 0);
+    },
     0
   );
 
   const avgGrafts =
-    procedures.length > 0
-      ? Math.round(totalGrafts / procedures.length)
-      : 0;
+    totalProcedures > 0 ? Math.round(totalGrafts / totalProcedures) : 0;
 
   return (
     <div style={{ maxWidth: 900 }}>
