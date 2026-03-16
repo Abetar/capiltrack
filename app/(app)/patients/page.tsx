@@ -138,7 +138,7 @@ export default async function PatientsPage({
           </p>
         )}
 
-        {patients.map((p) => (
+        {patients.map((p: (typeof patients)[number]) => (
           <div
             key={p.id}
             style={{
@@ -148,7 +148,7 @@ export default async function PatientsPage({
           >
             <Link href={`/patients/${p.id}`}>
               <strong style={{ cursor: "pointer" }}>
-                {p.firstName} {p.lastName}
+                {p.firstName} {p.lastName ?? ""}
               </strong>
             </Link>
 
