@@ -10,10 +10,65 @@ export default async function PatientProgressPage({
 }) {
   const { id } = await params;
 
-  const user = await getCurrentUser();
+  const { user, reason } = await getCurrentUser();
 
   if (!user) {
-    return <div>No autorizado</div>;
+    return (
+      <div
+        style={{
+          minHeight: "100vh",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          background: "#F8FAFC",
+          padding: 20,
+        }}
+      >
+        <div
+          style={{
+            background: "white",
+            border: "1px solid #E5E7EB",
+            borderRadius: 12,
+            padding: 32,
+            maxWidth: 420,
+            width: "100%",
+            textAlign: "center",
+          }}
+        >
+          <h2 style={{ fontSize: 20, fontWeight: 600, marginBottom: 12 }}>
+            Acceso restringido
+          </h2>
+
+          <p style={{ fontSize: 14, color: "#6B7280", marginBottom: 20 }}>
+            {reason === "no_subscription" &&
+              "Tu suscripción ha expirado o no está activa. Para continuar usando CapilTrack, necesitas renovar tu acceso."}
+
+            {reason === "blocked" &&
+              "Tu cuenta ha sido bloqueada. Contacta al administrador para más información."}
+
+            {reason === "not_authenticated" &&
+              "Debes iniciar sesión para acceder."}
+          </p>
+
+          {reason === "no_subscription" && (
+            <a href="/api/stripe/checkout">
+              <button
+                style={{
+                  background: "#2C6BED",
+                  color: "white",
+                  padding: "12px 20px",
+                  borderRadius: 8,
+                  border: "none",
+                  cursor: "pointer",
+                }}
+              >
+                Reactivar suscripción
+              </button>
+            </a>
+          )}
+        </div>
+      </div>
+    );
   }
 
   const metrics = await prisma.hairMetric.findMany({
@@ -30,15 +85,7 @@ export default async function PatientProgressPage({
     },
   });
 
-  const zones = [
-    "frontal",
-    "crown",
-    "donor",
-    "left",
-    "right",
-    "top",
-    "macro",
-  ];
+  const zones = ["frontal", "crown", "donor", "left", "right", "top", "macro"];
 
   const zoneLabels: Record<string, string> = {
     frontal: "Frontal",
@@ -53,9 +100,7 @@ export default async function PatientProgressPage({
   return (
     <div style={{ maxWidth: 900 }}>
       <div style={{ marginBottom: 30 }}>
-        <h1 style={{ fontSize: 26, fontWeight: 600 }}>
-          Progreso capilar
-        </h1>
+        <h1 style={{ fontSize: 26, fontWeight: 600 }}>Progreso capilar</h1>
 
         <Link
           href={`/patients/${id}`}
@@ -72,16 +117,11 @@ export default async function PatientProgressPage({
       {zones.map((zone) => {
         const zoneMetrics = metrics
           .filter((m: (typeof metrics)[number]) => m.zone === zone)
-          .sort(
-            (
-              a: (typeof metrics)[number],
-              b: (typeof metrics)[number]
-            ) => {
-              const aDate = getMetricDate(a).getTime();
-              const bDate = getMetricDate(b).getTime();
-              return aDate - bDate;
-            }
-          );
+          .sort((a: (typeof metrics)[number], b: (typeof metrics)[number]) => {
+            const aDate = getMetricDate(a).getTime();
+            const bDate = getMetricDate(b).getTime();
+            return aDate - bDate;
+          });
 
         if (zoneMetrics.length === 0) return null;
 
@@ -89,7 +129,7 @@ export default async function PatientProgressPage({
           (m: (typeof zoneMetrics)[number]) => ({
             date: getMetricDate(m).toLocaleDateString(),
             density: m.density ?? 0,
-          })
+          }),
         );
 
         return (
@@ -120,13 +160,9 @@ export default async function PatientProgressPage({
                     fontSize: 14,
                   }}
                 >
-                  <span>
-                    {getMetricDate(m).toLocaleDateString()}
-                  </span>
+                  <span>{getMetricDate(m).toLocaleDateString()}</span>
 
-                  <span>
-                    {m.density ?? "—"} grafts/cm²
-                  </span>
+                  <span>{m.density ?? "—"} grafts/cm²</span>
                 </div>
               ))}
             </div>
