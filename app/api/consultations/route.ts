@@ -6,7 +6,8 @@ export async function POST(req: Request) {
 
   try {
 
-    const user = await getCurrentUser()
+    // 🔥 FIX
+    const { user } = await getCurrentUser()
 
     if (!user) {
       return NextResponse.json(

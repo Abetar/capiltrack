@@ -10,7 +10,7 @@ export async function GET(
 
     const { id: patientId } = await params
 
-    const user = await getCurrentUser()
+    const { user } = await getCurrentUser()
 
     if (!user) {
       return NextResponse.json(

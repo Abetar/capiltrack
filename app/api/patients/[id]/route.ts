@@ -1,4 +1,3 @@
-// app/api/patients/[id]/route.ts
 import { prisma } from "@/lib/db/prisma"
 import { NextResponse } from "next/server"
 import { getCurrentUser } from "@/lib/auth/getCurrentUser"
@@ -9,7 +8,7 @@ export async function GET(
 ) {
   const { id } = await params
 
-  const user = await getCurrentUser()
+  const { user } = await getCurrentUser()
 
   if (!user) {
     return NextResponse.json(
@@ -41,7 +40,8 @@ export async function PATCH(
 ) {
   const { id } = await params
 
-  const user = await getCurrentUser()
+  // 🔥 FIX
+  const { user } = await getCurrentUser()
 
   if (!user) {
     return NextResponse.json(
