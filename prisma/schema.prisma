@@ -103,11 +103,7 @@ model HairMetric {
   patient   Patient  @relation(fields: [patientId], references: [id], onDelete: Cascade)
 
   consultationId String?
-  consultation   Consultation? @relation(
-    fields: [consultationId],
-    references: [id],
-    onDelete: Cascade
-  )
+  consultation   Consultation? @relation(fields: [consultationId], references: [id], onDelete: Cascade)
 
   zone      String?
 
@@ -130,16 +126,11 @@ model Photo {
   patient   Patient  @relation(fields: [patientId], references: [id], onDelete: Cascade)
 
   consultationId String?
-  consultation   Consultation? @relation(
-    fields: [consultationId],
-    references: [id],
-    onDelete: Cascade
-  )
+  consultation   Consultation? @relation(fields: [consultationId], references: [id], onDelete: Cascade)
 
   url       String
 
   zone      String?
-
   notes     String?
 
   createdAt DateTime @default(now())
