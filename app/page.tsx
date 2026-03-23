@@ -3,44 +3,36 @@ import Image from "next/image"
 
 export default function HomePage() {
   return (
-    <main className="min-h-screen bg-[#F8FAFC] text-gray-900">
+    <main className="min-h-screen bg-[#F8FAFC] text-[#1F2937]">
 
       {/* NAVBAR */}
-      <header className="border-b bg-white">
+      <header className="border-b bg-white sticky top-0 z-50">
         <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
 
           <Link href="/" className="flex items-center gap-2">
-
             <Image
               src="/logo-capiltrack.png"
-              alt="CapilTrack"
-              width={32}
-              height={32}
+              alt="CapilTrack software para clínicas capilares"
+              width={34}
+              height={34}
             />
-
             <span className="text-lg font-semibold text-[#2C6BED]">
               CapilTrack
             </span>
-
           </Link>
 
           <div className="flex items-center gap-4 text-sm">
-
-            <Link
-              href="/login"
-              className="text-gray-700 hover:text-black"
-            >
+            <Link href="/login" className="text-gray-600 hover:text-black">
               Login
             </Link>
 
             <Link
               href="/register"
-              className="bg-[#2C6BED] text-white px-4 py-2 rounded-md hover:bg-[#1F56D9]"
-              style={{color: "white"}}
+              className="bg-[#2C6BED] px-4 py-2 rounded-md font-medium hover:bg-[#1F56D9] !text-white"
+              style={{ color: "#FFFFFF" }}
             >
               Crear cuenta
             </Link>
-
           </div>
         </div>
       </header>
@@ -48,54 +40,55 @@ export default function HomePage() {
 
 
       {/* HERO */}
-      <section className="max-w-5xl mx-auto px-6 py-24 text-center">
+      <section className="max-w-6xl mx-auto px-6 py-28 text-center">
 
-        <h2 className="text-4xl font-semibold mb-6">
-          Organiza pacientes, fotografías y tratamientos capilares en un solo sistema
-        </h2>
+        <h1 className="text-5xl font-semibold leading-tight mb-6">
+          Software para clínicas capilares que centraliza pacientes, fotos y tratamientos
+        </h1>
 
-        <p className="text-gray-600 text-lg mb-10 max-w-2xl mx-auto">
-          CapilTrack ayuda a clínicas de injerto capilar a gestionar pacientes,
-          documentar evolución con fotografías clínicas y registrar procedimientos
-          de forma organizada y segura.
+        <p className="text-lg text-gray-600 max-w-2xl mx-auto mb-10">
+          CapilTrack es un sistema diseñado específicamente para clínicas de injerto capilar
+          que necesitan organizar su operación, dar seguimiento clínico real y mostrar resultados
+          claros a sus pacientes.
         </p>
 
         <div className="flex justify-center gap-4">
-
           <Link
             href="/register"
-            className="bg-[#2C6BED] text-white px-6 py-3 rounded-md font-medium hover:bg-[#1F56D9]"
-            style={{color: "white"}}
+            className="bg-[#2C6BED] px-8 py-4 rounded-md font-medium hover:bg-[#1F56D9] !text-white"
+            style={{ color: "#FFFFFF" }}
           >
             Crear cuenta
           </Link>
 
           <Link
             href="/login"
-            className="border border-gray-300 px-6 py-3 rounded-md hover:bg-gray-100"
+            className="border border-gray-300 px-8 py-4 rounded-md hover:bg-gray-100"
           >
             Iniciar sesión
           </Link>
-
         </div>
+
+        <p className="text-sm text-gray-400 mt-6">
+          Sin instalaciones • Acceso desde cualquier lugar • Diseñado para clínicas reales
+        </p>
 
       </section>
 
 
 
       {/* PROBLEMA */}
-      <section className="bg-white py-20 border-t">
+      <section className="bg-white border-t py-20">
         <div className="max-w-4xl mx-auto px-6 text-center">
 
           <h2 className="text-2xl font-semibold mb-6">
-            El seguimiento capilar suele ser desordenado
+            El seguimiento clínico capilar suele estar fragmentado
           </h2>
 
           <p className="text-gray-600 text-lg">
-            Muchas clínicas gestionan pacientes, fotografías y consultas en
-            múltiples herramientas o incluso en carpetas y chats. Esto dificulta
-            ver la evolución real del paciente y mantener un historial clínico
-            claro.
+            Fotos en WhatsApp, notas en hojas, procedimientos en Excel.
+            Esto hace imposible ver la evolución real del paciente y reduce
+            la calidad del servicio que ofrece la clínica.
           </p>
 
         </div>
@@ -103,39 +96,39 @@ export default function HomePage() {
 
 
 
-      {/* COMO FUNCIONA */}
+      {/* SOLUCIÓN */}
       <section className="max-w-6xl mx-auto px-6 py-20 grid md:grid-cols-3 gap-10">
 
         <div>
           <h3 className="font-semibold mb-3 text-lg">
-            1. Registra pacientes
+            Historial clínico centralizado
           </h3>
 
           <p className="text-gray-600">
-            Guarda información del paciente, historial clínico y consultas
-            en un solo lugar accesible para la clínica.
+            Toda la información del paciente en un solo sistema:
+            consultas, métricas, fotos y tratamientos.
           </p>
         </div>
 
         <div>
           <h3 className="font-semibold mb-3 text-lg">
-            2. Documenta evolución
+            Evolución visual real
           </h3>
 
           <p className="text-gray-600">
-            Sube fotografías clínicas y registra la evolución capilar
-            del paciente a lo largo del tratamiento.
+            Compara fotografías por zona y analiza el progreso capilar
+            de forma clara y profesional.
           </p>
         </div>
 
         <div>
           <h3 className="font-semibold mb-3 text-lg">
-            3. Controla procedimientos
+            Control de procedimientos
           </h3>
 
           <p className="text-gray-600">
-            Registra procedimientos de trasplante capilar y
-            tratamientos asociados para mantener un historial completo.
+            Registra injertos, técnica, grafts y zonas tratadas
+            sin perder información crítica.
           </p>
         </div>
 
@@ -148,38 +141,79 @@ export default function HomePage() {
 
         <div className="max-w-6xl mx-auto px-6 grid md:grid-cols-3 gap-10">
 
-          <div className="bg-white border rounded-lg p-6">
+          <div className="border rounded-lg p-6">
             <h3 className="font-semibold mb-2">
-              Gestión de pacientes
+              Timeline clínico completo
             </h3>
-
             <p className="text-sm text-gray-600">
-              Registra pacientes, historial clínico y consultas
-              de forma estructurada.
+              Visualiza toda la historia del paciente en orden cronológico real.
             </p>
           </div>
 
-          <div className="bg-white border rounded-lg p-6">
+          <div className="border rounded-lg p-6">
             <h3 className="font-semibold mb-2">
-              Seguimiento fotográfico
+              Fotografías organizadas por zona
             </h3>
-
             <p className="text-sm text-gray-600">
-              Guarda fotografías clínicas para comparar la evolución
-              capilar del paciente.
+              Frontal, coronilla, laterales. Comparación directa entre sesiones.
             </p>
           </div>
 
-          <div className="bg-white border rounded-lg p-6">
+          <div className="border rounded-lg p-6">
             <h3 className="font-semibold mb-2">
-              Registro de tratamientos
+              Multi-clínica segura
             </h3>
-
             <p className="text-sm text-gray-600">
-              Documenta procedimientos y tratamientos realizados
-              en cada paciente.
+              Cada clínica maneja su información de forma aislada y segura.
             </p>
           </div>
+
+        </div>
+
+      </section>
+
+
+
+      {/* PRICING */}
+      <section className="py-24 text-center bg-[#F8FAFC] border-t">
+
+        <h2 className="text-3xl font-semibold mb-6">
+          Precio simple, sin complicaciones
+        </h2>
+
+        <p className="text-gray-600 mb-10">
+          Todo incluido. Sin límites ocultos.
+        </p>
+
+        <div className="max-w-md mx-auto border rounded-xl p-10 bg-white shadow-sm">
+
+          <h3 className="text-lg font-semibold mb-2">
+            CapilTrack
+          </h3>
+
+          <p className="text-5xl font-semibold text-[#2C6BED] mb-4">
+            $1,499
+          </p>
+
+          <p className="text-sm text-gray-500 mb-6">
+            MXN / mes por clínica
+          </p>
+
+          <ul className="text-sm text-gray-600 space-y-2 mb-8 text-left">
+            <li>• Pacientes ilimitados</li>
+            <li>• Fotografías clínicas</li>
+            <li>• Métricas capilares</li>
+            <li>• Procedimientos de injerto</li>
+            <li>• Historial clínico completo</li>
+          </ul>
+
+          <Link
+            href="/register"
+            className="block w-full bg-[#2C6BED] py-3 rounded-md font-medium hover:bg-[#1F56D9] !text-white"
+            style={{ color: "#FFFFFF" }}
+          >
+            Empezar ahora
+          </Link>
 
         </div>
 
@@ -191,13 +225,17 @@ export default function HomePage() {
       <section className="py-24 text-center">
 
         <h2 className="text-3xl font-semibold mb-6">
-          Empieza a organizar tu clínica hoy
+          Deja de perder información clínica
         </h2>
+
+        <p className="text-gray-600 mb-8">
+          Empieza a trabajar con un sistema diseñado para clínicas capilares reales.
+        </p>
 
         <Link
           href="/register"
-          className="bg-[#2C6BED] text-white px-8 py-4 rounded-md font-medium hover:bg-[#1F56D9]"
-          style={{color: "white"}}
+          className="bg-[#2C6BED] px-8 py-4 rounded-md font-medium hover:bg-[#1F56D9] !text-white"
+          style={{ color: "#FFFFFF" }}
         >
           Crear cuenta
         </Link>
@@ -209,7 +247,7 @@ export default function HomePage() {
       {/* FOOTER */}
       <footer className="border-t bg-white">
         <div className="max-w-6xl mx-auto px-6 py-6 text-sm text-gray-500 text-center">
-          © {new Date().getFullYear()} CapilTrack
+          © {new Date().getFullYear()} CapilTrack • Software para clínicas capilares
         </div>
       </footer>
 

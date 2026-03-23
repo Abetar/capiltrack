@@ -3,9 +3,11 @@
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
+import { useSession } from "next-auth/react";
 
 export default function AppSidebar() {
   const pathname = usePathname();
+  const { data: session } = useSession();
 
   function isActive(path: string) {
     return pathname.startsWith(path);
@@ -20,6 +22,9 @@ export default function AppSidebar() {
     background: isActive(path) ? "#EEF2FF" : "transparent",
     fontWeight: isActive(path) ? 600 : 400,
   });
+
+  // 🔥 SUPER ADMIN
+  const isAdmin = (session?.user as any)?.role === "SUPER_ADMIN";
 
   return (
     <aside
@@ -65,6 +70,13 @@ export default function AppSidebar() {
           <Link href="/procedures" style={navItem("/procedures")}>
             Procedimientos
           </Link>
+
+          {/* 🔥 ADMIN SOLO PARA TI */}
+          {isAdmin && (
+            <Link href="/admin" style={navItem("/admin")}>
+              Admin
+            </Link>
+          )}
         </nav>
       </div>
     </aside>

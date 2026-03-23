@@ -61,11 +61,44 @@ export default function ResetPasswordClient() {
         display: "flex",
         flexDirection: "column",
         gap: 16,
+        width: "100%",
       }}
     >
       <h1 style={{ fontSize: 24, fontWeight: 600 }}>
         Nueva contraseña
       </h1>
+
+      {/* ERROR ALERT */}
+      {error && (
+        <div
+          style={{
+            background: "#FEF2F2",
+            border: "1px solid #FCA5A5",
+            color: "#B91C1C",
+            padding: "10px 12px",
+            borderRadius: 8,
+            fontSize: 14,
+          }}
+        >
+          {error}
+        </div>
+      )}
+
+      {/* SUCCESS ALERT */}
+      {success && (
+        <div
+          style={{
+            background: "#ECFDF5",
+            border: "1px solid #6EE7B7",
+            color: "#047857",
+            padding: "10px 12px",
+            borderRadius: 8,
+            fontSize: 14,
+          }}
+        >
+          {success}
+        </div>
+      )}
 
       <Input
         type="password"
@@ -77,9 +110,6 @@ export default function ResetPasswordClient() {
       <Button type="submit">
         {loading ? "Guardando..." : "Guardar contraseña"}
       </Button>
-
-      {error && <p style={{ color: "#DC2626" }}>{error}</p>}
-      {success && <p style={{ color: "#16A34A" }}>{success}</p>}
     </form>
   );
 }

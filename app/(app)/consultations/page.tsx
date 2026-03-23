@@ -10,10 +10,65 @@ export default async function ConsultationsPage({
     norwood?: string;
   }>;
 }) {
-  const user = await getCurrentUser();
+  const { user, reason } = await getCurrentUser();
 
   if (!user) {
-    return <div>No autorizado</div>;
+    return (
+      <div
+        style={{
+          minHeight: "100vh",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          background: "#F8FAFC",
+          padding: 20,
+        }}
+      >
+        <div
+          style={{
+            background: "white",
+            border: "1px solid #E5E7EB",
+            borderRadius: 12,
+            padding: 32,
+            maxWidth: 420,
+            width: "100%",
+            textAlign: "center",
+          }}
+        >
+          <h2 style={{ fontSize: 20, fontWeight: 600, marginBottom: 12 }}>
+            Acceso restringido
+          </h2>
+
+          <p style={{ fontSize: 14, color: "#6B7280", marginBottom: 20 }}>
+            {reason === "no_subscription" &&
+              "Tu suscripción ha expirado o no está activa. Para continuar usando CapilTrack, necesitas renovar tu acceso."}
+
+            {reason === "blocked" &&
+              "Tu cuenta ha sido bloqueada. Contacta al administrador para más información."}
+
+            {reason === "not_authenticated" &&
+              "Debes iniciar sesión para acceder."}
+          </p>
+
+          {reason === "no_subscription" && (
+            <a href="/api/stripe/checkout">
+              <button
+                style={{
+                  background: "#2C6BED",
+                  color: "white",
+                  padding: "12px 20px",
+                  borderRadius: 8,
+                  border: "none",
+                  cursor: "pointer",
+                }}
+              >
+                Reactivar suscripción
+              </button>
+            </a>
+          )}
+        </div>
+      </div>
+    );
   }
 
   const { search = "", norwood = "" } = await searchParams;
@@ -64,7 +119,7 @@ export default async function ConsultationsPage({
   const totalConsultations = consultations.length;
 
   const consultationsWithNorwood = consultations.filter(
-    (c: (typeof consultations)[number]) => c.norwoodLevel !== null
+    (c: (typeof consultations)[number]) => c.norwoodLevel !== null,
   );
 
   const avgNorwood =
@@ -73,15 +128,14 @@ export default async function ConsultationsPage({
           consultationsWithNorwood.reduce(
             (acc: number, c: (typeof consultations)[number]) =>
               acc + (c.norwoodLevel ?? 0),
-            0
+            0,
           ) / consultationsWithNorwood.length
         ).toFixed(1)
       : "—";
 
   const totalPhotos = consultations.reduce(
-    (acc: number, c: (typeof consultations)[number]) =>
-      acc + c.photos.length,
-    0
+    (acc: number, c: (typeof consultations)[number]) => acc + c.photos.length,
+    0,
   );
 
   return (
@@ -163,9 +217,7 @@ export default async function ConsultationsPage({
           <tbody>
             {consultations.map((c: (typeof consultations)[number]) => (
               <tr key={c.id} style={tr}>
-                <td style={td}>
-                  {new Date(c.date).toLocaleDateString()}
-                </td>
+                <td style={td}>{new Date(c.date).toLocaleDateString()}</td>
 
                 <td style={td}>
                   {c.patient.firstName} {c.patient.lastName ?? ""}
@@ -198,13 +250,7 @@ export default async function ConsultationsPage({
   );
 }
 
-function StatCard({
-  title,
-  value,
-}: {
-  title: string;
-  value: string;
-}) {
+function StatCard({ title, value }: { title: string; value: string }) {
   return (
     <div style={statCard}>
       <div style={statLabel}>{title}</div>

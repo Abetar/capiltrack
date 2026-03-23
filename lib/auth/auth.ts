@@ -1,3 +1,4 @@
+// lib/auth/auth.ts
 import NextAuth from "next-auth"
 import Credentials from "next-auth/providers/credentials"
 import { PrismaAdapter } from "@auth/prisma-adapter"
@@ -18,7 +19,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) {
-          return null
+          throw new Error("Credenciales inválidas")
         }
 
         const user = await prisma.user.findUnique({
@@ -28,7 +29,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         })
 
         if (!user || !user.password) {
-          return null
+          throw new Error("Usuario no encontrado")
         }
 
         const isValid = await bcrypt.compare(
@@ -37,15 +38,27 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         )
 
         if (!isValid) {
-          return null
+          throw new Error("Email o contraseña incorrectos")
         }
 
-        // IMPORTANTE: devolver objeto seguro
+        if (user.isBlocked) {
+          throw new Error("Cuenta bloqueada. Contacta soporte.")
+        }
+
+        if (user.subscriptionStatus !== "active") {
+          throw new Error("Debes activar tu suscripción para continuar.")
+        }
+
+        // 🔥 IMPORTANTE: incluir role
         return {
           id: user.id,
           email: user.email,
           name: user.name,
-        }
+          clinicId: user.clinicId,
+          subscriptionStatus: user.subscriptionStatus,
+          isBlocked: user.isBlocked,
+          role: user.role, // 👈 NUEVO
+        } as any
       },
     }),
   ],
@@ -56,6 +69,41 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 
   pages: {
     signIn: "/login",
+  },
+
+  callbacks: {
+    async jwt({ token, user }) {
+      if (user) {
+        return {
+          ...token,
+          id: (user as any).id,
+          email: (user as any).email,
+          name: (user as any).name,
+          clinicId: (user as any).clinicId,
+          subscriptionStatus: (user as any).subscriptionStatus,
+          isBlocked: (user as any).isBlocked,
+          role: (user as any).role, // 👈 NUEVO
+        }
+      }
+
+      return token
+    },
+
+    async session({ session, token }) {
+      return {
+        ...session,
+        user: {
+          ...session.user,
+          id: (token as any).id,
+          email: (token as any).email,
+          name: (token as any).name,
+          clinicId: (token as any).clinicId,
+          subscriptionStatus: (token as any).subscriptionStatus,
+          isBlocked: (token as any).isBlocked,
+          role: (token as any).role, // 👈 NUEVO
+        },
+      }
+    },
   },
 
   secret: process.env.AUTH_SECRET,

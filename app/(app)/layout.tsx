@@ -3,6 +3,7 @@
 import LogoutButton from "@/components/LogoutButton";
 import AppSidebar from "@/components/AppSidebar";
 import { auth } from "@/lib/auth/auth";
+import { SessionProvider } from "next-auth/react";
 
 export default async function AppLayout({
   children,
@@ -16,53 +17,55 @@ export default async function AppLayout({
   }
 
   return (
-    <div
-      style={{
-        display: "flex",
-        minHeight: "100vh",
-        background: "#F8FAFC",
-      }}
-    >
-      {/* SIDEBAR */}
-      <AppSidebar />
-
-      {/* CONTENT AREA */}
+    <SessionProvider session={session}>
       <div
         style={{
-          flex: 1,
           display: "flex",
-          flexDirection: "column",
+          minHeight: "100vh",
+          background: "#F8FAFC",
         }}
       >
-        {/* HEADER */}
-        <header
-          style={{
-            height: 60,
-            background: "white",
-            borderBottom: "1px solid #E5E7EB",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            padding: "0 24px",
-            fontSize: 14,
-            color: "#374151",
-          }}
-        >
-          <span>Panel de clínica</span>
+        {/* SIDEBAR */}
+        <AppSidebar />
 
-          <LogoutButton />
-        </header>
-
-        {/* PAGE CONTENT */}
-        <main
+        {/* CONTENT AREA */}
+        <div
           style={{
             flex: 1,
-            padding: 40,
+            display: "flex",
+            flexDirection: "column",
           }}
         >
-          {children}
-        </main>
+          {/* HEADER */}
+          <header
+            style={{
+              height: 60,
+              background: "white",
+              borderBottom: "1px solid #E5E7EB",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              padding: "0 24px",
+              fontSize: 14,
+              color: "#374151",
+            }}
+          >
+            <span>Panel de clínica</span>
+
+            <LogoutButton />
+          </header>
+
+          {/* PAGE CONTENT */}
+          <main
+            style={{
+              flex: 1,
+              padding: 40,
+            }}
+          >
+            {children}
+          </main>
+        </div>
       </div>
-    </div>
+    </SessionProvider>
   );
 }

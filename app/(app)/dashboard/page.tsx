@@ -5,10 +5,65 @@ import ClinicMetricsChart from "@/components/dashboard/ClinicMetricsChart";
 import type { CSSProperties } from "react";
 
 export default async function DashboardPage() {
-  const user = await getCurrentUser();
+  const { user, reason } = await getCurrentUser();
 
   if (!user) {
-    return <div>No autorizado</div>;
+    return (
+      <div
+        style={{
+          minHeight: "100vh",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          background: "#F8FAFC",
+          padding: 20,
+        }}
+      >
+        <div
+          style={{
+            background: "white",
+            border: "1px solid #E5E7EB",
+            borderRadius: 12,
+            padding: 32,
+            maxWidth: 420,
+            width: "100%",
+            textAlign: "center",
+          }}
+        >
+          <h2 style={{ fontSize: 20, fontWeight: 600, marginBottom: 12 }}>
+            Acceso restringido
+          </h2>
+
+          <p style={{ fontSize: 14, color: "#6B7280", marginBottom: 20 }}>
+            {reason === "no_subscription" &&
+              "Tu suscripción ha expirado o no está activa. Para continuar usando CapilTrack, necesitas renovar tu acceso."}
+
+            {reason === "blocked" &&
+              "Tu cuenta ha sido bloqueada. Contacta al administrador para más información."}
+
+            {reason === "not_authenticated" &&
+              "Debes iniciar sesión para acceder."}
+          </p>
+
+          {reason === "no_subscription" && (
+            <a href="/api/stripe/checkout">
+              <button
+                style={{
+                  background: "#2C6BED",
+                  color: "white",
+                  padding: "12px 20px",
+                  borderRadius: 8,
+                  border: "none",
+                  cursor: "pointer",
+                }}
+              >
+                Reactivar suscripción
+              </button>
+            </a>
+          )}
+        </div>
+      </div>
+    );
   }
 
   const clinicId = user.clinicId;
@@ -185,7 +240,7 @@ export default async function DashboardPage() {
                     {p.lastName ?? ""}
                   </div>
                 </Link>
-              )
+              ),
             )}
 
             {treatmentsWithoutControl.map(
@@ -200,7 +255,7 @@ export default async function DashboardPage() {
                     {t.patient.firstName} {t.patient.lastName ?? ""}
                   </div>
                 </Link>
-              )
+              ),
             )}
           </div>
         )}
@@ -239,7 +294,7 @@ export default async function DashboardPage() {
                     </div>
                   </div>
                 </Link>
-              )
+              ),
             )}
           </div>
         )}

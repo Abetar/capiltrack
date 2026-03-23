@@ -23,13 +23,22 @@ model User {
   name      String?
   password  String?
 
-  role      String   @default("OWNER")
+  role      String   @default("DOCTOR")
 
   clinicId  String
   clinic    Clinic   @relation(fields: [clinicId], references: [id])
 
   accounts  Account[]
   sessions  Session[]
+
+  // 🔥 CONTROL ADMIN
+  isBlocked Boolean @default(false)
+
+  // 🔥 STRIPE (CORREGIDO)
+  stripeCustomerId   String? @unique
+  stripeSubId        String? @unique
+  subscriptionStatus String   @default("inactive")
+  // inactive | active | past_due | canceled
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -182,7 +191,7 @@ model TransplantProcedure {
 }
 
 /*
-AUTH MODELS (NextAuth / Auth.js)
+AUTH MODELS
 */
 
 model Account {
