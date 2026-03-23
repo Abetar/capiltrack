@@ -27,11 +27,12 @@ export default function RegisterPage(){
     setLoading(true)
 
     try{
-      // 🔥 SOLO STRIPE
-      const checkoutRes = await fetch("/api/stripe/checkout", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
+
+      // 🔥 SOLO STRIPE (QUITAMOS REGISTER + LOGIN)
+      const checkoutRes = await fetch("/api/stripe/checkout",{
+        method:"POST",
+        headers:{
+          "Content-Type":"application/json"
         },
         body: JSON.stringify({
           name,
@@ -51,7 +52,8 @@ export default function RegisterPage(){
       }
 
     }catch(err){
-      setError("Ocurrió un error")
+      console.error(err)
+      setError("Ocurrió un error al crear la cuenta")
       setLoading(false)
     }
   }
@@ -153,6 +155,7 @@ export default function RegisterPage(){
             Crear cuenta
           </h2>
 
+          {/* ALERT */}
           {error && (
             <div style={{
               background:"#FEF2F2",
@@ -197,13 +200,13 @@ export default function RegisterPage(){
             />
 
             <Button>
-              {loading ? "Redirigiendo al pago..." : "Crear cuenta"}
+              {loading ? "Redirigiendo a pago..." : "Crear cuenta"}
             </Button>
 
           </form>
 
           <p style={{fontSize:12,color:"#9CA3AF"}}>
-            Serás redirigido al pago para activar tu cuenta.
+            Tu cuenta se activará después de completar el pago.
           </p>
 
           <Link href="/login" style={{fontSize:14}}>

@@ -58,37 +58,42 @@ export default async function AdminPage() {
       </h1>
 
       <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-        {users.map((u) => (
-          <div
-            key={u.id}
-            style={{
-              border: "1px solid #E5E7EB",
-              padding: 16,
-              borderRadius: 8,
-              background: "white",
-            }}
-          >
-            <div style={{ fontWeight: 600 }}>{u.email}</div>
+        {users.map((u) => {
+          // 🔥 FIX REAL
+          const hasActiveSubscription = u.subscriptionStatus === "active";
 
-            <div style={{ fontSize: 13, color: "#6B7280" }}>
-              Clínica: {u.clinic.name}
+          return (
+            <div
+              key={u.id}
+              style={{
+                border: "1px solid #E5E7EB",
+                padding: 16,
+                borderRadius: 8,
+                background: "white",
+              }}
+            >
+              <div style={{ fontWeight: 600 }}>{u.email}</div>
+
+              <div style={{ fontSize: 13, color: "#6B7280" }}>
+                Clínica: {u.clinic.name}
+              </div>
+
+              <div style={{ fontSize: 13 }}>
+                Estado:{" "}
+                <strong>
+                  {u.subscriptionStatus} | {u.isBlocked ? "Bloqueado" : "Activo"}
+                </strong>
+              </div>
+
+              {/* 🔥 ACCIONES ADMIN */}
+              <AdminUserActions
+                userId={u.id}
+                isBlocked={u.isBlocked}
+                hasSubscription={hasActiveSubscription}
+              />
             </div>
-
-            <div style={{ fontSize: 13 }}>
-              Estado:{" "}
-              <strong>
-                {u.subscriptionStatus} |{" "}
-                {u.isBlocked ? "Bloqueado" : "Activo"}
-              </strong>
-            </div>
-
-            {/* 🔥 ACCIONES ADMIN */}
-            <AdminUserActions
-              userId={u.id}
-              isBlocked={u.isBlocked}
-            />
-          </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   );

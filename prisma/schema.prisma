@@ -31,14 +31,11 @@ model User {
   accounts  Account[]
   sessions  Session[]
 
-  // 🔥 CONTROL ADMIN
   isBlocked Boolean @default(false)
 
-  // 🔥 STRIPE (CORREGIDO)
   stripeCustomerId   String? @unique
   stripeSubId        String? @unique
-  subscriptionStatus String   @default("inactive")
-  // inactive | active | past_due | canceled
+  subscriptionStatus String  @default("inactive")
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -106,7 +103,11 @@ model HairMetric {
   patient   Patient  @relation(fields: [patientId], references: [id], onDelete: Cascade)
 
   consultationId String?
-  consultation   Consultation? @relation(fields: [consultationId], references: [id])
+  consultation   Consultation? @relation(
+    fields: [consultationId],
+    references: [id],
+    onDelete: Cascade
+  )
 
   zone      String?
 
@@ -129,7 +130,11 @@ model Photo {
   patient   Patient  @relation(fields: [patientId], references: [id], onDelete: Cascade)
 
   consultationId String?
-  consultation   Consultation? @relation(fields: [consultationId], references: [id])
+  consultation   Consultation? @relation(
+    fields: [consultationId],
+    references: [id],
+    onDelete: Cascade
+  )
 
   url       String
 

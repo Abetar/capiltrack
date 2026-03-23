@@ -1,4 +1,3 @@
-// app/api/stripe/webhook/route.ts
 import { NextResponse } from "next/server";
 import Stripe from "stripe";
 import { headers } from "next/headers";
@@ -16,9 +15,10 @@ export async function POST(req: Request) {
   const sig = headersList.get("stripe-signature");
 
   if (!sig) {
+    console.error("❌ Missing stripe signature");
     return NextResponse.json(
       { error: "Missing stripe signature" },
-      { status: 400 },
+      { status: 400 }
     );
   }
 
@@ -27,35 +27,64 @@ export async function POST(req: Request) {
   try {
     event = stripe.webhooks.constructEvent(body, sig, webhookSecret);
   } catch (err) {
-    console.error("Webhook signature failed:", err);
+    console.error("❌ Webhook signature failed:", err);
     return NextResponse.json({ error: "Invalid signature" }, { status: 400 });
   }
 
-  // 🔥 EVENTO CLAVE
+  // 🔥 LOG GLOBAL
+  console.log("🔥 EVENTO RECIBIDO:", event.type);
+
   if (event.type === "checkout.session.completed") {
     const session = event.data.object as Stripe.Checkout.Session;
+
+    console.log("🔥 SESSION:", session.id);
+    console.log("🔥 METADATA:", session.metadata);
+    console.log("🔥 CUSTOMER:", session.customer);
+    console.log("🔥 SUB RAW:", session.subscription);
 
     const metadata = session.metadata;
 
     if (!metadata) {
-      console.error("No metadata found");
+      console.error("❌ No metadata found");
       return NextResponse.json({ error: "No metadata" }, { status: 400 });
     }
 
     const { name, email, password, clinicName } = metadata;
 
+    if (!name || !email || !password || !clinicName) {
+      console.error("❌ Metadata incompleta:", metadata);
+      return NextResponse.json(
+        { error: "Incomplete metadata" },
+        { status: 400 }
+      );
+    }
+
     const customerId = session.customer as string;
-    const subscriptionId = session.subscription as string;
+
+    // 🔥 FIX REAL — obtener subscripción correctamente
+    const fullSession = await stripe.checkout.sessions.retrieve(session.id, {
+      expand: ["subscription"],
+    });
+
+    const subscription = fullSession.subscription as Stripe.Subscription;
+    const subscriptionId = subscription?.id;
+
+    if (!subscriptionId) {
+      console.error("❌ subscriptionId no encontrado");
+      return NextResponse.json(
+        { error: "No subscriptionId" },
+        { status: 400 }
+      );
+    }
 
     try {
-      // 🔒 1. Buscar por Stripe (fuente de verdad)
+      // 🔒 Buscar usuario existente
       let existingUser = await prisma.user.findFirst({
         where: {
           stripeCustomerId: customerId,
         },
       });
 
-      // 🔒 2. Fallback por email
       if (!existingUser && email) {
         existingUser = await prisma.user.findUnique({
           where: { email },
@@ -63,22 +92,26 @@ export async function POST(req: Request) {
       }
 
       if (existingUser) {
-        console.log("Usuario ya existe:", existingUser.email);
+        console.log("🔁 Updating existing user with new subscription:", subscriptionId);
 
         await prisma.user.update({
           where: { id: existingUser.id },
           data: {
             stripeCustomerId: customerId,
-            stripeSubId: subscriptionId,
+            stripeSubId: subscriptionId, // 🔥 SIEMPRE sobrescribir
             subscriptionStatus: "active",
             isBlocked: false,
           },
         });
 
+        console.log("✅ Usuario actualizado:", existingUser.email);
+
         return NextResponse.json({ ok: true });
       }
 
-      // 🔐 Crear nuevo usuario (OWNER porque paga)
+      // 🔐 Crear usuario nuevo
+      console.log("🟡 Creando usuario nuevo...");
+
       const hashedPassword = await bcrypt.hash(password, 10);
 
       const clinic = await prisma.clinic.create({
@@ -87,14 +120,13 @@ export async function POST(req: Request) {
         },
       });
 
-      await prisma.user.create({
+      const newUser = await prisma.user.create({
         data: {
           name,
           email,
           password: hashedPassword,
           clinicId: clinic.id,
 
-          // 🔥 CAMBIO REAL
           role: "DOCTOR",
 
           stripeCustomerId: customerId,
@@ -105,9 +137,9 @@ export async function POST(req: Request) {
         },
       });
 
-      console.log("✅ Usuario OWNER creado después de pago:", email);
+      console.log("✅ Usuario creado correctamente:", newUser.email);
     } catch (error) {
-      console.error("Error creando usuario:", error);
+      console.error("❌ Error creando usuario:", error);
     }
   }
 
