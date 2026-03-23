@@ -11,10 +11,65 @@ export default async function PatientPage({
 }) {
   const { id } = await params;
 
-  const user = await getCurrentUser();
+  const { user, reason } = await getCurrentUser();
 
   if (!user) {
-    return <div>No autorizado</div>;
+    return (
+      <div
+        style={{
+          minHeight: "100vh",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          background: "#F8FAFC",
+          padding: 20,
+        }}
+      >
+        <div
+          style={{
+            background: "white",
+            border: "1px solid #E5E7EB",
+            borderRadius: 12,
+            padding: 32,
+            maxWidth: 420,
+            width: "100%",
+            textAlign: "center",
+          }}
+        >
+          <h2 style={{ fontSize: 20, fontWeight: 600, marginBottom: 12 }}>
+            Acceso restringido
+          </h2>
+
+          <p style={{ fontSize: 14, color: "#6B7280", marginBottom: 20 }}>
+            {reason === "no_subscription" &&
+              "Tu suscripción ha expirado o no está activa. Para continuar usando CapilTrack, necesitas renovar tu acceso."}
+
+            {reason === "blocked" &&
+              "Tu cuenta ha sido bloqueada. Contacta al administrador para más información."}
+
+            {reason === "not_authenticated" &&
+              "Debes iniciar sesión para acceder."}
+          </p>
+
+          {reason === "no_subscription" && (
+            <a href="/api/stripe/checkout">
+              <button
+                style={{
+                  background: "#2C6BED",
+                  color: "white",
+                  padding: "12px 20px",
+                  borderRadius: 8,
+                  border: "none",
+                  cursor: "pointer",
+                }}
+              >
+                Reactivar suscripción
+              </button>
+            </a>
+          )}
+        </div>
+      </div>
+    );
   }
 
   const patient = await prisma.patient.findFirst({
@@ -94,7 +149,10 @@ export default async function PatientPage({
           <ActivityRow label="Consultas" value={patient.consultations.length} />
           <ActivityRow label="Tratamientos" value={patient.treatments.length} />
           <ActivityRow label="Fotos" value={patient.photos.length} />
-          <ActivityRow label="Transplantes" value={patient.transplants.length} />
+          <ActivityRow
+            label="Transplantes"
+            value={patient.transplants.length}
+          />
         </div>
       </div>
 
@@ -244,7 +302,10 @@ function TreatmentEvent({
 }) {
   return (
     <TimelineWrapper color="#059669">
-      <Link href={`/patients/${patientId}/treatments`} style={{ textDecoration: "none" }}>
+      <Link
+        href={`/patients/${patientId}/treatments`}
+        style={{ textDecoration: "none" }}
+      >
         <div style={{ cursor: "pointer" }}>
           <div style={eventTitle}>
             Tratamiento iniciado —{" "}
@@ -275,10 +336,14 @@ function TransplantEvent({
 }) {
   return (
     <TimelineWrapper color="#9333EA">
-      <Link href={`/patients/${patientId}/procedures`} style={{ textDecoration: "none" }}>
+      <Link
+        href={`/patients/${patientId}/procedures`}
+        style={{ textDecoration: "none" }}
+      >
         <div style={{ cursor: "pointer" }}>
           <div style={eventTitle}>
-            Procedimiento de injerto — {new Date(procedure.date).toLocaleDateString()}
+            Procedimiento de injerto —{" "}
+            {new Date(procedure.date).toLocaleDateString()}
           </div>
 
           <div style={eventSubtitle}>
@@ -313,14 +378,22 @@ function InfoRow({ label, value }: { label: string; value: string }) {
   return (
     <div style={{ marginBottom: 14 }}>
       <div style={{ fontSize: 12, color: "#6B7280" }}>{label}</div>
-      <div style={{ fontSize: 15, color: "#1F2937", fontWeight: 500 }}>{value}</div>
+      <div style={{ fontSize: 15, color: "#1F2937", fontWeight: 500 }}>
+        {value}
+      </div>
     </div>
   );
 }
 
 function ActivityRow({ label, value }: { label: string; value: number }) {
   return (
-    <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 14 }}>
+    <div
+      style={{
+        display: "flex",
+        justifyContent: "space-between",
+        marginBottom: 14,
+      }}
+    >
       <span style={{ color: "#374151", fontSize: 14 }}>{label}</span>
       <span style={{ fontWeight: 600, color: "#111827" }}>{value}</span>
     </div>
