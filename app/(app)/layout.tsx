@@ -3,6 +3,7 @@
 import LogoutButton from "@/components/LogoutButton";
 import AppSidebar from "@/components/AppSidebar";
 import { auth } from "@/lib/auth/auth";
+import { prisma } from "@/lib/db/prisma";
 import { SessionProvider } from "next-auth/react";
 
 export default async function AppLayout({
@@ -15,6 +16,17 @@ export default async function AppLayout({
   if (!session?.user) {
     return null;
   }
+
+  // 🔥 OBTENER CLÍNICA
+  const clinic = await prisma.clinic.findUnique({
+    where: {
+      id: (session.user as any).clinicId,
+    },
+    select: {
+      name: true,
+      logoUrl: true,
+    },
+  });
 
   return (
     <SessionProvider session={session}>
@@ -46,11 +58,41 @@ export default async function AppLayout({
               alignItems: "center",
               justifyContent: "space-between",
               padding: "0 24px",
-              fontSize: 14,
-              color: "#374151",
             }}
           >
-            <span>Panel de clínica</span>
+            {/* 🔥 BRAND DINÁMICO */}
+            <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+              {clinic?.logoUrl ? (
+                <img
+                  src={clinic.logoUrl}
+                  alt="Logo clínica"
+                  style={{
+                    height: 32,
+                    objectFit: "contain",
+                  }}
+                />
+              ) : (
+                <span
+                  style={{
+                    fontWeight: 600,
+                    fontSize: 14,
+                    color: "#111827",
+                  }}
+                >
+                  {clinic?.name || "Mi clínica"}
+                </span>
+              )}
+
+              {/* Opcional: etiqueta */}
+              <span
+                style={{
+                  fontSize: 12,
+                  color: "#6B7280",
+                }}
+              >
+                Panel
+              </span>
+            </div>
 
             <LogoutButton />
           </header>
