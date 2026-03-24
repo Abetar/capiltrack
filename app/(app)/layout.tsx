@@ -67,7 +67,7 @@ export default async function AppLayout({
                   src={clinic.logoUrl}
                   alt="Logo clínica"
                   style={{
-                    height: 32,
+                    height: 45,
                     objectFit: "contain",
                   }}
                 />

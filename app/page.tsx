@@ -11,10 +11,10 @@ export default function HomePage() {
 
           <Link href="/" className="flex items-center gap-2">
             <Image
-              src="/logo-capiltrack.png"
+              src="/capiltrack-logo-final.png"
               alt="CapilTrack software para clínicas capilares"
-              width={34}
-              height={34}
+              width={45}
+              height={45}
             />
             <span className="text-lg font-semibold text-[#2C6BED]">
               CapilTrack

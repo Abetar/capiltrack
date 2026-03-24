@@ -39,9 +39,9 @@ export default function AppSidebar() {
       <div style={{ padding: "24px 20px" }}>
         <div style={{ marginBottom: 30 }}>
           <Image
-            src="/capiltrack-logo-2.png"
+            src="/capiltrack-logo-landscape.png"
             alt="CapilTrack"
-            width={160}
+            width={240}
             height={40}
             priority
           />

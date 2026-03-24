@@ -62,10 +62,10 @@ export default function LoginPage() {
         {/* Logo */}
         <div style={{ display: "flex", justifyContent: "center" }}>
           <Image
-            src="/capiltrack-logo-2.png"
+            src="/capiltrack-logo-landscape.png"
             alt="CapilTrack"
-            width={120}
-            height={120}
+            width={240}
+            height={240}
             priority
           />
         </div>
