@@ -23,7 +23,6 @@ export default function AppSidebar() {
     fontWeight: isActive(path) ? 600 : 400,
   });
 
-  // 🔥 SUPER ADMIN
   const isAdmin = (session?.user as any)?.role === "SUPER_ADMIN";
 
   return (
@@ -71,7 +70,11 @@ export default function AppSidebar() {
             Procedimientos
           </Link>
 
-          {/* 🔥 ADMIN SOLO PARA TI */}
+          {/* NUEVO */}
+          <Link href="/settings" style={navItem("/settings")}>
+            Configuración
+          </Link>
+
           {isAdmin && (
             <Link href="/admin" style={navItem("/admin")}>
               Admin

@@ -83,6 +83,20 @@ export default async function NewProcedurePage({
     const recipientArea = formData.get("recipientArea") as string;
     const notes = formData.get("notes") as string;
 
+    // NUEVOS CAMPOS
+    const anesthesiaType = formData.get("anesthesiaType") as string;
+    const anesthesiaMl = formData.get("anesthesiaMl") as string;
+
+    const extractionStart = formData.get("extractionStart") as string;
+    const extractionEnd = formData.get("extractionEnd") as string;
+
+    const implantationStart = formData.get("implantationStart") as string;
+    const implantationEnd = formData.get("implantationEnd") as string;
+
+    const medicalTeam = formData.get("medicalTeam") as string;
+    const nurses = formData.get("nurses") as string;
+    const observations = formData.get("observations") as string;
+
     if (!date) {
       throw new Error("La fecha es obligatoria");
     }
@@ -98,6 +112,24 @@ export default async function NewProcedurePage({
         donorArea: donorArea || null,
         recipientArea: recipientArea || null,
         notes: notes || null,
+
+        // NUEVOS CAMPOS
+        anesthesiaType: anesthesiaType || null,
+        anesthesiaMl: anesthesiaMl ? Number(anesthesiaMl) : null,
+
+        extractionStart: extractionStart ? new Date(extractionStart) : null,
+        extractionEnd: extractionEnd ? new Date(extractionEnd) : null,
+
+        implantationStart: implantationStart
+          ? new Date(implantationStart)
+          : null,
+        implantationEnd: implantationEnd
+          ? new Date(implantationEnd)
+          : null,
+
+        medicalTeam: medicalTeam || null,
+        nurses: nurses || null,
+        observations: observations || null,
       },
     });
 
@@ -118,34 +150,26 @@ export default async function NewProcedurePage({
 
       <form action={createProcedure}>
         {/* FECHA */}
-
         <div style={{ marginBottom: 16 }}>
           <label style={labelStyle}>Fecha</label>
-
           <input type="date" name="date" required style={inputStyle} />
         </div>
 
         {/* TÉCNICA */}
-
         <div style={{ marginBottom: 16 }}>
           <label style={labelStyle}>Técnica</label>
-
           <input name="technique" style={inputStyle} placeholder="Ej: FUE" />
         </div>
 
         {/* MÉTODO */}
-
         <div style={{ marginBottom: 16 }}>
           <label style={labelStyle}>Método</label>
-
           <input name="method" style={inputStyle} placeholder="Ej: Sapphire" />
         </div>
 
         {/* GRAFTS */}
-
         <div style={{ marginBottom: 16 }}>
           <label style={labelStyle}>Grafts</label>
-
           <input
             name="grafts"
             type="number"
@@ -155,10 +179,8 @@ export default async function NewProcedurePage({
         </div>
 
         {/* ZONA DONANTE */}
-
         <div style={{ marginBottom: 16 }}>
           <label style={labelStyle}>Zona donante</label>
-
           <input
             name="donorArea"
             style={inputStyle}
@@ -167,10 +189,8 @@ export default async function NewProcedurePage({
         </div>
 
         {/* ZONA RECEPTORA */}
-
         <div style={{ marginBottom: 16 }}>
           <label style={labelStyle}>Zona receptora</label>
-
           <input
             name="recipientArea"
             style={inputStyle}
@@ -179,16 +199,78 @@ export default async function NewProcedurePage({
         </div>
 
         {/* NOTAS */}
-
         <div style={{ marginBottom: 20 }}>
           <label style={labelStyle}>Notas</label>
-
           <textarea
             name="notes"
             rows={4}
             style={textareaStyle}
             placeholder="Detalles del procedimiento"
           />
+        </div>
+
+        {/* ANESTESIA */}
+        <div style={{ marginBottom: 16 }}>
+          <label style={labelStyle}>Tipo de anestesia</label>
+          <input name="anesthesiaType" style={inputStyle} />
+        </div>
+
+        <div style={{ marginBottom: 16 }}>
+          <label style={labelStyle}>ML anestesia</label>
+          <input name="anesthesiaMl" type="number" style={inputStyle} />
+        </div>
+
+        {/* TIEMPOS */}
+        <div style={{ marginBottom: 16 }}>
+          <label style={labelStyle}>Inicio extracción</label>
+          <input
+            name="extractionStart"
+            type="datetime-local"
+            style={inputStyle}
+          />
+        </div>
+
+        <div style={{ marginBottom: 16 }}>
+          <label style={labelStyle}>Fin extracción</label>
+          <input
+            name="extractionEnd"
+            type="datetime-local"
+            style={inputStyle}
+          />
+        </div>
+
+        <div style={{ marginBottom: 16 }}>
+          <label style={labelStyle}>Inicio implantación</label>
+          <input
+            name="implantationStart"
+            type="datetime-local"
+            style={inputStyle}
+          />
+        </div>
+
+        <div style={{ marginBottom: 16 }}>
+          <label style={labelStyle}>Fin implantación</label>
+          <input
+            name="implantationEnd"
+            type="datetime-local"
+            style={inputStyle}
+          />
+        </div>
+
+        {/* METADATA */}
+        <div style={{ marginBottom: 16 }}>
+          <label style={labelStyle}>Equipo médico</label>
+          <input name="medicalTeam" style={inputStyle} />
+        </div>
+
+        <div style={{ marginBottom: 16 }}>
+          <label style={labelStyle}>Enfermería</label>
+          <input name="nurses" style={inputStyle} />
+        </div>
+
+        <div style={{ marginBottom: 20 }}>
+          <label style={labelStyle}>Observaciones</label>
+          <textarea name="observations" rows={3} style={textareaStyle} />
         </div>
 
         <button style={buttonStyle}>Guardar procedimiento</button>

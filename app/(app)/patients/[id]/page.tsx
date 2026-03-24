@@ -114,7 +114,18 @@ export default async function PatientPage({
           </h1>
         </div>
 
-        <DeletePatientButton patientId={patient.id} />
+        <div style={{ display: "flex", gap: 10 }}>
+          {/* 🔥 BOTÓN PDF */}
+          <a
+            href={`/api/patients/${patient.id}/pdf`}
+            target="_blank"
+            style={pdfButtonStyle}
+          >
+            Exportar PDF
+          </a>
+
+          <DeletePatientButton patientId={patient.id} />
+        </div>
       </div>
 
       {/* GRID */}
@@ -462,4 +473,16 @@ const photoZone = {
   fontSize: 11,
   padding: "2px 6px",
   borderRadius: 6,
+};
+
+const pdfButtonStyle = {
+  background: "#111827",
+  color: "white",
+  padding: "10px 16px",
+  borderRadius: 8,
+  fontSize: 14,
+  fontWeight: 500,
+  textDecoration: "none",
+  display: "flex",
+  alignItems: "center",
 };

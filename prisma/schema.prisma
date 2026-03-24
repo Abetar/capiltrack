@@ -10,6 +10,8 @@ model Clinic {
   id        String   @id @default(cuid())
   name      String
 
+  logoUrl   String?   // 👈 NUEVO (Cloudinary URL)
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -176,14 +178,49 @@ model TransplantProcedure {
 
   grafts    Int?
 
-  donorArea String?
+  donorArea     String?
   recipientArea String?
 
   notes     String?
 
+  anesthesiaType String?
+  anesthesiaMl   Float?
+
+  extractionStart   DateTime?
+  extractionEnd     DateTime?
+
+  implantationStart DateTime?
+  implantationEnd   DateTime?
+
+  observations String?
+  medicalTeam  String?
+  nurses       String?
+
   createdAt DateTime @default(now())
 
+  blocks ProcedureBlock[]
+
   @@index([clinicId])
+}
+
+model ProcedureBlock {
+  id String @id @default(cuid())
+
+  procedureId String
+  procedure   TransplantProcedure @relation(fields: [procedureId], references: [id], onDelete: Cascade)
+
+  blockNumber Int
+  rowIndex    Int
+
+  enf1 String?
+  enf2 String?
+
+  uf        Int?
+  follicles Int?
+
+  createdAt DateTime @default(now())
+
+  @@index([procedureId])
 }
 
 /*

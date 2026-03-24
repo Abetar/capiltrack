@@ -179,15 +179,25 @@ export default async function PatientProceduresPage({
               marginBottom: 6,
             }}
           >
-            <div
-              style={{
-                fontWeight: 600,
-              }}
-            >
+            <div style={{ fontWeight: 600 }}>
               {p.technique || "Procedimiento capilar"}
             </div>
 
-            <DeleteProcedureButton procedureId={p.id} patientId={id} />
+            <div style={{ display: "flex", gap: 10 }}>
+              <Link
+                href={`/patients/${id}/procedures/${p.id}`}
+                style={{
+                  fontSize: 13,
+                  color: "#2C6BED",
+                  textDecoration: "none",
+                  fontWeight: 500,
+                }}
+              >
+                Editar
+              </Link>
+
+              <DeleteProcedureButton procedureId={p.id} patientId={id} />
+            </div>
           </div>
 
           {/* GRAFTS */}
@@ -213,6 +223,39 @@ export default async function PatientProceduresPage({
             Fecha: {new Date(p.date).toLocaleDateString()}
           </div>
 
+          {/* TIEMPOS */}
+
+          {(p.extractionStart || p.implantationStart) && (
+            <div
+              style={{
+                marginTop: 6,
+                fontSize: 13,
+                color: "#6B7280",
+              }}
+            >
+              {p.extractionStart && (
+                <>
+                  Extracción:{" "}
+                  {new Date(p.extractionStart).toLocaleTimeString([], {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  })}
+                </>
+              )}
+
+              {p.implantationStart && (
+                <>
+                  {" "}
+                  • Implantación:{" "}
+                  {new Date(p.implantationStart).toLocaleTimeString([], {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  })}
+                </>
+              )}
+            </div>
+          )}
+
           {/* ZONES */}
 
           {(p.donorArea || p.recipientArea) && (
@@ -228,6 +271,36 @@ export default async function PatientProceduresPage({
             </div>
           )}
 
+          {/* ANESTESIA */}
+
+          {(p.anesthesiaType || p.anesthesiaMl) && (
+            <div
+              style={{
+                marginTop: 6,
+                fontSize: 13,
+                color: "#6B7280",
+              }}
+            >
+              Anestesia: {p.anesthesiaType || "-"}
+              {p.anesthesiaMl && ` • ${p.anesthesiaMl} ml`}
+            </div>
+          )}
+
+          {/* EQUIPO */}
+
+          {(p.medicalTeam || p.nurses) && (
+            <div
+              style={{
+                marginTop: 6,
+                fontSize: 13,
+                color: "#6B7280",
+              }}
+            >
+              {p.medicalTeam && <>Equipo: {p.medicalTeam} </>}
+              {p.nurses && <>• Enfermería: {p.nurses}</>}
+            </div>
+          )}
+
           {/* NOTES */}
 
           {p.notes && (
@@ -238,6 +311,21 @@ export default async function PatientProceduresPage({
               }}
             >
               {p.notes}
+            </div>
+          )}
+
+          {/* OBSERVACIONES */}
+
+          {p.observations && (
+            <div
+              style={{
+                marginTop: 8,
+                fontSize: 13,
+                color: "#374151",
+                fontStyle: "italic",
+              }}
+            >
+              {p.observations}
             </div>
           )}
         </div>
