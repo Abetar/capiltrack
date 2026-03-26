@@ -1,35 +1,35 @@
-import Link from "next/link"
-import Image from "next/image"
+"use client";
+
+import Link from "next/link";
+import Image from "next/image";
+import AnimatedSection from "@/components/AnimatedSection";
+import { Activity, Check, Shield } from "lucide-react";
 
 export default function HomePage() {
   return (
     <main className="min-h-screen bg-[#F8FAFC] text-[#1F2937]">
-
       {/* NAVBAR */}
       <header className="border-b bg-white sticky top-0 z-50">
         <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
-
           <Link href="/" className="flex items-center gap-2">
             <Image
               src="/capiltrack-logo-final.png"
-              alt="CapilTrack software para clínicas capilares"
-              width={45}
-              height={45}
+              alt="CapilTrack"
+              width={40}
+              height={40}
             />
-            <span className="text-lg font-semibold text-[#2C6BED]">
-              CapilTrack
-            </span>
+            <span className="font-semibold text-[#2C6BED]">CapilTrack</span>
           </Link>
 
-          <div className="flex items-center gap-4 text-sm">
+          <div className="flex gap-4 text-sm">
             <Link href="/login" className="text-gray-600 hover:text-black">
               Login
             </Link>
 
             <Link
               href="/register"
-              className="bg-[#2C6BED] px-4 py-2 rounded-md font-medium hover:bg-[#1F56D9] !text-white"
-              style={{ color: "#FFFFFF" }}
+              className="bg-[#2C6BED] text-white px-4 py-2 rounded-md font-medium shadow-sm hover:bg-[#1F56D9] transition transform hover:scale-[1.02]"
+              style={{ color: "#fff" }}
             >
               Crear cuenta
             </Link>
@@ -37,220 +37,242 @@ export default function HomePage() {
         </div>
       </header>
 
-
-
       {/* HERO */}
-      <section className="max-w-6xl mx-auto px-6 py-28 text-center">
+      <AnimatedSection>
+        <section className="max-w-6xl mx-auto px-6 py-24 grid md:grid-cols-2 gap-12 items-center">
+          <div>
+            <h1 className="text-4xl font-semibold mb-6 leading-tight">
+              Control total del seguimiento clínico capilar
+            </h1>
 
-        <h1 className="text-5xl font-semibold leading-tight mb-6">
-          Software para clínicas capilares que centraliza pacientes, fotos y tratamientos
-        </h1>
+            <p className="text-gray-600 mb-8">
+              Centraliza pacientes, fotografías, métricas y procedimientos en un
+              solo sistema diseñado específicamente para clínicas de injerto
+              capilar.
+            </p>
 
-        <p className="text-lg text-gray-600 max-w-2xl mx-auto mb-10">
-          CapilTrack es un sistema diseñado específicamente para clínicas de injerto capilar
-          que necesitan organizar su operación, dar seguimiento clínico real y mostrar resultados
-          claros a sus pacientes.
-        </p>
+            <div className="flex gap-4">
+              <Link
+                href="/register"
+                className="bg-[#2C6BED] text-white px-6 py-3 rounded-md font-medium shadow-sm hover:bg-[#1F56D9] transition transform hover:scale-[1.02]"
+                style={{ color: "#fff" }}
+              >
+                Empezar
+              </Link>
 
-        <div className="flex justify-center gap-4">
+              <Link
+                href="/login"
+                className="border px-6 py-3 rounded-md hover:bg-gray-100 transition"
+              >
+                Ver demo
+              </Link>
+            </div>
+          </div>
+
+          {/* MOCK */}
+          <div className="bg-white border rounded-xl shadow-sm p-6">
+            <p className="text-sm text-gray-500 mb-2">Paciente</p>
+            <p className="font-semibold">Carlos Méndez</p>
+
+            <div className="mt-4 text-sm text-gray-600">
+              <p>Norwood: 3 → 2</p>
+              <p>Densidad: +35%</p>
+            </div>
+          </div>
+        </section>
+      </AnimatedSection>
+
+      {/* HOW IT WORKS */}
+      <AnimatedSection delay={0.1}>
+        <section className="bg-white py-20 border-t">
+          <div className="max-w-5xl mx-auto px-6 text-center mb-12">
+            <h2 className="text-3xl font-semibold mb-4">
+              Cómo funciona CapilTrack
+            </h2>
+
+            <p className="text-gray-600">
+              Un flujo simple diseñado para la operación real de una clínica
+              capilar
+            </p>
+          </div>
+
+          <div className="max-w-6xl mx-auto px-6 grid md:grid-cols-3 gap-10">
+            <Step
+              number="01"
+              title="Registra pacientes"
+              desc="Centraliza toda la información clínica desde el primer contacto"
+            />
+
+            <Step
+              number="02"
+              title="Captura métricas y fotos"
+              desc="Documenta evolución con datos reales y comparables"
+            />
+
+            <Step
+              number="03"
+              title="Analiza evolución"
+              desc="Toma decisiones clínicas basadas en resultados reales"
+            />
+          </div>
+        </section>
+      </AnimatedSection>
+
+      {/* FEATURES */}
+      <AnimatedSection delay={0.2}>
+        <section className="max-w-6xl mx-auto px-6 py-20 grid md:grid-cols-3 gap-8">
+          <Feature icon={<Activity />} title="Seguimiento clínico real" />
+          <Feature icon={<Check />} title="Datos estructurados" />
+          <Feature icon={<Shield />} title="Seguridad por clínica" />
+        </section>
+      </AnimatedSection>
+
+      {/* PRICING */}
+      <AnimatedSection delay={0.3}>
+        <section className="bg-white py-24 text-center border-t">
+          <h2 className="text-3xl font-semibold mb-6">
+            Un solo sistema para toda tu clínica
+          </h2>
+
+          <div className="max-w-md mx-auto bg-[#F8FAFC] border rounded-xl p-10 shadow-sm">
+            <p className="text-5xl text-[#2C6BED] font-semibold">$1,499</p>
+            <p className="text-sm text-gray-500 mb-6">MXN / mes</p>
+
+            <ul className="text-left space-y-2 mb-6 text-gray-600">
+              <li>✔ Pacientes ilimitados</li>
+              <li>✔ Fotografías clínicas</li>
+              <li>✔ Métricas capilares</li>
+              <li>✔ Procedimientos</li>
+            </ul>
+
+            <Link
+              href="/register"
+              className="block bg-[#2C6BED] text-white py-3 rounded-md font-medium shadow-sm hover:bg-[#1F56D9] transition transform hover:scale-[1.02]"
+              style={{ color: "#fff" }}
+            >
+              Empezar ahora
+            </Link>
+          </div>
+        </section>
+      </AnimatedSection>
+
+      {/* FAQ */}
+      <AnimatedSection delay={0.4}>
+        <section className="max-w-4xl mx-auto px-6 py-20">
+          <h2 className="text-2xl font-semibold mb-10 text-center">
+            Preguntas frecuentes
+          </h2>
+
+          <FAQ
+            q="¿Necesito instalar algo?"
+            a="No, CapilTrack funciona completamente desde el navegador."
+          />
+
+          <FAQ
+            q="¿Puedo usarlo en varias clínicas?"
+            a="Sí, cada clínica maneja su información de forma independiente."
+          />
+
+          <FAQ
+            q="¿Puedo cancelar en cualquier momento?"
+            a="Sí, no hay contratos forzosos ni plazos obligatorios."
+          />
+        </section>
+      </AnimatedSection>
+
+      {/* CTA FINAL */}
+      <AnimatedSection delay={0.5}>
+        <section className="bg-[#2C6BED] text-white text-center py-20">
+          <h2 className="text-3xl font-semibold mb-6">
+            Profesionaliza tu clínica hoy
+          </h2>
+
           <Link
             href="/register"
-            className="bg-[#2C6BED] px-8 py-4 rounded-md font-medium hover:bg-[#1F56D9] !text-white"
-            style={{ color: "#FFFFFF" }}
+            className="bg-white text-[#2C6BED] px-6 py-3 rounded-md font-medium shadow-sm hover:bg-gray-100 transition transform hover:scale-[1.02]"
           >
             Crear cuenta
           </Link>
-
-          <Link
-            href="/login"
-            className="border border-gray-300 px-8 py-4 rounded-md hover:bg-gray-100"
-          >
-            Iniciar sesión
-          </Link>
-        </div>
-
-        <p className="text-sm text-gray-400 mt-6">
-          Sin instalaciones • Acceso desde cualquier lugar • Diseñado para clínicas reales
-        </p>
-
-      </section>
-
-
-
-      {/* PROBLEMA */}
-      <section className="bg-white border-t py-20">
-        <div className="max-w-4xl mx-auto px-6 text-center">
-
-          <h2 className="text-2xl font-semibold mb-6">
-            El seguimiento clínico capilar suele estar fragmentado
-          </h2>
-
-          <p className="text-gray-600 text-lg">
-            Fotos en WhatsApp, notas en hojas, procedimientos en Excel.
-            Esto hace imposible ver la evolución real del paciente y reduce
-            la calidad del servicio que ofrece la clínica.
-          </p>
-
-        </div>
-      </section>
-
-
-
-      {/* SOLUCIÓN */}
-      <section className="max-w-6xl mx-auto px-6 py-20 grid md:grid-cols-3 gap-10">
-
-        <div>
-          <h3 className="font-semibold mb-3 text-lg">
-            Historial clínico centralizado
-          </h3>
-
-          <p className="text-gray-600">
-            Toda la información del paciente en un solo sistema:
-            consultas, métricas, fotos y tratamientos.
-          </p>
-        </div>
-
-        <div>
-          <h3 className="font-semibold mb-3 text-lg">
-            Evolución visual real
-          </h3>
-
-          <p className="text-gray-600">
-            Compara fotografías por zona y analiza el progreso capilar
-            de forma clara y profesional.
-          </p>
-        </div>
-
-        <div>
-          <h3 className="font-semibold mb-3 text-lg">
-            Control de procedimientos
-          </h3>
-
-          <p className="text-gray-600">
-            Registra injertos, técnica, grafts y zonas tratadas
-            sin perder información crítica.
-          </p>
-        </div>
-
-      </section>
-
-
-
-      {/* FEATURES */}
-      <section className="bg-white border-t py-20">
-
-        <div className="max-w-6xl mx-auto px-6 grid md:grid-cols-3 gap-10">
-
-          <div className="border rounded-lg p-6">
-            <h3 className="font-semibold mb-2">
-              Timeline clínico completo
-            </h3>
-            <p className="text-sm text-gray-600">
-              Visualiza toda la historia del paciente en orden cronológico real.
-            </p>
-          </div>
-
-          <div className="border rounded-lg p-6">
-            <h3 className="font-semibold mb-2">
-              Fotografías organizadas por zona
-            </h3>
-            <p className="text-sm text-gray-600">
-              Frontal, coronilla, laterales. Comparación directa entre sesiones.
-            </p>
-          </div>
-
-          <div className="border rounded-lg p-6">
-            <h3 className="font-semibold mb-2">
-              Multi-clínica segura
-            </h3>
-            <p className="text-sm text-gray-600">
-              Cada clínica maneja su información de forma aislada y segura.
-            </p>
-          </div>
-
-        </div>
-
-      </section>
-
-
-
-      {/* PRICING */}
-      <section className="py-24 text-center bg-[#F8FAFC] border-t">
-
-        <h2 className="text-3xl font-semibold mb-6">
-          Precio simple, sin complicaciones
-        </h2>
-
-        <p className="text-gray-600 mb-10">
-          Todo incluido. Sin límites ocultos.
-        </p>
-
-        <div className="max-w-md mx-auto border rounded-xl p-10 bg-white shadow-sm">
-
-          <h3 className="text-lg font-semibold mb-2">
-            CapilTrack
-          </h3>
-
-          <p className="text-5xl font-semibold text-[#2C6BED] mb-4">
-            $1,499
-          </p>
-
-          <p className="text-sm text-gray-500 mb-6">
-            MXN / mes por clínica
-          </p>
-
-          <ul className="text-sm text-gray-600 space-y-2 mb-8 text-left">
-            <li>• Pacientes ilimitados</li>
-            <li>• Fotografías clínicas</li>
-            <li>• Métricas capilares</li>
-            <li>• Procedimientos de injerto</li>
-            <li>• Historial clínico completo</li>
-          </ul>
-
-          <Link
-            href="/register"
-            className="block w-full bg-[#2C6BED] py-3 rounded-md font-medium hover:bg-[#1F56D9] !text-white"
-            style={{ color: "#FFFFFF" }}
-          >
-            Empezar ahora
-          </Link>
-
-        </div>
-
-      </section>
-
-
-
-      {/* CTA FINAL */}
-      <section className="py-24 text-center">
-
-        <h2 className="text-3xl font-semibold mb-6">
-          Deja de perder información clínica
-        </h2>
-
-        <p className="text-gray-600 mb-8">
-          Empieza a trabajar con un sistema diseñado para clínicas capilares reales.
-        </p>
-
-        <Link
-          href="/register"
-          className="bg-[#2C6BED] px-8 py-4 rounded-md font-medium hover:bg-[#1F56D9] !text-white"
-          style={{ color: "#FFFFFF" }}
-        >
-          Crear cuenta
-        </Link>
-
-      </section>
-
-
+        </section>
+      </AnimatedSection>
 
       {/* FOOTER */}
-      <footer className="border-t bg-white">
-        <div className="max-w-6xl mx-auto px-6 py-6 text-sm text-gray-500 text-center">
-          © {new Date().getFullYear()} CapilTrack • Software para clínicas capilares
+      <footer className="border-t bg-white mt-20">
+        <div className="max-w-6xl mx-auto px-6 py-10 grid md:grid-cols-3 gap-8 text-sm text-gray-600">
+          {/* BRAND */}
+          <div>
+            <p className="font-semibold text-[#2C6BED] mb-2">CapilTrack</p>
+            <p className="text-gray-500">
+              Software clínico para seguimiento capilar.
+            </p>
+          </div>
+
+          {/* LINKS */}
+          <div className="flex flex-col gap-2">
+            <p className="font-medium text-gray-700 mb-2">Legal</p>
+
+            <Link href="/privacy" className="hover:text-black transition">
+              Aviso de privacidad
+            </Link>
+
+            <Link href="/terms" className="hover:text-black transition">
+              Términos y condiciones
+            </Link>
+          </div>
+
+          {/* CONTACT */}
+          <div className="flex flex-col gap-2">
+            <p className="font-medium text-gray-700 mb-2">Contacto</p>
+
+            <Link href="/contact" className="hover:text-black transition">
+              Soporte
+            </Link>
+
+              {/* <a
+                href="mailto:soporte@capiltrack.com"
+                className="hover:text-black transition"
+              >
+                soporte@capiltrack.com
+              </a> */}
+          </div>
+        </div>
+
+        {/* BOTTOM */}
+        <div className="border-t text-center text-xs text-gray-400 py-4">
+          © {new Date().getFullYear()} CapilTrack. Todos los derechos
+          reservados.
         </div>
       </footer>
-
     </main>
-  )
+  );
+}
+
+/* COMPONENTES */
+
+function Step({ number, title, desc }: any) {
+  return (
+    <div className="p-6 border rounded-xl bg-[#F8FAFC] hover:shadow-md transition">
+      <p className="text-sm text-[#2C6BED] font-semibold mb-2">{number}</p>
+      <p className="font-medium mb-2">{title}</p>
+      <p className="text-sm text-gray-600">{desc}</p>
+    </div>
+  );
+}
+
+function Feature({ icon, title }: any) {
+  return (
+    <div className="p-6 border rounded-xl bg-white hover:shadow-md transition">
+      <div className="mb-3 text-[#2C6BED]">{icon}</div>
+      <p className="font-medium">{title}</p>
+    </div>
+  );
+}
+
+function FAQ({ q, a }: any) {
+  return (
+    <div className="mb-6 border-b pb-4">
+      <p className="font-medium mb-1">{q}</p>
+      <p className="text-gray-600 text-sm">{a}</p>
+    </div>
+  );
 }
