@@ -11,6 +11,7 @@ export default function HomePage() {
       {/* NAVBAR */}
       <header className="border-b bg-white sticky top-0 z-50">
         <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
+          {/* LOGO */}
           <Link href="/" className="flex items-center gap-2">
             <Image
               src="/capiltrack-logo-final.png"
@@ -21,7 +22,27 @@ export default function HomePage() {
             <span className="font-semibold text-[#2C6BED]">CapilTrack</span>
           </Link>
 
-          <div className="flex gap-4 text-sm">
+          {/* NAV LINKS */}
+          <nav className="hidden md:flex items-center gap-6 text-sm text-gray-600">
+            <Link href="/#features" className="hover:text-black transition">
+              Producto
+            </Link>
+
+            <Link href="/demo" className="hover:text-black transition">
+              Demo
+            </Link>
+
+            <Link href="/#pricing" className="hover:text-black transition">
+              Precio
+            </Link>
+
+            <Link href="/#faq" className="hover:text-black transition">
+              FAQ
+            </Link>
+          </nav>
+
+          {/* RIGHT SIDE */}
+          <div className="flex items-center gap-4 text-sm">
             <Link href="/login" className="text-gray-600 hover:text-black">
               Login
             </Link>
@@ -61,7 +82,7 @@ export default function HomePage() {
               </Link>
 
               <Link
-                href="/login"
+                href="/demo"
                 className="border px-6 py-3 rounded-md hover:bg-gray-100 transition"
               >
                 Ver demo
@@ -129,7 +150,7 @@ export default function HomePage() {
 
       {/* PRICING */}
       <AnimatedSection delay={0.3}>
-        <section className="bg-white py-24 text-center border-t">
+        <section className="bg-white py-24 text-center border-t" id="pricing">
           <h2 className="text-3xl font-semibold mb-6">
             Un solo sistema para toda tu clínica
           </h2>
@@ -158,7 +179,7 @@ export default function HomePage() {
 
       {/* FAQ */}
       <AnimatedSection delay={0.4}>
-        <section className="max-w-4xl mx-auto px-6 py-20">
+        <section className="max-w-4xl mx-auto px-6 py-20" id="faq">
           <h2 className="text-2xl font-semibold mb-10 text-center">
             Preguntas frecuentes
           </h2>
@@ -228,7 +249,7 @@ export default function HomePage() {
               Soporte
             </Link>
 
-              {/* <a
+            {/* <a
                 href="mailto:soporte@capiltrack.com"
                 className="hover:text-black transition"
               >
