@@ -1,19 +1,21 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 
 type SettingsFormProps = {
   clinicName: string;
   clinicLogoUrl: string | null;
-  action: (formData: FormData) => void | Promise<void>;
 };
 
 export default function SettingsForm({
   clinicName,
   clinicLogoUrl,
-  action,
 }: SettingsFormProps) {
+  const router = useRouter();
+
   const [previewUrl, setPreviewUrl] = useState<string | null>(clinicLogoUrl);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     setPreviewUrl(clinicLogoUrl);
@@ -31,16 +33,31 @@ export default function SettingsForm({
     setPreviewUrl(localUrl);
   }
 
-  useEffect(() => {
-    return () => {
-      if (previewUrl && previewUrl.startsWith("blob:")) {
-        URL.revokeObjectURL(previewUrl);
-      }
-    };
-  }, [previewUrl]);
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+
+    setLoading(true);
+
+    const formData = new FormData(e.currentTarget);
+
+    const res = await fetch("/api/settings", {
+      method: "POST",
+      body: formData,
+    });
+
+    setLoading(false);
+
+    if (!res.ok) {
+      const data = await res.json().catch(() => null);
+      alert(data?.error || "No se pudo guardar la configuración");
+      return;
+    }
+
+    router.refresh();
+  }
 
   return (
-    <form action={action}>
+    <form onSubmit={handleSubmit}>
       <Field label="Nombre de la clínica">
         <input name="name" defaultValue={clinicName} style={inputStyle} />
       </Field>
@@ -71,13 +88,7 @@ export default function SettingsForm({
                 Subir imagen
               </div>
 
-              <div
-                style={{
-                  fontSize: 12,
-                  color: "#6B7280",
-                  marginTop: 4,
-                }}
-              >
+              <div style={{ fontSize: 12, color: "#6B7280", marginTop: 4 }}>
                 PNG o JPG recomendado
               </div>
             </div>
@@ -85,7 +96,9 @@ export default function SettingsForm({
         </label>
       </Field>
 
-      <button style={buttonStyle}>Guardar cambios</button>
+      <button type="submit" disabled={loading} style={buttonStyle}>
+        {loading ? "Guardando..." : "Guardar cambios"}
+      </button>
     </form>
   );
 }
