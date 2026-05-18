@@ -16,11 +16,12 @@ export default function AppSidebar() {
   const navItem = (path: string) => ({
     fontSize: 14,
     textDecoration: "none",
-    padding: "8px 10px",
-    borderRadius: 6,
+    padding: "10px 12px",
+    borderRadius: 8,
     color: isActive(path) ? "#1D4ED8" : "#374151",
     background: isActive(path) ? "#EEF2FF" : "transparent",
     fontWeight: isActive(path) ? 600 : 400,
+    transition: "all 0.15s ease",
   });
 
   const isAdmin = (session?.user as any)?.role === "SUPER_ADMIN";
@@ -37,6 +38,7 @@ export default function AppSidebar() {
       }}
     >
       <div style={{ padding: "24px 20px" }}>
+        {/* LOGO */}
         <div style={{ marginBottom: 30 }}>
           <Image
             src="/capiltrack-logo-landscape.png"
@@ -47,11 +49,12 @@ export default function AppSidebar() {
           />
         </div>
 
+        {/* NAV */}
         <nav
           style={{
             display: "flex",
             flexDirection: "column",
-            gap: 10,
+            gap: 8,
           }}
         >
           <Link href="/dashboard" style={navItem("/dashboard")}>
@@ -70,11 +73,19 @@ export default function AppSidebar() {
             Procedimientos
           </Link>
 
-          {/* NUEVO */}
+          {/* NUEVO FEATURE */}
+          <Link
+            href="/clinical-questions"
+            style={navItem("/clinical-questions")}
+          >
+            Preguntas expediente
+          </Link>
+
           <Link href="/settings" style={navItem("/settings")}>
             Configuración
           </Link>
 
+          {/* SUPER ADMIN */}
           {isAdmin && (
             <Link href="/admin" style={navItem("/admin")}>
               Admin

@@ -1,13 +1,14 @@
 import { prisma } from "@/lib/db/prisma";
 import { getCurrentUser } from "@/lib/auth/getCurrentUser";
 import { redirect } from "next/navigation";
+import Link from "next/link";
 
-export default async function NewProcedurePage({
+export default async function EditProcedurePage({
   params,
 }: {
-  params: Promise<{ id: string }>;
+  params: Promise<{ id: string; procedureId: string }>;
 }) {
-  const { id } = await params;
+  const { id, procedureId } = await params;
 
   const { user, reason } = await getCurrentUser();
 
@@ -15,9 +16,21 @@ export default async function NewProcedurePage({
     return <div>Acceso restringido: {reason}</div>;
   }
 
+  const procedure = await prisma.transplantProcedure.findFirst({
+    where: {
+      id: procedureId,
+      patientId: id,
+      clinicId: user.clinicId,
+    },
+  });
+
+  if (!procedure) {
+    return <div>Procedimiento no encontrado</div>;
+  }
+
   const clinicId = user.clinicId;
 
-  async function createProcedure(formData: FormData) {
+  async function updateProcedure(formData: FormData) {
     "use server";
 
     const date = formData.get("date") as string;
@@ -26,7 +39,10 @@ export default async function NewProcedurePage({
       throw new Error("La fecha es obligatoria");
     }
 
-    await prisma.transplantProcedure.create({
+    await prisma.transplantProcedure.update({
+      where: {
+        id: procedureId,
+      },
       data: {
         clinicId,
         patientId: id,
@@ -75,21 +91,50 @@ export default async function NewProcedurePage({
 
   return (
     <div style={{ maxWidth: 900 }}>
-      <h1 style={pageTitle}>Nuevo procedimiento</h1>
+      <div style={{ marginBottom: 24 }}>
+        <Link
+          href={`/patients/${id}/procedures`}
+          style={{
+            color: "#2563EB",
+            fontSize: 14,
+            textDecoration: "none",
+          }}
+        >
+          ← Volver a procedimientos
+        </Link>
+      </div>
 
-      <form action={createProcedure} style={formStyle}>
+      <h1 style={pageTitle}>Editar procedimiento</h1>
+
+      <form action={updateProcedure} style={formStyle}>
         <Section title="Información general">
           <Grid>
             <Field label="Fecha">
-              <input type="date" name="date" required style={inputStyle} />
+              <input
+                type="date"
+                name="date"
+                required
+                defaultValue={formatDate(procedure.date)}
+                style={inputStyle}
+              />
             </Field>
 
             <Field label="Técnica">
-              <input name="technique" style={inputStyle} placeholder="Ej: FUE" />
+              <input
+                name="technique"
+                defaultValue={procedure.technique ?? ""}
+                style={inputStyle}
+                placeholder="Ej: FUE"
+              />
             </Field>
 
             <Field label="Método">
-              <input name="method" style={inputStyle} placeholder="Ej: Sapphire" />
+              <input
+                name="method"
+                defaultValue={procedure.method ?? ""}
+                style={inputStyle}
+                placeholder="Ej: Sapphire"
+              />
             </Field>
 
             <Field label="Grafts">
@@ -97,6 +142,7 @@ export default async function NewProcedurePage({
                 name="grafts"
                 type="number"
                 min="0"
+                defaultValue={procedure.grafts ?? ""}
                 style={inputStyle}
                 placeholder="Ej: 3500"
               />
@@ -111,6 +157,7 @@ export default async function NewProcedurePage({
                 name="extractedFollicularUnits"
                 type="number"
                 min="0"
+                defaultValue={procedure.extractedFollicularUnits ?? ""}
                 style={inputStyle}
                 placeholder="Ej: 3200"
               />
@@ -121,6 +168,7 @@ export default async function NewProcedurePage({
                 name="implantedFollicularUnits"
                 type="number"
                 min="0"
+                defaultValue={procedure.implantedFollicularUnits ?? ""}
                 style={inputStyle}
                 placeholder="Ej: 3150"
               />
@@ -131,6 +179,7 @@ export default async function NewProcedurePage({
                 name="extractedFollicles"
                 type="number"
                 min="0"
+                defaultValue={procedure.extractedFollicles ?? ""}
                 style={inputStyle}
                 placeholder="Ej: 6500"
               />
@@ -141,6 +190,7 @@ export default async function NewProcedurePage({
                 name="implantedFollicles"
                 type="number"
                 min="0"
+                defaultValue={procedure.implantedFollicles ?? ""}
                 style={inputStyle}
                 placeholder="Ej: 6300"
               />
@@ -153,6 +203,7 @@ export default async function NewProcedurePage({
             <Field label="Zona donante">
               <input
                 name="donorArea"
+                defaultValue={procedure.donorArea ?? ""}
                 style={inputStyle}
                 placeholder="Ej: Occipital"
               />
@@ -161,6 +212,7 @@ export default async function NewProcedurePage({
             <Field label="Zona receptora">
               <input
                 name="recipientArea"
+                defaultValue={procedure.recipientArea ?? ""}
                 style={inputStyle}
                 placeholder="Ej: Frontal, entradas, coronilla"
               />
@@ -173,6 +225,7 @@ export default async function NewProcedurePage({
             <Field label="Tipo de anestesia">
               <input
                 name="anesthesiaType"
+                defaultValue={procedure.anesthesiaType ?? ""}
                 style={inputStyle}
                 placeholder="Ej: Local"
               />
@@ -184,6 +237,7 @@ export default async function NewProcedurePage({
                 type="number"
                 step="0.1"
                 min="0"
+                defaultValue={procedure.anesthesiaMl ?? ""}
                 style={inputStyle}
                 placeholder="Ej: 12"
               />
@@ -197,6 +251,7 @@ export default async function NewProcedurePage({
               <input
                 name="extractionStart"
                 type="datetime-local"
+                defaultValue={formatDateTime(procedure.extractionStart)}
                 style={inputStyle}
               />
             </Field>
@@ -205,6 +260,7 @@ export default async function NewProcedurePage({
               <input
                 name="extractionEnd"
                 type="datetime-local"
+                defaultValue={formatDateTime(procedure.extractionEnd)}
                 style={inputStyle}
               />
             </Field>
@@ -213,6 +269,7 @@ export default async function NewProcedurePage({
               <input
                 name="implantationStart"
                 type="datetime-local"
+                defaultValue={formatDateTime(procedure.implantationStart)}
                 style={inputStyle}
               />
             </Field>
@@ -221,6 +278,7 @@ export default async function NewProcedurePage({
               <input
                 name="implantationEnd"
                 type="datetime-local"
+                defaultValue={formatDateTime(procedure.implantationEnd)}
                 style={inputStyle}
               />
             </Field>
@@ -232,6 +290,7 @@ export default async function NewProcedurePage({
             <Field label="Equipo médico">
               <input
                 name="medicalTeam"
+                defaultValue={procedure.medicalTeam ?? ""}
                 style={inputStyle}
                 placeholder="Ej: Dr. Sánchez + equipo quirúrgico"
               />
@@ -240,6 +299,7 @@ export default async function NewProcedurePage({
             <Field label="Enfermería">
               <input
                 name="nurses"
+                defaultValue={procedure.nurses ?? ""}
                 style={inputStyle}
                 placeholder="Ej: Ana Martínez / Laura Rivas"
               />
@@ -252,6 +312,7 @@ export default async function NewProcedurePage({
             <textarea
               name="notes"
               rows={4}
+              defaultValue={procedure.notes ?? ""}
               style={textareaStyle}
               placeholder="Detalles generales del procedimiento"
             />
@@ -261,6 +322,7 @@ export default async function NewProcedurePage({
             <textarea
               name="observations"
               rows={4}
+              defaultValue={procedure.observations ?? ""}
               style={textareaStyle}
               placeholder="Observaciones clínicas o quirúrgicas"
             />
@@ -268,7 +330,7 @@ export default async function NewProcedurePage({
         </Section>
 
         <button type="submit" style={buttonStyle}>
-          Guardar procedimiento
+          Guardar cambios
         </button>
       </form>
     </div>
@@ -288,6 +350,15 @@ function getNumber(formData: FormData, key: string) {
 function getDate(formData: FormData, key: string) {
   const value = formData.get(key) as string | null;
   return value ? new Date(value) : null;
+}
+
+function formatDate(date: Date) {
+  return new Date(date).toISOString().slice(0, 10);
+}
+
+function formatDateTime(date: Date | null) {
+  if (!date) return "";
+  return new Date(date).toISOString().slice(0, 16);
 }
 
 function Section({

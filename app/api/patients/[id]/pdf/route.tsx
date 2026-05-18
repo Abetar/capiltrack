@@ -21,6 +21,11 @@ export async function GET(
       clinicId: user.clinicId,
     },
     include: {
+      clinicalAnswers: {
+        orderBy: {
+          createdAt: "asc",
+        },
+      },
       consultations: {
         include: {
           metrics: true,

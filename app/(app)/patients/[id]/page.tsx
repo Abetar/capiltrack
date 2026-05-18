@@ -82,6 +82,7 @@ export default async function PatientPage({
       treatments: true,
       photos: true,
       transplants: true,
+      clinicalAnswers: true,
     },
   });
 
@@ -90,6 +91,8 @@ export default async function PatientPage({
   }
 
   const events = await getPatientTimeline(patient.id, user.clinicId);
+
+  const hasClinicalRecord = patient.clinicalAnswers.length > 0;
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 30 }}>
@@ -115,7 +118,13 @@ export default async function PatientPage({
         </div>
 
         <div style={{ display: "flex", gap: 10 }}>
-          {/* 🔥 BOTÓN PDF */}
+          <Link
+            href={`/patients/${patient.id}/clinical-record`}
+            style={clinicalRecordButtonStyle}
+          >
+            {hasClinicalRecord ? "Ver expediente" : "Llenar expediente"}
+          </Link>
+
           <a
             href={`/api/patients/${patient.id}/pdf`}
             target="_blank"
@@ -164,6 +173,47 @@ export default async function PatientPage({
             label="Transplantes"
             value={patient.transplants.length}
           />
+          <ActivityRow
+            label="Expediente"
+            value={hasClinicalRecord ? 1 : 0}
+          />
+        </div>
+      </div>
+
+      {/* EXPEDIENTE CARD */}
+
+      <div style={cardStyle}>
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            gap: 20,
+          }}
+        >
+          <div>
+            <h2 style={cardTitle}>Expediente clínico inicial</h2>
+
+            <p
+              style={{
+                fontSize: 14,
+                color: "#6B7280",
+                marginTop: -8,
+                marginBottom: 0,
+              }}
+            >
+              {hasClinicalRecord
+                ? "Este paciente ya tiene respuestas registradas."
+                : "Este paciente aún no tiene expediente clínico contestado."}
+            </p>
+          </div>
+
+          <Link
+            href={`/patients/${patient.id}/clinical-record`}
+            style={clinicalRecordButtonStyle}
+          >
+            {hasClinicalRecord ? "Editar expediente" : "Llenar expediente"}
+          </Link>
         </div>
       </div>
 
@@ -269,7 +319,7 @@ function ConsultationEvent({
           <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
             {consultation.photos.map((photo) => (
               <div key={photo.id} style={photoCard}>
-                <img src={photo.url} style={photoStyle} />
+                <img src={photo.url} style={photoStyle} alt="" />
 
                 {photo.zone && (
                   <div style={photoZone}>
@@ -477,6 +527,18 @@ const photoZone = {
 
 const pdfButtonStyle = {
   background: "#111827",
+  color: "white",
+  padding: "10px 16px",
+  borderRadius: 8,
+  fontSize: 14,
+  fontWeight: 500,
+  textDecoration: "none",
+  display: "flex",
+  alignItems: "center",
+};
+
+const clinicalRecordButtonStyle = {
+  background: "#2563EB",
   color: "white",
   padding: "10px 16px",
   borderRadius: 8,

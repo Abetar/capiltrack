@@ -29,14 +29,33 @@ type TransplantProcedure = {
   technique: string | null;
   method: string | null;
   grafts: number | null;
+
+  extractedFollicularUnits: number | null;
+  implantedFollicularUnits: number | null;
+  extractedFollicles: number | null;
+  implantedFollicles: number | null;
+
   donorArea: string | null;
   recipientArea: string | null;
+
   anesthesiaType: string | null;
   anesthesiaMl: number | null;
+
+  extractionStart: Date | null;
+  extractionEnd: Date | null;
+  implantationStart: Date | null;
+  implantationEnd: Date | null;
+
   notes: string | null;
   observations: string | null;
   medicalTeam: string | null;
   nurses: string | null;
+};
+
+type PatientClinicalAnswer = {
+  id: string;
+  questionTextSnapshot: string;
+  answerText: string | null;
 };
 
 type Clinic = {
@@ -52,6 +71,7 @@ type Patient = {
   birthDate: Date | null;
   gender: string | null;
   notes: string | null;
+  clinicalAnswers: PatientClinicalAnswer[];
   consultations: Consultation[];
   transplants: TransplantProcedure[];
 };
@@ -67,53 +87,43 @@ const styles = StyleSheet.create({
     fontSize: 10,
     color: "#111827",
   },
-
   header: {
     marginBottom: 20,
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
   },
-
   clinicName: {
     fontSize: 16,
     fontWeight: 700,
   },
-
   logo: {
     width: 90,
     height: 45,
     objectFit: "contain",
   },
-
   section: {
     marginBottom: 18,
   },
-
   title: {
     fontSize: 13,
     fontWeight: 700,
     marginBottom: 8,
   },
-
   row: {
     marginBottom: 4,
   },
-
   bold: {
     fontWeight: 700,
   },
-
   table: {
     marginTop: 6,
     borderWidth: 1,
     borderColor: "#E5E7EB",
   },
-
   tableRow: {
     flexDirection: "row",
   },
-
   cellHeader: {
     flex: 1,
     fontWeight: 700,
@@ -122,18 +132,43 @@ const styles = StyleSheet.create({
     borderColor: "#E5E7EB",
     backgroundColor: "#F3F4F6",
   },
-
   cell: {
     flex: 1,
     padding: 6,
     borderRightWidth: 1,
     borderColor: "#E5E7EB",
   },
-
+  questionHeader: {
+    flex: 1.2,
+    fontWeight: 700,
+    padding: 6,
+    borderRightWidth: 1,
+    borderColor: "#E5E7EB",
+    backgroundColor: "#F3F4F6",
+  },
+  answerHeader: {
+    flex: 1.8,
+    fontWeight: 700,
+    padding: 6,
+    borderRightWidth: 1,
+    borderColor: "#E5E7EB",
+    backgroundColor: "#F3F4F6",
+  },
+  questionCell: {
+    flex: 1.2,
+    padding: 6,
+    borderRightWidth: 1,
+    borderColor: "#E5E7EB",
+  },
+  answerCell: {
+    flex: 1.8,
+    padding: 6,
+    borderRightWidth: 1,
+    borderColor: "#E5E7EB",
+  },
   block: {
     marginBottom: 12,
   },
-
   muted: {
     color: "#6B7280",
   },
@@ -143,54 +178,55 @@ export default function PatientPdfDocument({ clinic, patient }: Props) {
   return (
     <Document>
       <Page size="A4" style={styles.page}>
-        {/* HEADER */}
         <View style={styles.header}>
           <Text style={styles.clinicName}>{clinic.name}</Text>
 
-          {clinic.logoUrl && (
-            <Image src={clinic.logoUrl} style={styles.logo} />
-          )}
+          {clinic.logoUrl && <Image src={clinic.logoUrl} style={styles.logo} />}
         </View>
 
-        {/* PACIENTE */}
         <View style={styles.section}>
           <Text style={styles.title}>Ficha del paciente</Text>
 
           <View style={styles.table}>
-            <View style={styles.tableRow}>
-              <Text style={styles.cellHeader}>Nombre</Text>
-              <Text style={styles.cell}>
-                {patient.firstName} {patient.lastName ?? ""}
-              </Text>
-            </View>
-
-            <View style={styles.tableRow}>
-              <Text style={styles.cellHeader}>Email</Text>
-              <Text style={styles.cell}>{patient.email ?? "-"}</Text>
-            </View>
-
-            <View style={styles.tableRow}>
-              <Text style={styles.cellHeader}>Teléfono</Text>
-              <Text style={styles.cell}>{patient.phone ?? "-"}</Text>
-            </View>
-
-            <View style={styles.tableRow}>
-              <Text style={styles.cellHeader}>Nacimiento</Text>
-              <Text style={styles.cell}>
-                {patient.birthDate
+            <Row label="Nombre" value={`${patient.firstName} ${patient.lastName ?? ""}`} />
+            <Row label="Email" value={patient.email ?? "-"} />
+            <Row label="Teléfono" value={patient.phone ?? "-"} />
+            <Row
+              label="Nacimiento"
+              value={
+                patient.birthDate
                   ? new Date(patient.birthDate).toLocaleDateString()
-                  : "-"}
-              </Text>
-            </View>
-
-            <View style={styles.tableRow}>
-              <Text style={styles.cellHeader}>Género</Text>
-              <Text style={styles.cell}>{patient.gender ?? "-"}</Text>
-            </View>
+                  : "-"
+              }
+            />
+            <Row label="Género" value={patient.gender ?? "-"} />
           </View>
         </View>
 
-        {/* CONSULTAS */}
+        <View style={styles.section}>
+          <Text style={styles.title}>Expediente clínico inicial</Text>
+
+          {patient.clinicalAnswers.length === 0 ? (
+            <Text style={styles.muted}>Sin expediente clínico registrado</Text>
+          ) : (
+            <View style={styles.table}>
+              <View style={styles.tableRow}>
+                <Text style={styles.questionHeader}>Pregunta</Text>
+                <Text style={styles.answerHeader}>Respuesta</Text>
+              </View>
+
+              {patient.clinicalAnswers.map((answer) => (
+                <View key={answer.id} style={styles.tableRow}>
+                  <Text style={styles.questionCell}>
+                    {answer.questionTextSnapshot}
+                  </Text>
+                  <Text style={styles.answerCell}>{answer.answerText || "-"}</Text>
+                </View>
+              ))}
+            </View>
+          )}
+        </View>
+
         <View style={styles.section}>
           <Text style={styles.title}>Consultas</Text>
 
@@ -209,7 +245,6 @@ export default function PatientPdfDocument({ clinic, patient }: Props) {
                   {c.notes ?? "-"}
                 </Text>
 
-                {/* TABLA MÉTRICAS */}
                 {c.metrics.length > 0 && (
                   <View style={styles.table}>
                     <View style={styles.tableRow}>
@@ -221,12 +256,8 @@ export default function PatientPdfDocument({ clinic, patient }: Props) {
                     {c.metrics.map((m) => (
                       <View key={m.id} style={styles.tableRow}>
                         <Text style={styles.cell}>{m.zone ?? "-"}</Text>
-                        <Text style={styles.cell}>
-                          {m.density ?? "-"}
-                        </Text>
-                        <Text style={styles.cell}>
-                          {m.thickness ?? "-"}
-                        </Text>
+                        <Text style={styles.cell}>{m.density ?? "-"}</Text>
+                        <Text style={styles.cell}>{m.thickness ?? "-"}</Text>
                       </View>
                     ))}
                   </View>
@@ -236,7 +267,6 @@ export default function PatientPdfDocument({ clinic, patient }: Props) {
           )}
         </View>
 
-        {/* PROCEDIMIENTOS */}
         <View style={styles.section}>
           <Text style={styles.title}>Procedimientos</Text>
 
@@ -246,33 +276,65 @@ export default function PatientPdfDocument({ clinic, patient }: Props) {
             patient.transplants.map((p) => (
               <View key={p.id} style={styles.block}>
                 <Text style={styles.bold}>
-                  {new Date(p.date).toLocaleDateString()} —{" "}
-                  {p.technique ?? "-"}
+                  {new Date(p.date).toLocaleDateString()} — {p.technique ?? "-"}
                 </Text>
 
                 <View style={styles.table}>
                   <View style={styles.tableRow}>
                     <Text style={styles.cellHeader}>Grafts</Text>
-                    <Text style={styles.cellHeader}>Donante</Text>
-                    <Text style={styles.cellHeader}>Receptora</Text>
+                    <Text style={styles.cellHeader}>UF extraídas</Text>
+                    <Text style={styles.cellHeader}>UF implantadas</Text>
                   </View>
 
                   <View style={styles.tableRow}>
+                    <Text style={styles.cell}>{p.grafts ?? "-"}</Text>
                     <Text style={styles.cell}>
-                      {p.grafts ?? "-"}
+                      {p.extractedFollicularUnits ?? "-"}
                     </Text>
                     <Text style={styles.cell}>
-                      {p.donorArea ?? "-"}
-                    </Text>
-                    <Text style={styles.cell}>
-                      {p.recipientArea ?? "-"}
+                      {p.implantedFollicularUnits ?? "-"}
                     </Text>
                   </View>
                 </View>
 
+                <View style={styles.table}>
+                  <View style={styles.tableRow}>
+                    <Text style={styles.cellHeader}>Folículos extraídos</Text>
+                    <Text style={styles.cellHeader}>Folículos implantados</Text>
+                    <Text style={styles.cellHeader}>Método</Text>
+                  </View>
+
+                  <View style={styles.tableRow}>
+                    <Text style={styles.cell}>{p.extractedFollicles ?? "-"}</Text>
+                    <Text style={styles.cell}>{p.implantedFollicles ?? "-"}</Text>
+                    <Text style={styles.cell}>{p.method ?? "-"}</Text>
+                  </View>
+                </View>
+
+                <Text style={styles.row}>
+                  <Text style={styles.bold}>Zona donante: </Text>
+                  {p.donorArea ?? "-"}
+                </Text>
+
+                <Text style={styles.row}>
+                  <Text style={styles.bold}>Zona receptora: </Text>
+                  {p.recipientArea ?? "-"}
+                </Text>
+
                 <Text style={styles.row}>
                   <Text style={styles.bold}>Anestesia: </Text>
                   {p.anesthesiaType ?? "-"} ({p.anesthesiaMl ?? "-"} ml)
+                </Text>
+
+                <Text style={styles.row}>
+                  <Text style={styles.bold}>Extracción: </Text>
+                  {formatDateTime(p.extractionStart)} - {formatDateTime(p.extractionEnd)}
+                </Text>
+
+                <Text style={styles.row}>
+                  <Text style={styles.bold}>Implantación: </Text>
+                  {formatDateTime(p.implantationStart)} -{" "}
+                  {formatDateTime(p.implantationEnd)}
                 </Text>
 
                 <Text style={styles.row}>
@@ -281,8 +343,18 @@ export default function PatientPdfDocument({ clinic, patient }: Props) {
                 </Text>
 
                 <Text style={styles.row}>
+                  <Text style={styles.bold}>Enfermería: </Text>
+                  {p.nurses ?? "-"}
+                </Text>
+
+                <Text style={styles.row}>
                   <Text style={styles.bold}>Notas: </Text>
                   {p.notes ?? "-"}
+                </Text>
+
+                <Text style={styles.row}>
+                  <Text style={styles.bold}>Observaciones: </Text>
+                  {p.observations ?? "-"}
                 </Text>
               </View>
             ))
@@ -291,4 +363,19 @@ export default function PatientPdfDocument({ clinic, patient }: Props) {
       </Page>
     </Document>
   );
+}
+
+function Row({ label, value }: { label: string; value: string }) {
+  return (
+    <View style={styles.tableRow}>
+      <Text style={styles.cellHeader}>{label}</Text>
+      <Text style={styles.cell}>{value}</Text>
+    </View>
+  );
+}
+
+function formatDateTime(date: Date | null) {
+  if (!date) return "-";
+
+  return new Date(date).toLocaleString();
 }

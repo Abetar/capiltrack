@@ -7,31 +7,31 @@ datasource db {
 }
 
 model Clinic {
-  id        String   @id @default(cuid())
-  name      String
-
-  logoUrl   String?   // 👈 NUEVO (Cloudinary URL)
+  id      String  @id @default(cuid())
+  name    String
+  logoUrl String?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  users     User[]
-  patients  Patient[]
+  users          User[]
+  patients       Patient[]
+  questionnaires ClinicalQuestionnaire[]
 }
 
 model User {
-  id        String   @id @default(cuid())
-  email     String   @unique
-  name      String?
-  password  String?
+  id       String  @id @default(cuid())
+  email    String  @unique
+  name     String?
+  password String?
 
-  role      String   @default("DOCTOR")
+  role String @default("DOCTOR")
 
-  clinicId  String
-  clinic    Clinic   @relation(fields: [clinicId], references: [id])
+  clinicId String
+  clinic   Clinic @relation(fields: [clinicId], references: [id])
 
-  accounts  Account[]
-  sessions  Session[]
+  accounts Account[]
+  sessions Session[]
 
   isBlocked Boolean @default(false)
 
@@ -46,10 +46,10 @@ model User {
 }
 
 model Patient {
-  id        String   @id @default(cuid())
+  id String @id @default(cuid())
 
-  clinicId  String
-  clinic    Clinic   @relation(fields: [clinicId], references: [id])
+  clinicId String
+  clinic   Clinic @relation(fields: [clinicId], references: [id])
 
   firstName String
   lastName  String?
@@ -57,62 +57,63 @@ model Patient {
   birthDate DateTime?
   gender    String?
 
-  phone     String?
-  email     String?
+  phone String?
+  email String?
 
-  notes     String?
+  notes String?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  consultations Consultation[]
-  treatments    Treatment[]
-  photos        Photo[]
-  metrics       HairMetric[]
-  transplants   TransplantProcedure[]
+  consultations   Consultation[]
+  treatments      Treatment[]
+  photos          Photo[]
+  metrics         HairMetric[]
+  transplants     TransplantProcedure[]
+  clinicalAnswers PatientClinicalAnswer[]
 
   @@index([clinicId])
 }
 
 model Consultation {
-  id        String   @id @default(cuid())
+  id String @id @default(cuid())
 
-  clinicId  String
+  clinicId String
 
   patientId String
-  patient   Patient  @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  patient   Patient @relation(fields: [patientId], references: [id], onDelete: Cascade)
 
-  date      DateTime @default(now())
+  date DateTime @default(now())
 
   norwoodLevel Int?
 
-  notes     String?
+  notes String?
 
   createdAt DateTime @default(now())
 
-  photos    Photo[]
-  metrics   HairMetric[]
+  photos  Photo[]
+  metrics HairMetric[]
 
   @@index([clinicId])
 }
 
 model HairMetric {
-  id        String   @id @default(cuid())
+  id String @id @default(cuid())
 
-  clinicId  String
+  clinicId String
 
   patientId String
-  patient   Patient  @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  patient   Patient @relation(fields: [patientId], references: [id], onDelete: Cascade)
 
   consultationId String?
   consultation   Consultation? @relation(fields: [consultationId], references: [id], onDelete: Cascade)
 
-  zone      String?
+  zone String?
 
   density   Float?
   thickness Float?
 
-  notes     String?
+  notes String?
 
   createdAt DateTime @default(now())
 
@@ -120,20 +121,20 @@ model HairMetric {
 }
 
 model Photo {
-  id        String   @id @default(cuid())
+  id String @id @default(cuid())
 
-  clinicId  String
+  clinicId String
 
   patientId String
-  patient   Patient  @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  patient   Patient @relation(fields: [patientId], references: [id], onDelete: Cascade)
 
   consultationId String?
   consultation   Consultation? @relation(fields: [consultationId], references: [id], onDelete: Cascade)
 
-  url       String
+  url String
 
-  zone      String?
-  notes     String?
+  zone  String?
+  notes String?
 
   createdAt DateTime @default(now())
 
@@ -141,22 +142,22 @@ model Photo {
 }
 
 model Treatment {
-  id        String   @id @default(cuid())
+  id String @id @default(cuid())
 
-  clinicId  String
+  clinicId String
 
   patientId String
-  patient   Patient  @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  patient   Patient @relation(fields: [patientId], references: [id], onDelete: Cascade)
 
   medication String
 
-  dosage     String?
-  frequency  String?
+  dosage    String?
+  frequency String?
 
-  startDate  DateTime?
-  endDate    DateTime?
+  startDate DateTime?
+  endDate   DateTime?
 
-  notes      String?
+  notes String?
 
   createdAt DateTime @default(now())
 
@@ -164,30 +165,36 @@ model Treatment {
 }
 
 model TransplantProcedure {
-  id        String   @id @default(cuid())
+  id String @id @default(cuid())
 
-  clinicId  String
+  clinicId String
 
   patientId String
-  patient   Patient  @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  patient   Patient @relation(fields: [patientId], references: [id], onDelete: Cascade)
 
-  date      DateTime
+  date DateTime
 
   technique String?
   method    String?
 
-  grafts    Int?
+  grafts Int?
+
+  extractedFollicularUnits Int?
+  implantedFollicularUnits Int?
+
+  extractedFollicles Int?
+  implantedFollicles Int?
 
   donorArea     String?
   recipientArea String?
 
-  notes     String?
+  notes String?
 
   anesthesiaType String?
   anesthesiaMl   Float?
 
-  extractionStart   DateTime?
-  extractionEnd     DateTime?
+  extractionStart DateTime?
+  extractionEnd   DateTime?
 
   implantationStart DateTime?
   implantationEnd   DateTime?
@@ -223,24 +230,83 @@ model ProcedureBlock {
   @@index([procedureId])
 }
 
+model ClinicalQuestionnaire {
+  id String @id @default(cuid())
+
+  clinicId String
+  clinic   Clinic @relation(fields: [clinicId], references: [id], onDelete: Cascade)
+
+  title    String  @default("Expediente clínico inicial")
+  isActive Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  questions ClinicalQuestion[]
+
+  @@index([clinicId])
+}
+
+model ClinicalQuestion {
+  id String @id @default(cuid())
+
+  questionnaireId String
+  questionnaire   ClinicalQuestionnaire @relation(fields: [questionnaireId], references: [id], onDelete: Cascade)
+
+  questionText String
+  order        Int
+  isRequired   Boolean @default(false)
+  isActive     Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  answers PatientClinicalAnswer[]
+
+  @@index([questionnaireId])
+}
+
+model PatientClinicalAnswer {
+  id String @id @default(cuid())
+
+  clinicId String
+
+  patientId String
+  patient   Patient @relation(fields: [patientId], references: [id], onDelete: Cascade)
+
+  questionId String?
+  question   ClinicalQuestion? @relation(fields: [questionId], references: [id], onDelete: SetNull)
+
+  questionTextSnapshot String
+  answerText           String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([patientId, questionId])
+  @@index([clinicId])
+  @@index([patientId])
+  @@index([questionId])
+}
+
 /*
 AUTH MODELS
 */
 
 model Account {
-  id                String  @id @default(cuid())
+  id                String @id @default(cuid())
   userId            String
   type              String
   provider          String
   providerAccountId String
 
-  refresh_token     String?
-  access_token      String?
-  expires_at        Int?
-  token_type        String?
-  scope             String?
-  id_token          String?
-  session_state     String?
+  refresh_token String?
+  access_token  String?
+  expires_at    Int?
+  token_type    String?
+  scope         String?
+  id_token      String?
+  session_state String?
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -248,13 +314,13 @@ model Account {
 }
 
 model Session {
-  id           String   @id @default(cuid())
-  sessionToken String   @unique
+  id           String @id @default(cuid())
+  sessionToken String @unique
 
-  userId       String
-  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  expires      DateTime
+  expires DateTime
 }
 
 model VerificationToken {
