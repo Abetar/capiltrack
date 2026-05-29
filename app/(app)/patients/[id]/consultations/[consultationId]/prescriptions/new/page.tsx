@@ -121,8 +121,8 @@ export default async function NewPrescriptionPage({
         <h1 style={pageTitle}>Nueva receta médica</h1>
 
         <p style={subtitle}>
-          {consultation.patient.firstName} {consultation.patient.lastName ?? ""} ·{" "}
-          Consulta del {new Date(consultation.date).toLocaleDateString()}
+          {consultation.patient.firstName} {consultation.patient.lastName ?? ""}{" "}
+          · Consulta del {new Date(consultation.date).toLocaleDateString()}
         </p>
       </div>
 
@@ -184,6 +184,8 @@ export default async function NewPrescriptionPage({
           <MedicationBlock index={1} />
           <MedicationBlock index={2} />
           <MedicationBlock index={3} />
+          <MedicationBlock index={4} />
+          <MedicationBlock index={5} />
 
           <p
             style={{
@@ -193,7 +195,7 @@ export default async function NewPrescriptionPage({
               lineHeight: 1.5,
             }}
           >
-            Por ahora se permiten hasta 3 medicamentos por receta. Si necesitas
+            Por ahora se permiten hasta 5 medicamentos por receta. Si necesitas
             más, podemos ampliar este formulario después.
           </p>
         </Section>
@@ -246,11 +248,7 @@ function MedicationBlock({ index }: { index: number }) {
         </Field>
 
         <Field label="Duración">
-          <input
-            name="duration"
-            style={inputStyle}
-            placeholder="Ej. 3 meses"
-          />
+          <input name="duration" style={inputStyle} placeholder="Ej. 3 meses" />
         </Field>
       </Grid>
 

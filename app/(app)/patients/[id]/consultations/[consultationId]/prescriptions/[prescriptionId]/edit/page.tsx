@@ -115,7 +115,7 @@ export default async function EditPrescriptionPage({
 
   const existingItems = [...prescription.items];
 
-  while (existingItems.length < 3) {
+  while (existingItems.length < 5) {
     existingItems.push({
       id: `empty-${existingItems.length}`,
       prescriptionId: prescription.id,
@@ -185,9 +185,20 @@ export default async function EditPrescriptionPage({
 
         <Section title="Datos del médico">
           <div style={doctorInfoBox}>
-            <InfoItem label="Nombre" value={clinic?.doctorName || "No configurado"} />
-            <InfoItem label="Cédula profesional" value={clinic?.doctorLicense || "No configurado"} />
-            <InfoItem label="Teléfono" value={clinic?.doctorPhone || "No configurado"} />
+            <InfoItem
+              label="Nombre"
+              value={clinic?.doctorName || "No configurado"}
+            />
+
+            <InfoItem
+              label="Cédula profesional"
+              value={clinic?.doctorLicense || "No configurado"}
+            />
+
+            <InfoItem
+              label="Teléfono"
+              value={clinic?.doctorPhone || "No configurado"}
+            />
           </div>
 
           <p style={helperText}>
@@ -196,7 +207,7 @@ export default async function EditPrescriptionPage({
         </Section>
 
         <Section title="Medicamentos">
-          {existingItems.slice(0, 3).map((item, index) => (
+          {existingItems.slice(0, 5).map((item, index) => (
             <MedicationBlock
               key={item.id}
               index={index + 1}
@@ -208,6 +219,10 @@ export default async function EditPrescriptionPage({
               indications={item.indications}
             />
           ))}
+
+          <p style={helperText}>
+            Por ahora se permiten hasta 5 medicamentos por receta.
+          </p>
         </Section>
 
         <button type="submit" style={buttonStyle}>
@@ -263,23 +278,48 @@ function MedicationBlock({
 
       <Grid>
         <Field label="Medicamento">
-          <input name="medication" defaultValue={medication ?? ""} style={inputStyle} />
+          <input
+            name="medication"
+            defaultValue={medication ?? ""}
+            style={inputStyle}
+            placeholder="Ej. Finasteride"
+          />
         </Field>
 
         <Field label="Presentación">
-          <input name="presentation" defaultValue={presentation ?? ""} style={inputStyle} />
+          <input
+            name="presentation"
+            defaultValue={presentation ?? ""}
+            style={inputStyle}
+            placeholder="Ej. Tabletas 1 mg"
+          />
         </Field>
 
         <Field label="Dosis">
-          <input name="dosage" defaultValue={dosage ?? ""} style={inputStyle} />
+          <input
+            name="dosage"
+            defaultValue={dosage ?? ""}
+            style={inputStyle}
+            placeholder="Ej. 1 tableta"
+          />
         </Field>
 
         <Field label="Frecuencia">
-          <input name="frequency" defaultValue={frequency ?? ""} style={inputStyle} />
+          <input
+            name="frequency"
+            defaultValue={frequency ?? ""}
+            style={inputStyle}
+            placeholder="Ej. Cada 24 horas"
+          />
         </Field>
 
         <Field label="Duración">
-          <input name="duration" defaultValue={duration ?? ""} style={inputStyle} />
+          <input
+            name="duration"
+            defaultValue={duration ?? ""}
+            style={inputStyle}
+            placeholder="Ej. 3 meses"
+          />
         </Field>
       </Grid>
 
@@ -289,13 +329,20 @@ function MedicationBlock({
           rows={3}
           defaultValue={indications ?? ""}
           style={textareaStyle}
+          placeholder="Ej. Tomar después de alimentos."
         />
       </Field>
     </div>
   );
 }
 
-function Section({ title, children }: { title: string; children: React.ReactNode }) {
+function Section({
+  title,
+  children,
+}: {
+  title: string;
+  children: React.ReactNode;
+}) {
   return (
     <section style={sectionStyle}>
       <h2 style={sectionTitle}>{title}</h2>
@@ -308,7 +355,13 @@ function Grid({ children }: { children: React.ReactNode }) {
   return <div style={gridStyle}>{children}</div>;
 }
 
-function Field({ label, children }: { label: string; children: React.ReactNode }) {
+function Field({
+  label,
+  children,
+}: {
+  label: string;
+  children: React.ReactNode;
+}) {
   return (
     <div style={{ marginBottom: 16 }}>
       <label style={labelStyle}>{label}</label>
@@ -317,18 +370,116 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
   );
 }
 
-const backLink: React.CSSProperties = { display: "inline-block", marginBottom: 14, fontSize: 14, color: "#2563EB", textDecoration: "none" };
-const pageTitle: React.CSSProperties = { fontSize: 28, fontWeight: 700, color: "#111827", marginBottom: 8 };
-const subtitle: React.CSSProperties = { fontSize: 14, color: "#6B7280" };
-const formStyle: React.CSSProperties = { display: "flex", flexDirection: "column", gap: 20 };
-const sectionStyle: React.CSSProperties = { background: "white", border: "1px solid #E5E7EB", borderRadius: 14, padding: 22 };
-const sectionTitle: React.CSSProperties = { fontSize: 18, fontWeight: 600, color: "#111827", marginBottom: 18 };
-const gridStyle: React.CSSProperties = { display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 };
-const labelStyle: React.CSSProperties = { display: "block", fontSize: 13, color: "#6B7280", marginBottom: 6 };
-const inputStyle: React.CSSProperties = { width: "100%", padding: "10px 12px", border: "1px solid #D1D5DB", borderRadius: 8, fontSize: 14 };
-const textareaStyle: React.CSSProperties = { width: "100%", padding: "10px 12px", border: "1px solid #D1D5DB", borderRadius: 8, fontSize: 14, resize: "vertical" };
-const doctorInfoBox: React.CSSProperties = { display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 16, background: "#F9FAFB", border: "1px solid #E5E7EB", borderRadius: 12, padding: 16 };
-const helperText: React.CSSProperties = { fontSize: 13, color: "#6B7280", marginTop: 12, lineHeight: 1.5 };
-const medicationCard: React.CSSProperties = { border: "1px solid #E5E7EB", borderRadius: 12, padding: 18, marginBottom: 16, background: "#F9FAFB" };
-const medicationTitle: React.CSSProperties = { fontSize: 15, fontWeight: 600, color: "#111827", marginBottom: 14 };
-const buttonStyle: React.CSSProperties = { alignSelf: "flex-start", background: "#2563EB", color: "white", padding: "12px 18px", borderRadius: 8, border: "none", fontSize: 14, fontWeight: 600, cursor: "pointer" };
+const backLink: React.CSSProperties = {
+  display: "inline-block",
+  marginBottom: 14,
+  fontSize: 14,
+  color: "#2563EB",
+  textDecoration: "none",
+};
+
+const pageTitle: React.CSSProperties = {
+  fontSize: 28,
+  fontWeight: 700,
+  color: "#111827",
+  marginBottom: 8,
+};
+
+const subtitle: React.CSSProperties = {
+  fontSize: 14,
+  color: "#6B7280",
+};
+
+const formStyle: React.CSSProperties = {
+  display: "flex",
+  flexDirection: "column",
+  gap: 20,
+};
+
+const sectionStyle: React.CSSProperties = {
+  background: "white",
+  border: "1px solid #E5E7EB",
+  borderRadius: 14,
+  padding: 22,
+};
+
+const sectionTitle: React.CSSProperties = {
+  fontSize: 18,
+  fontWeight: 600,
+  color: "#111827",
+  marginBottom: 18,
+};
+
+const gridStyle: React.CSSProperties = {
+  display: "grid",
+  gridTemplateColumns: "1fr 1fr",
+  gap: 16,
+};
+
+const labelStyle: React.CSSProperties = {
+  display: "block",
+  fontSize: 13,
+  color: "#6B7280",
+  marginBottom: 6,
+};
+
+const inputStyle: React.CSSProperties = {
+  width: "100%",
+  padding: "10px 12px",
+  border: "1px solid #D1D5DB",
+  borderRadius: 8,
+  fontSize: 14,
+};
+
+const textareaStyle: React.CSSProperties = {
+  width: "100%",
+  padding: "10px 12px",
+  border: "1px solid #D1D5DB",
+  borderRadius: 8,
+  fontSize: 14,
+  resize: "vertical",
+};
+
+const doctorInfoBox: React.CSSProperties = {
+  display: "grid",
+  gridTemplateColumns: "1fr 1fr 1fr",
+  gap: 16,
+  background: "#F9FAFB",
+  border: "1px solid #E5E7EB",
+  borderRadius: 12,
+  padding: 16,
+};
+
+const helperText: React.CSSProperties = {
+  fontSize: 13,
+  color: "#6B7280",
+  marginTop: 12,
+  lineHeight: 1.5,
+};
+
+const medicationCard: React.CSSProperties = {
+  border: "1px solid #E5E7EB",
+  borderRadius: 12,
+  padding: 18,
+  marginBottom: 16,
+  background: "#F9FAFB",
+};
+
+const medicationTitle: React.CSSProperties = {
+  fontSize: 15,
+  fontWeight: 600,
+  color: "#111827",
+  marginBottom: 14,
+};
+
+const buttonStyle: React.CSSProperties = {
+  alignSelf: "flex-start",
+  background: "#2563EB",
+  color: "white",
+  padding: "12px 18px",
+  borderRadius: 8,
+  border: "none",
+  fontSize: 14,
+  fontWeight: 600,
+  cursor: "pointer",
+};
