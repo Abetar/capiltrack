@@ -31,6 +31,17 @@ export default async function NewPrescriptionPage({
     return <div>Consulta no encontrada</div>;
   }
 
+  const clinic = await prisma.clinic.findUnique({
+    where: {
+      id: user.clinicId,
+    },
+    select: {
+      doctorName: true,
+      doctorLicense: true,
+      doctorPhone: true,
+    },
+  });
+
   async function createPrescription(formData: FormData) {
     "use server";
 
@@ -38,10 +49,6 @@ export default async function NewPrescriptionPage({
 
     const diagnosis = getString(formData, "diagnosis");
     const generalNotes = getString(formData, "generalNotes");
-
-    const doctorName = getString(formData, "doctorName");
-    const doctorLicense = getString(formData, "doctorLicense");
-    const doctorPhone = getString(formData, "doctorPhone");
 
     const medications = formData.getAll("medication") as string[];
     const presentations = formData.getAll("presentation") as string[];
@@ -66,6 +73,17 @@ export default async function NewPrescriptionPage({
       throw new Error("Debes agregar al menos un medicamento.");
     }
 
+    const clinicData = await prisma.clinic.findUnique({
+      where: {
+        id: user.clinicId,
+      },
+      select: {
+        doctorName: true,
+        doctorLicense: true,
+        doctorPhone: true,
+      },
+    });
+
     await prisma.prescription.create({
       data: {
         clinicId: user.clinicId,
@@ -76,9 +94,10 @@ export default async function NewPrescriptionPage({
 
         diagnosis,
         generalNotes,
-        doctorName,
-        doctorLicense,
-        doctorPhone,
+
+        doctorName: clinicData?.doctorName ?? null,
+        doctorLicense: clinicData?.doctorLicense ?? null,
+        doctorPhone: clinicData?.doctorPhone ?? null,
 
         items: {
           create: items,
@@ -139,31 +158,26 @@ export default async function NewPrescriptionPage({
         </Section>
 
         <Section title="Datos del médico">
-          <Grid>
-            <Field label="Nombre del médico">
-              <input
-                name="doctorName"
-                style={inputStyle}
-                placeholder="Ej. Dr. Juan Pérez"
-              />
-            </Field>
+          <div style={doctorInfoBox}>
+            <InfoItem
+              label="Nombre"
+              value={clinic?.doctorName || "No configurado"}
+            />
 
-            <Field label="Cédula profesional">
-              <input
-                name="doctorLicense"
-                style={inputStyle}
-                placeholder="Ej. 12345678"
-              />
-            </Field>
+            <InfoItem
+              label="Cédula profesional"
+              value={clinic?.doctorLicense || "No configurado"}
+            />
 
-            <Field label="Teléfono de contacto">
-              <input
-                name="doctorPhone"
-                style={inputStyle}
-                placeholder="Ej. 33 1234 5678"
-              />
-            </Field>
-          </Grid>
+            <InfoItem
+              label="Teléfono"
+              value={clinic?.doctorPhone || "No configurado"}
+            />
+          </div>
+
+          <p style={helperText}>
+            Estos datos se toman automáticamente desde Configuración.
+          </p>
         </Section>
 
         <Section title="Medicamentos">
@@ -248,6 +262,20 @@ function MedicationBlock({ index }: { index: number }) {
           placeholder="Ej. Tomar después de alimentos. Suspender en caso de reacción adversa."
         />
       </Field>
+    </div>
+  );
+}
+
+function InfoItem({ label, value }: { label: string; value: string }) {
+  return (
+    <div>
+      <div style={{ fontSize: 12, color: "#6B7280", marginBottom: 4 }}>
+        {label}
+      </div>
+
+      <div style={{ fontSize: 14, fontWeight: 600, color: "#111827" }}>
+        {value}
+      </div>
     </div>
   );
 }
@@ -354,6 +382,23 @@ const textareaStyle: React.CSSProperties = {
   borderRadius: 8,
   fontSize: 14,
   resize: "vertical",
+};
+
+const doctorInfoBox: React.CSSProperties = {
+  display: "grid",
+  gridTemplateColumns: "1fr 1fr 1fr",
+  gap: 16,
+  background: "#F9FAFB",
+  border: "1px solid #E5E7EB",
+  borderRadius: 12,
+  padding: 16,
+};
+
+const helperText: React.CSSProperties = {
+  fontSize: 13,
+  color: "#6B7280",
+  marginTop: 12,
+  lineHeight: 1.5,
 };
 
 const medicationCard: React.CSSProperties = {

@@ -69,9 +69,6 @@ type Prescription = {
   date: Date;
   diagnosis: string | null;
   generalNotes: string | null;
-  doctorName: string | null;
-  doctorLicense: string | null;
-  doctorPhone: string | null;
   consultation: {
     id: string;
     date: Date;
@@ -82,6 +79,9 @@ type Prescription = {
 type Clinic = {
   name: string;
   logoUrl: string | null;
+  doctorName: string | null;
+  doctorLicense: string | null;
+  doctorPhone: string | null;
 };
 
 type Patient = {
@@ -267,6 +267,23 @@ export default function PatientPdfDocument({ clinic, patient }: Props) {
                     prescription.consultation.date
                   ).toLocaleDateString()}
                 </Text>
+
+                <Text style={styles.row}>
+                  <Text style={styles.bold}>Médico: </Text>
+                  {clinic.doctorName || "No configurado"}
+                </Text>
+
+                <Text style={styles.row}>
+                  <Text style={styles.bold}>Cédula: </Text>
+                  {clinic.doctorLicense || "No configurada"}
+                </Text>
+
+                {clinic.doctorPhone && (
+                  <Text style={styles.row}>
+                    <Text style={styles.bold}>Teléfono: </Text>
+                    {clinic.doctorPhone}
+                  </Text>
+                )}
 
                 {prescription.diagnosis && (
                   <Text style={styles.row}>

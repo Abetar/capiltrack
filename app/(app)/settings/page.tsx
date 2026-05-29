@@ -18,7 +18,7 @@ export default async function SettingsPage() {
   }
 
   return (
-    <div style={{ maxWidth: 700 }}>
+    <div style={{ maxWidth: 760 }}>
       <h1 style={{ fontSize: 26, fontWeight: 600, marginBottom: 24 }}>
         Configuración
       </h1>
@@ -26,6 +26,9 @@ export default async function SettingsPage() {
       <SettingsForm
         clinicName={clinic.name}
         clinicLogoUrl={clinic.logoUrl}
+        doctorName={clinic.doctorName}
+        doctorLicense={clinic.doctorLicense}
+        doctorPhone={clinic.doctorPhone}
       />
     </div>
   );

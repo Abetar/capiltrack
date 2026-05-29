@@ -1,4 +1,3 @@
-    //app/api/patients/[id]/consultations/[consultationId]/prescriptions/[prescriptionId]/pdf/route.ts
 import { prisma } from "@/lib/db/prisma";
 import { getCurrentUser } from "@/lib/auth/getCurrentUser";
 import { renderToBuffer } from "@react-pdf/renderer";
@@ -57,6 +56,9 @@ export async function GET(
     select: {
       name: true,
       logoUrl: true,
+      doctorName: true,
+      doctorLicense: true,
+      doctorPhone: true,
     },
   });
 
@@ -67,10 +69,7 @@ export async function GET(
   }
 
   const pdfBuffer = await renderToBuffer(
-    <PrescriptionPdfDocument
-      clinic={clinic}
-      prescription={prescription}
-    />
+    <PrescriptionPdfDocument clinic={clinic} prescription={prescription} />
   );
 
   return new Response(pdfBuffer as BodyInit, {

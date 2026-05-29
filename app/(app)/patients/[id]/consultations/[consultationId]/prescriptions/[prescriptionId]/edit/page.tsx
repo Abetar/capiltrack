@@ -16,20 +16,20 @@ export default async function EditPrescriptionPage({
     return <div>Acceso restringido: {reason}</div>;
   }
 
+  const clinicId = user.clinicId;
+
   const prescription = await prisma.prescription.findFirst({
     where: {
       id: prescriptionId,
       patientId: id,
       consultationId,
-      clinicId: user.clinicId,
+      clinicId,
     },
     include: {
       patient: true,
       consultation: true,
       items: {
-        orderBy: {
-          order: "asc",
-        },
+        orderBy: { order: "asc" },
       },
     },
   });
@@ -37,6 +37,15 @@ export default async function EditPrescriptionPage({
   if (!prescription) {
     return <div>Receta no encontrada</div>;
   }
+
+  const clinic = await prisma.clinic.findUnique({
+    where: { id: clinicId },
+    select: {
+      doctorName: true,
+      doctorLicense: true,
+      doctorPhone: true,
+    },
+  });
 
   const currentPrescriptionDate = prescription.date;
 
@@ -47,10 +56,6 @@ export default async function EditPrescriptionPage({
 
     const diagnosis = getString(formData, "diagnosis");
     const generalNotes = getString(formData, "generalNotes");
-
-    const doctorName = getString(formData, "doctorName");
-    const doctorLicense = getString(formData, "doctorLicense");
-    const doctorPhone = getString(formData, "doctorPhone");
 
     const medications = formData.getAll("medication") as string[];
     const presentations = formData.getAll("presentation") as string[];
@@ -75,27 +80,29 @@ export default async function EditPrescriptionPage({
       throw new Error("Debes agregar al menos un medicamento.");
     }
 
+    const clinicData = await prisma.clinic.findUnique({
+      where: { id: clinicId },
+      select: {
+        doctorName: true,
+        doctorLicense: true,
+        doctorPhone: true,
+      },
+    });
+
     await prisma.$transaction([
       prisma.prescriptionItem.deleteMany({
-        where: {
-          prescriptionId,
-        },
+        where: { prescriptionId },
       }),
 
       prisma.prescription.update({
-        where: {
-          id: prescriptionId,
-        },
+        where: { id: prescriptionId },
         data: {
           date: date ? new Date(date) : currentPrescriptionDate,
-
           diagnosis,
           generalNotes,
-
-          doctorName,
-          doctorLicense,
-          doctorPhone,
-
+          doctorName: clinicData?.doctorName ?? null,
+          doctorLicense: clinicData?.doctorLicense ?? null,
+          doctorPhone: clinicData?.doctorPhone ?? null,
           items: {
             create: items,
           },
@@ -177,34 +184,15 @@ export default async function EditPrescriptionPage({
         </Section>
 
         <Section title="Datos del médico">
-          <Grid>
-            <Field label="Nombre del médico">
-              <input
-                name="doctorName"
-                defaultValue={prescription.doctorName ?? ""}
-                style={inputStyle}
-                placeholder="Ej. Dr. Juan Pérez"
-              />
-            </Field>
+          <div style={doctorInfoBox}>
+            <InfoItem label="Nombre" value={clinic?.doctorName || "No configurado"} />
+            <InfoItem label="Cédula profesional" value={clinic?.doctorLicense || "No configurado"} />
+            <InfoItem label="Teléfono" value={clinic?.doctorPhone || "No configurado"} />
+          </div>
 
-            <Field label="Cédula profesional">
-              <input
-                name="doctorLicense"
-                defaultValue={prescription.doctorLicense ?? ""}
-                style={inputStyle}
-                placeholder="Ej. 12345678"
-              />
-            </Field>
-
-            <Field label="Teléfono de contacto">
-              <input
-                name="doctorPhone"
-                defaultValue={prescription.doctorPhone ?? ""}
-                style={inputStyle}
-                placeholder="Ej. 33 1234 5678"
-              />
-            </Field>
-          </Grid>
+          <p style={helperText}>
+            Estos datos se toman automáticamente desde Configuración.
+          </p>
         </Section>
 
         <Section title="Medicamentos">
@@ -220,18 +208,6 @@ export default async function EditPrescriptionPage({
               indications={item.indications}
             />
           ))}
-
-          <p
-            style={{
-              fontSize: 13,
-              color: "#6B7280",
-              marginTop: 10,
-              lineHeight: 1.5,
-            }}
-          >
-            Por ahora se permiten hasta 3 medicamentos por receta. Si necesitas
-            más, podemos ampliar este formulario después.
-          </p>
         </Section>
 
         <button type="submit" style={buttonStyle}>
@@ -249,6 +225,19 @@ function getString(formData: FormData, key: string) {
 
 function formatDate(date: Date) {
   return new Date(date).toISOString().slice(0, 10);
+}
+
+function InfoItem({ label, value }: { label: string; value: string }) {
+  return (
+    <div>
+      <div style={{ fontSize: 12, color: "#6B7280", marginBottom: 4 }}>
+        {label}
+      </div>
+      <div style={{ fontSize: 14, fontWeight: 600, color: "#111827" }}>
+        {value}
+      </div>
+    </div>
+  );
 }
 
 function MedicationBlock({
@@ -274,48 +263,23 @@ function MedicationBlock({
 
       <Grid>
         <Field label="Medicamento">
-          <input
-            name="medication"
-            defaultValue={medication ?? ""}
-            style={inputStyle}
-            placeholder="Ej. Finasteride"
-          />
+          <input name="medication" defaultValue={medication ?? ""} style={inputStyle} />
         </Field>
 
         <Field label="Presentación">
-          <input
-            name="presentation"
-            defaultValue={presentation ?? ""}
-            style={inputStyle}
-            placeholder="Ej. Tabletas 1 mg"
-          />
+          <input name="presentation" defaultValue={presentation ?? ""} style={inputStyle} />
         </Field>
 
         <Field label="Dosis">
-          <input
-            name="dosage"
-            defaultValue={dosage ?? ""}
-            style={inputStyle}
-            placeholder="Ej. 1 tableta"
-          />
+          <input name="dosage" defaultValue={dosage ?? ""} style={inputStyle} />
         </Field>
 
         <Field label="Frecuencia">
-          <input
-            name="frequency"
-            defaultValue={frequency ?? ""}
-            style={inputStyle}
-            placeholder="Ej. Cada 24 horas"
-          />
+          <input name="frequency" defaultValue={frequency ?? ""} style={inputStyle} />
         </Field>
 
         <Field label="Duración">
-          <input
-            name="duration"
-            defaultValue={duration ?? ""}
-            style={inputStyle}
-            placeholder="Ej. 3 meses"
-          />
+          <input name="duration" defaultValue={duration ?? ""} style={inputStyle} />
         </Field>
       </Grid>
 
@@ -325,20 +289,13 @@ function MedicationBlock({
           rows={3}
           defaultValue={indications ?? ""}
           style={textareaStyle}
-          placeholder="Ej. Tomar después de alimentos. Suspender en caso de reacción adversa."
         />
       </Field>
     </div>
   );
 }
 
-function Section({
-  title,
-  children,
-}: {
-  title: string;
-  children: React.ReactNode;
-}) {
+function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <section style={sectionStyle}>
       <h2 style={sectionTitle}>{title}</h2>
@@ -351,13 +308,7 @@ function Grid({ children }: { children: React.ReactNode }) {
   return <div style={gridStyle}>{children}</div>;
 }
 
-function Field({
-  label,
-  children,
-}: {
-  label: string;
-  children: React.ReactNode;
-}) {
+function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div style={{ marginBottom: 16 }}>
       <label style={labelStyle}>{label}</label>
@@ -366,99 +317,18 @@ function Field({
   );
 }
 
-const backLink: React.CSSProperties = {
-  display: "inline-block",
-  marginBottom: 14,
-  fontSize: 14,
-  color: "#2563EB",
-  textDecoration: "none",
-};
-
-const pageTitle: React.CSSProperties = {
-  fontSize: 28,
-  fontWeight: 700,
-  color: "#111827",
-  marginBottom: 8,
-};
-
-const subtitle: React.CSSProperties = {
-  fontSize: 14,
-  color: "#6B7280",
-};
-
-const formStyle: React.CSSProperties = {
-  display: "flex",
-  flexDirection: "column",
-  gap: 20,
-};
-
-const sectionStyle: React.CSSProperties = {
-  background: "white",
-  border: "1px solid #E5E7EB",
-  borderRadius: 14,
-  padding: 22,
-};
-
-const sectionTitle: React.CSSProperties = {
-  fontSize: 18,
-  fontWeight: 600,
-  color: "#111827",
-  marginBottom: 18,
-};
-
-const gridStyle: React.CSSProperties = {
-  display: "grid",
-  gridTemplateColumns: "1fr 1fr",
-  gap: 16,
-};
-
-const labelStyle: React.CSSProperties = {
-  display: "block",
-  fontSize: 13,
-  color: "#6B7280",
-  marginBottom: 6,
-};
-
-const inputStyle: React.CSSProperties = {
-  width: "100%",
-  padding: "10px 12px",
-  border: "1px solid #D1D5DB",
-  borderRadius: 8,
-  fontSize: 14,
-};
-
-const textareaStyle: React.CSSProperties = {
-  width: "100%",
-  padding: "10px 12px",
-  border: "1px solid #D1D5DB",
-  borderRadius: 8,
-  fontSize: 14,
-  resize: "vertical",
-};
-
-const medicationCard: React.CSSProperties = {
-  border: "1px solid #E5E7EB",
-  borderRadius: 12,
-  padding: 18,
-  marginBottom: 16,
-  background: "#F9FAFB",
-};
-
-const medicationTitle: React.CSSProperties = {
-  fontSize: 15,
-  fontWeight: 600,
-  color: "#111827",
-  marginBottom: 14,
-};
-
-const buttonStyle: React.CSSProperties = {
-  alignSelf: "flex-start",
-  background: "#2563EB",
-  color: "white",
-  padding: "12px 18px",
-  borderRadius: 8,
-  border: "none",
-  fontSize: 14,
-  fontWeight: 600,
-  cursor: "pointer",
-};
+const backLink: React.CSSProperties = { display: "inline-block", marginBottom: 14, fontSize: 14, color: "#2563EB", textDecoration: "none" };
+const pageTitle: React.CSSProperties = { fontSize: 28, fontWeight: 700, color: "#111827", marginBottom: 8 };
+const subtitle: React.CSSProperties = { fontSize: 14, color: "#6B7280" };
+const formStyle: React.CSSProperties = { display: "flex", flexDirection: "column", gap: 20 };
+const sectionStyle: React.CSSProperties = { background: "white", border: "1px solid #E5E7EB", borderRadius: 14, padding: 22 };
+const sectionTitle: React.CSSProperties = { fontSize: 18, fontWeight: 600, color: "#111827", marginBottom: 18 };
+const gridStyle: React.CSSProperties = { display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 };
+const labelStyle: React.CSSProperties = { display: "block", fontSize: 13, color: "#6B7280", marginBottom: 6 };
+const inputStyle: React.CSSProperties = { width: "100%", padding: "10px 12px", border: "1px solid #D1D5DB", borderRadius: 8, fontSize: 14 };
+const textareaStyle: React.CSSProperties = { width: "100%", padding: "10px 12px", border: "1px solid #D1D5DB", borderRadius: 8, fontSize: 14, resize: "vertical" };
+const doctorInfoBox: React.CSSProperties = { display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 16, background: "#F9FAFB", border: "1px solid #E5E7EB", borderRadius: 12, padding: 16 };
+const helperText: React.CSSProperties = { fontSize: 13, color: "#6B7280", marginTop: 12, lineHeight: 1.5 };
+const medicationCard: React.CSSProperties = { border: "1px solid #E5E7EB", borderRadius: 12, padding: 18, marginBottom: 16, background: "#F9FAFB" };
+const medicationTitle: React.CSSProperties = { fontSize: 15, fontWeight: 600, color: "#111827", marginBottom: 14 };
+const buttonStyle: React.CSSProperties = { alignSelf: "flex-start", background: "#2563EB", color: "white", padding: "12px 18px", borderRadius: 8, border: "none", fontSize: 14, fontWeight: 600, cursor: "pointer" };

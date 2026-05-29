@@ -11,6 +11,9 @@ import {
 type Clinic = {
   name: string;
   logoUrl: string | null;
+  doctorName: string | null;
+  doctorLicense: string | null;
+  doctorPhone: string | null;
 };
 
 type PrescriptionItem = {
@@ -27,21 +30,14 @@ type PrescriptionItem = {
 type Prescription = {
   id: string;
   date: Date;
-
   diagnosis: string | null;
   generalNotes: string | null;
-
-  doctorName: string | null;
-  doctorLicense: string | null;
-  doctorPhone: string | null;
-
   patient: {
     firstName: string;
     lastName: string | null;
     birthDate: Date | null;
     gender: string | null;
   };
-
   items: PrescriptionItem[];
 };
 
@@ -56,7 +52,6 @@ const styles = StyleSheet.create({
     fontSize: 10,
     color: "#111827",
   },
-
   header: {
     flexDirection: "row",
     justifyContent: "space-between",
@@ -66,103 +61,38 @@ const styles = StyleSheet.create({
     borderBottomColor: "#E5E7EB",
     paddingBottom: 12,
   },
-
   clinicInfo: {
     flex: 1,
   },
-
   clinicName: {
     fontSize: 18,
     fontWeight: 700,
     marginBottom: 4,
   },
-
   logo: {
     width: 100,
     height: 50,
     objectFit: "contain",
   },
-
   recipeTitle: {
     fontSize: 20,
     fontWeight: 700,
     marginBottom: 14,
   },
-
   section: {
     marginBottom: 18,
   },
-
   sectionTitle: {
     fontSize: 13,
     fontWeight: 700,
     marginBottom: 8,
   },
-
   row: {
     marginBottom: 4,
   },
-
   bold: {
     fontWeight: 700,
   },
-
-  table: {
-    borderWidth: 1,
-    borderColor: "#E5E7EB",
-    marginTop: 8,
-  },
-
-  tableHeader: {
-    flexDirection: "row",
-    backgroundColor: "#F3F4F6",
-  },
-
-  tableRow: {
-    flexDirection: "row",
-    borderTopWidth: 1,
-    borderTopColor: "#E5E7EB",
-  },
-
-  cellHeader: {
-    padding: 6,
-    fontSize: 9,
-    fontWeight: 700,
-  },
-
-  cell: {
-    padding: 6,
-    fontSize: 9,
-  },
-
-  medicationCol: {
-    flex: 2,
-    borderRightWidth: 1,
-    borderColor: "#E5E7EB",
-  },
-
-  presentationCol: {
-    flex: 2,
-    borderRightWidth: 1,
-    borderColor: "#E5E7EB",
-  },
-
-  dosageCol: {
-    flex: 1.5,
-    borderRightWidth: 1,
-    borderColor: "#E5E7EB",
-  },
-
-  frequencyCol: {
-    flex: 1.5,
-    borderRightWidth: 1,
-    borderColor: "#E5E7EB",
-  },
-
-  durationCol: {
-    flex: 1.5,
-  },
-
   medicationBox: {
     borderWidth: 1,
     borderColor: "#E5E7EB",
@@ -170,13 +100,11 @@ const styles = StyleSheet.create({
     padding: 10,
     marginBottom: 10,
   },
-
   medicationTitle: {
     fontSize: 11,
     fontWeight: 700,
     marginBottom: 6,
   },
-
   notesBox: {
     marginTop: 16,
     padding: 10,
@@ -184,7 +112,16 @@ const styles = StyleSheet.create({
     borderColor: "#E5E7EB",
     borderRadius: 6,
   },
-
+  signatureBox: {
+    marginTop: 40,
+    alignItems: "center",
+  },
+  signatureLine: {
+    width: 220,
+    borderTopWidth: 1,
+    borderTopColor: "#111827",
+    marginBottom: 6,
+  },
   footer: {
     position: "absolute",
     bottom: 20,
@@ -193,18 +130,6 @@ const styles = StyleSheet.create({
     textAlign: "center",
     fontSize: 9,
     color: "#6B7280",
-  },
-
-  signatureBox: {
-    marginTop: 40,
-    alignItems: "center",
-  },
-
-  signatureLine: {
-    width: 200,
-    borderTopWidth: 1,
-    borderTopColor: "#111827",
-    marginBottom: 6,
   },
 });
 
@@ -219,52 +144,32 @@ export default function PrescriptionPdfDocument({
   return (
     <Document>
       <Page size="A4" style={styles.page}>
-        {/* HEADER */}
-
         <View style={styles.header}>
           <View style={styles.clinicInfo}>
             <Text style={styles.clinicName}>{clinic.name}</Text>
-
             <Text>
-              Fecha:{" "}
-              {new Date(prescription.date).toLocaleDateString()}
+              Fecha: {new Date(prescription.date).toLocaleDateString()}
             </Text>
           </View>
 
-          {clinic.logoUrl && (
-            <Image
-              src={clinic.logoUrl}
-              style={styles.logo}
-            />
-          )}
+          {clinic.logoUrl && <Image src={clinic.logoUrl} style={styles.logo} />}
         </View>
 
-        {/* TITULO */}
-
         <View style={styles.section}>
-          <Text style={styles.recipeTitle}>
-            RECETA MÉDICA
-          </Text>
+          <Text style={styles.recipeTitle}>RECETA MÉDICA</Text>
         </View>
 
-        {/* PACIENTE */}
-
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>
-            Datos del paciente
-          </Text>
+          <Text style={styles.sectionTitle}>Datos del paciente</Text>
 
           <Text style={styles.row}>
-            <Text style={styles.bold}>Nombre:</Text>{" "}
-            {patientName}
+            <Text style={styles.bold}>Nombre:</Text> {patientName}
           </Text>
 
           <Text style={styles.row}>
             <Text style={styles.bold}>Fecha de nacimiento:</Text>{" "}
             {prescription.patient.birthDate
-              ? new Date(
-                  prescription.patient.birthDate
-                ).toLocaleDateString()
+              ? new Date(prescription.patient.birthDate).toLocaleDateString()
               : "-"}
           </Text>
 
@@ -274,75 +179,51 @@ export default function PrescriptionPdfDocument({
           </Text>
         </View>
 
-        {/* DIAGNOSTICO */}
-
         {prescription.diagnosis && (
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>
-              Diagnóstico
-            </Text>
-
+            <Text style={styles.sectionTitle}>Diagnóstico</Text>
             <Text>{prescription.diagnosis}</Text>
           </View>
         )}
 
-        {/* MEDICAMENTOS */}
-
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>
-            Medicamentos prescritos
-          </Text>
+          <Text style={styles.sectionTitle}>Medicamentos prescritos</Text>
 
           {prescription.items.map((item, index) => (
-            <View
-              key={item.id}
-              style={styles.medicationBox}
-            >
+            <View key={item.id} style={styles.medicationBox}>
               <Text style={styles.medicationTitle}>
                 {index + 1}. {item.medication}
               </Text>
 
               {item.presentation && (
                 <Text style={styles.row}>
-                  <Text style={styles.bold}>
-                    Presentación:
-                  </Text>{" "}
+                  <Text style={styles.bold}>Presentación:</Text>{" "}
                   {item.presentation}
                 </Text>
               )}
 
               {item.dosage && (
                 <Text style={styles.row}>
-                  <Text style={styles.bold}>
-                    Dosis:
-                  </Text>{" "}
-                  {item.dosage}
+                  <Text style={styles.bold}>Dosis:</Text> {item.dosage}
                 </Text>
               )}
 
               {item.frequency && (
                 <Text style={styles.row}>
-                  <Text style={styles.bold}>
-                    Frecuencia:
-                  </Text>{" "}
+                  <Text style={styles.bold}>Frecuencia:</Text>{" "}
                   {item.frequency}
                 </Text>
               )}
 
               {item.duration && (
                 <Text style={styles.row}>
-                  <Text style={styles.bold}>
-                    Duración:
-                  </Text>{" "}
-                  {item.duration}
+                  <Text style={styles.bold}>Duración:</Text> {item.duration}
                 </Text>
               )}
 
               {item.indications && (
                 <Text style={styles.row}>
-                  <Text style={styles.bold}>
-                    Indicaciones:
-                  </Text>{" "}
+                  <Text style={styles.bold}>Indicaciones:</Text>{" "}
                   {item.indications}
                 </Text>
               )}
@@ -350,47 +231,26 @@ export default function PrescriptionPdfDocument({
           ))}
         </View>
 
-        {/* NOTAS */}
-
         {prescription.generalNotes && (
           <View style={styles.notesBox}>
-            <Text style={styles.bold}>
-              Notas generales
-            </Text>
-
-            <Text style={{ marginTop: 6 }}>
-              {prescription.generalNotes}
-            </Text>
+            <Text style={styles.bold}>Notas generales</Text>
+            <Text style={{ marginTop: 6 }}>{prescription.generalNotes}</Text>
           </View>
         )}
-
-        {/* FIRMA */}
 
         <View style={styles.signatureBox}>
           <View style={styles.signatureLine} />
 
-          <Text>
-            {prescription.doctorName || "Médico tratante"}
-          </Text>
+          <Text>{clinic.doctorName || "Médico tratante"}</Text>
 
-          {prescription.doctorLicense && (
-            <Text>
-              Cédula: {prescription.doctorLicense}
-            </Text>
+          {clinic.doctorLicense && (
+            <Text>Cédula: {clinic.doctorLicense}</Text>
           )}
 
-          {prescription.doctorPhone && (
-            <Text>
-              Tel: {prescription.doctorPhone}
-            </Text>
-          )}
+          {clinic.doctorPhone && <Text>Tel: {clinic.doctorPhone}</Text>}
         </View>
 
-        {/* FOOTER */}
-
-        <Text style={styles.footer}>
-          Documento generado por CapilTrack
-        </Text>
+        <Text style={styles.footer}>Documento generado por CapilTrack</Text>
       </Page>
     </Document>
   );

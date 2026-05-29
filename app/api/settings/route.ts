@@ -13,6 +13,10 @@ export async function POST(req: Request) {
     const formData = await req.formData();
 
     const name = formData.get("name") as string;
+    const doctorName = formData.get("doctorName") as string;
+    const doctorLicense = formData.get("doctorLicense") as string;
+    const doctorPhone = formData.get("doctorPhone") as string;
+
     const file = formData.get("logo") as File | null;
 
     const clinic = await prisma.clinic.findUnique({
@@ -60,8 +64,11 @@ export async function POST(req: Request) {
     await prisma.clinic.update({
       where: { id: clinic.id },
       data: {
-        name: name || clinic.name,
+        name: name?.trim() || clinic.name,
         logoUrl,
+        doctorName: doctorName?.trim() || null,
+        doctorLicense: doctorLicense?.trim() || null,
+        doctorPhone: doctorPhone?.trim() || null,
       },
     });
 
