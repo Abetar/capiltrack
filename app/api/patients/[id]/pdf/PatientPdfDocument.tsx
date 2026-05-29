@@ -29,23 +29,18 @@ type TransplantProcedure = {
   technique: string | null;
   method: string | null;
   grafts: number | null;
-
   extractedFollicularUnits: number | null;
   implantedFollicularUnits: number | null;
   extractedFollicles: number | null;
   implantedFollicles: number | null;
-
   donorArea: string | null;
   recipientArea: string | null;
-
   anesthesiaType: string | null;
   anesthesiaMl: number | null;
-
   extractionStart: Date | null;
   extractionEnd: Date | null;
   implantationStart: Date | null;
   implantationEnd: Date | null;
-
   notes: string | null;
   observations: string | null;
   medicalTeam: string | null;
@@ -56,6 +51,32 @@ type PatientClinicalAnswer = {
   id: string;
   questionTextSnapshot: string;
   answerText: string | null;
+};
+
+type PrescriptionItem = {
+  id: string;
+  medication: string;
+  presentation: string | null;
+  dosage: string | null;
+  frequency: string | null;
+  duration: string | null;
+  indications: string | null;
+  order: number;
+};
+
+type Prescription = {
+  id: string;
+  date: Date;
+  diagnosis: string | null;
+  generalNotes: string | null;
+  doctorName: string | null;
+  doctorLicense: string | null;
+  doctorPhone: string | null;
+  consultation: {
+    id: string;
+    date: Date;
+  };
+  items: PrescriptionItem[];
 };
 
 type Clinic = {
@@ -74,6 +95,7 @@ type Patient = {
   clinicalAnswers: PatientClinicalAnswer[];
   consultations: Consultation[];
   transplants: TransplantProcedure[];
+  prescriptions: Prescription[];
 };
 
 type Props = {
@@ -180,7 +202,6 @@ export default function PatientPdfDocument({ clinic, patient }: Props) {
       <Page size="A4" style={styles.page}>
         <View style={styles.header}>
           <Text style={styles.clinicName}>{clinic.name}</Text>
-
           {clinic.logoUrl && <Image src={clinic.logoUrl} style={styles.logo} />}
         </View>
 
@@ -188,7 +209,10 @@ export default function PatientPdfDocument({ clinic, patient }: Props) {
           <Text style={styles.title}>Ficha del paciente</Text>
 
           <View style={styles.table}>
-            <Row label="Nombre" value={`${patient.firstName} ${patient.lastName ?? ""}`} />
+            <Row
+              label="Nombre"
+              value={`${patient.firstName} ${patient.lastName ?? ""}`}
+            />
             <Row label="Email" value={patient.email ?? "-"} />
             <Row label="Teléfono" value={patient.phone ?? "-"} />
             <Row
@@ -220,10 +244,81 @@ export default function PatientPdfDocument({ clinic, patient }: Props) {
                   <Text style={styles.questionCell}>
                     {answer.questionTextSnapshot}
                   </Text>
-                  <Text style={styles.answerCell}>{answer.answerText || "-"}</Text>
+                  <Text style={styles.answerCell}>
+                    {answer.answerText || "-"}
+                  </Text>
                 </View>
               ))}
             </View>
+          )}
+        </View>
+
+        <View style={styles.section}>
+          <Text style={styles.title}>Recetas médicas</Text>
+
+          {patient.prescriptions.length === 0 ? (
+            <Text style={styles.muted}>Sin recetas médicas registradas</Text>
+          ) : (
+            patient.prescriptions.map((prescription) => (
+              <View key={prescription.id} style={styles.block}>
+                <Text style={styles.bold}>
+                  {new Date(prescription.date).toLocaleDateString()} — Consulta{" "}
+                  {new Date(
+                    prescription.consultation.date
+                  ).toLocaleDateString()}
+                </Text>
+
+                {prescription.diagnosis && (
+                  <Text style={styles.row}>
+                    <Text style={styles.bold}>Diagnóstico: </Text>
+                    {prescription.diagnosis}
+                  </Text>
+                )}
+
+                {prescription.items.map((item, index) => (
+                  <View key={item.id} style={styles.table}>
+                    <View style={styles.tableRow}>
+                      <Text style={styles.cellHeader}>
+                        Medicamento {index + 1}
+                      </Text>
+                      <Text style={styles.cell}>{item.medication}</Text>
+                    </View>
+
+                    <View style={styles.tableRow}>
+                      <Text style={styles.cellHeader}>Presentación</Text>
+                      <Text style={styles.cell}>{item.presentation ?? "-"}</Text>
+                    </View>
+
+                    <View style={styles.tableRow}>
+                      <Text style={styles.cellHeader}>Dosis</Text>
+                      <Text style={styles.cell}>{item.dosage ?? "-"}</Text>
+                    </View>
+
+                    <View style={styles.tableRow}>
+                      <Text style={styles.cellHeader}>Frecuencia</Text>
+                      <Text style={styles.cell}>{item.frequency ?? "-"}</Text>
+                    </View>
+
+                    <View style={styles.tableRow}>
+                      <Text style={styles.cellHeader}>Duración</Text>
+                      <Text style={styles.cell}>{item.duration ?? "-"}</Text>
+                    </View>
+
+                    <View style={styles.tableRow}>
+                      <Text style={styles.cellHeader}>Indicaciones</Text>
+                      <Text style={styles.cell}>{item.indications ?? "-"}</Text>
+                    </View>
+                  </View>
+                ))}
+
+                {prescription.generalNotes && (
+                  <Text style={styles.row}>
+                    <Text style={styles.bold}>Notas generales: </Text>
+                    {prescription.generalNotes}
+                  </Text>
+                )}
+              </View>
+            ))
           )}
         </View>
 
@@ -276,7 +371,8 @@ export default function PatientPdfDocument({ clinic, patient }: Props) {
             patient.transplants.map((p) => (
               <View key={p.id} style={styles.block}>
                 <Text style={styles.bold}>
-                  {new Date(p.date).toLocaleDateString()} — {p.technique ?? "-"}
+                  {new Date(p.date).toLocaleDateString()} —{" "}
+                  {p.technique ?? "-"}
                 </Text>
 
                 <View style={styles.table}>
@@ -305,8 +401,12 @@ export default function PatientPdfDocument({ clinic, patient }: Props) {
                   </View>
 
                   <View style={styles.tableRow}>
-                    <Text style={styles.cell}>{p.extractedFollicles ?? "-"}</Text>
-                    <Text style={styles.cell}>{p.implantedFollicles ?? "-"}</Text>
+                    <Text style={styles.cell}>
+                      {p.extractedFollicles ?? "-"}
+                    </Text>
+                    <Text style={styles.cell}>
+                      {p.implantedFollicles ?? "-"}
+                    </Text>
                     <Text style={styles.cell}>{p.method ?? "-"}</Text>
                   </View>
                 </View>
@@ -328,7 +428,8 @@ export default function PatientPdfDocument({ clinic, patient }: Props) {
 
                 <Text style={styles.row}>
                   <Text style={styles.bold}>Extracción: </Text>
-                  {formatDateTime(p.extractionStart)} - {formatDateTime(p.extractionEnd)}
+                  {formatDateTime(p.extractionStart)} -{" "}
+                  {formatDateTime(p.extractionEnd)}
                 </Text>
 
                 <Text style={styles.row}>
@@ -376,6 +477,5 @@ function Row({ label, value }: { label: string; value: string }) {
 
 function formatDateTime(date: Date | null) {
   if (!date) return "-";
-
   return new Date(date).toLocaleString();
 }

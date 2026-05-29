@@ -1,5 +1,3 @@
-//app/(app)/patients/[id]/consultations/[consultationId]/page.tsx
-
 import { prisma } from "@/lib/db/prisma";
 import { getCurrentUser } from "@/lib/auth/getCurrentUser";
 import Link from "next/link";
@@ -84,6 +82,18 @@ export default async function ConsultationPage({
       patient: true,
       photos: true,
       metrics: true,
+      prescriptions: {
+        include: {
+          items: {
+            orderBy: {
+              order: "asc",
+            },
+          },
+        },
+        orderBy: {
+          date: "desc",
+        },
+      },
     },
   });
 
@@ -110,7 +120,6 @@ export default async function ConsultationPage({
   return (
     <div style={{ maxWidth: 900 }}>
       {/* HEADER */}
-
       <div
         style={{
           display: "flex",
@@ -152,6 +161,21 @@ export default async function ConsultationPage({
             ← Volver
           </Link>
 
+          <Link
+            href={`/patients/${id}/consultations/${consultationId}/prescriptions`}
+            style={{
+              background: "#2563EB",
+              color: "white",
+              padding: "10px 14px",
+              borderRadius: 8,
+              textDecoration: "none",
+              fontSize: 14,
+              fontWeight: 500,
+            }}
+          >
+            Recetas médicas
+          </Link>
+
           <DeleteConsultationButton
             consultationId={consultation.id}
             patientId={id}
@@ -160,7 +184,6 @@ export default async function ConsultationPage({
       </div>
 
       {/* INFO CONSULTA */}
-
       <div
         style={{
           background: "white",
@@ -187,8 +210,156 @@ export default async function ConsultationPage({
           </div>
         </div>
 
-        {/* MÉTRICAS */}
+        {/* RECETAS */}
+        <div style={{ marginTop: 24 }}>
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              marginBottom: 12,
+            }}
+          >
+            <strong>Recetas médicas</strong>
 
+            <Link
+              href={`/patients/${id}/consultations/${consultationId}/prescriptions/new`}
+              style={{
+                background: "#111827",
+                color: "white",
+                padding: "8px 12px",
+                borderRadius: 8,
+                textDecoration: "none",
+                fontSize: 13,
+                fontWeight: 500,
+              }}
+            >
+              + Nueva receta
+            </Link>
+          </div>
+
+          {consultation.prescriptions.length === 0 && (
+            <div style={{ color: "#6B7280", marginTop: 8, fontSize: 14 }}>
+              No hay recetas registradas en esta consulta
+            </div>
+          )}
+
+          {consultation.prescriptions.map((prescription) => (
+            <div
+              key={prescription.id}
+              style={{
+                marginTop: 10,
+                padding: 14,
+                border: "1px solid #E5E7EB",
+                borderRadius: 10,
+                background: "#F9FAFB",
+              }}
+            >
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  gap: 12,
+                  alignItems: "flex-start",
+                }}
+              >
+                <div>
+                  <div
+                    style={{
+                      fontWeight: 600,
+                      color: "#111827",
+                      fontSize: 14,
+                    }}
+                  >
+                    Receta — {new Date(prescription.date).toLocaleDateString()}
+                  </div>
+
+                  <div
+                    style={{
+                      color: "#6B7280",
+                      fontSize: 13,
+                      marginTop: 4,
+                    }}
+                  >
+                    {prescription.items.length} medicamento(s)
+                  </div>
+
+                  {prescription.diagnosis && (
+                    <div
+                      style={{
+                        color: "#374151",
+                        fontSize: 13,
+                        marginTop: 6,
+                      }}
+                    >
+                      <strong>Diagnóstico:</strong> {prescription.diagnosis}
+                    </div>
+                  )}
+                </div>
+
+                <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+                  <Link
+                    href={`/patients/${id}/consultations/${consultationId}/prescriptions/${prescription.id}/edit`}
+                    style={{
+                      color: "#2563EB",
+                      fontSize: 13,
+                      fontWeight: 600,
+                      textDecoration: "none",
+                    }}
+                  >
+                    Editar
+                  </Link>
+
+                  <a
+                    href={`/api/patients/${id}/consultations/${consultationId}/prescriptions/${prescription.id}/pdf`}
+                    target="_blank"
+                    style={{
+                      color: "#111827",
+                      fontSize: 13,
+                      fontWeight: 600,
+                      textDecoration: "none",
+                    }}
+                  >
+                    Imprimir PDF
+                  </a>
+                </div>
+              </div>
+
+              {prescription.items.length > 0 && (
+                <div style={{ marginTop: 12 }}>
+                  {prescription.items.slice(0, 3).map((item) => (
+                    <div
+                      key={item.id}
+                      style={{
+                        fontSize: 13,
+                        color: "#374151",
+                        marginBottom: 4,
+                      }}
+                    >
+                      • {item.medication}
+                      {item.dosage ? ` — ${item.dosage}` : ""}
+                      {item.frequency ? ` — ${item.frequency}` : ""}
+                    </div>
+                  ))}
+
+                  {prescription.items.length > 3 && (
+                    <div
+                      style={{
+                        fontSize: 13,
+                        color: "#6B7280",
+                        marginTop: 4,
+                      }}
+                    >
+                      + {prescription.items.length - 3} medicamento(s) más
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+
+        {/* MÉTRICAS */}
         <div style={{ marginTop: 24 }}>
           <strong>Métricas capilares</strong>
 
@@ -235,7 +406,6 @@ export default async function ConsultationPage({
       </div>
 
       {/* FOTOS CLÍNICAS */}
-
       <div style={{ marginTop: 40 }}>
         <h2
           style={{
@@ -254,7 +424,6 @@ export default async function ConsultationPage({
         )}
 
         {/* FOTOS POR ZONA */}
-
         {zones.map((zone) => {
           const zonePhotos = consultation.photos.filter(
             (p: (typeof consultation.photos)[number]) => p.zone === zone,
@@ -280,7 +449,6 @@ export default async function ConsultationPage({
         })}
 
         {/* FOTOS SIN ZONA */}
-
         {photosWithoutZone.length > 0 && (
           <div style={{ marginBottom: 30 }}>
             <h3

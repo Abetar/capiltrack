@@ -71,6 +71,7 @@ model Patient {
   metrics         HairMetric[]
   transplants     TransplantProcedure[]
   clinicalAnswers PatientClinicalAnswer[]
+  prescriptions   Prescription[]
 
   @@index([clinicId])
 }
@@ -91,8 +92,9 @@ model Consultation {
 
   createdAt DateTime @default(now())
 
-  photos  Photo[]
-  metrics HairMetric[]
+  photos        Photo[]
+  metrics       HairMetric[]
+  prescriptions Prescription[]
 
   @@index([clinicId])
 }
@@ -162,6 +164,56 @@ model Treatment {
   createdAt DateTime @default(now())
 
   @@index([clinicId])
+}
+
+model Prescription {
+  id String @id @default(cuid())
+
+  clinicId String
+
+  patientId String
+  patient   Patient @relation(fields: [patientId], references: [id], onDelete: Cascade)
+
+  consultationId String
+  consultation   Consultation @relation(fields: [consultationId], references: [id], onDelete: Cascade)
+
+  date DateTime @default(now())
+
+  diagnosis      String?
+  generalNotes   String?
+  doctorName     String?
+  doctorLicense  String?
+  doctorPhone    String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  items PrescriptionItem[]
+
+  @@index([clinicId])
+  @@index([patientId])
+  @@index([consultationId])
+}
+
+model PrescriptionItem {
+  id String @id @default(cuid())
+
+  prescriptionId String
+  prescription   Prescription @relation(fields: [prescriptionId], references: [id], onDelete: Cascade)
+
+  medication   String
+  presentation String?
+  dosage       String?
+  frequency    String?
+  duration     String?
+  indications  String?
+
+  order Int @default(1)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([prescriptionId])
 }
 
 model TransplantProcedure {

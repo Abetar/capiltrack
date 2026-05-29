@@ -1,3 +1,4 @@
+// app/api/patients/[id]/route.ts
 import { prisma } from "@/lib/db/prisma"
 import { NextResponse } from "next/server"
 import { getCurrentUser } from "@/lib/auth/getCurrentUser"

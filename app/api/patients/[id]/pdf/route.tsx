@@ -39,6 +39,19 @@ export async function GET(
           date: "desc",
         },
       },
+      prescriptions: {
+        include: {
+          consultation: true,
+          items: {
+            orderBy: {
+              order: "asc",
+            },
+          },
+        },
+        orderBy: {
+          date: "desc",
+        },
+      },
     },
   });
 
