@@ -86,6 +86,13 @@ export default async function PatientConsultationsPage({
       patientId: patient.id,
       clinicId: user.clinicId,
     },
+    include: {
+      _count: {
+        select: {
+          prescriptions: true,
+        },
+      },
+    },
     orderBy: {
       date: "desc",
     },
@@ -94,7 +101,6 @@ export default async function PatientConsultationsPage({
   return (
     <div style={{ maxWidth: 900 }}>
       {/* HEADER */}
-
       <div
         style={{
           display: "flex",
@@ -148,7 +154,6 @@ export default async function PatientConsultationsPage({
       </div>
 
       {/* LISTA */}
-
       {consultations.length === 0 && (
         <div
           style={{
@@ -163,51 +168,84 @@ export default async function PatientConsultationsPage({
         </div>
       )}
 
-      {consultations.map((c: (typeof consultations)[number]) => (
-        <Link
-          key={c.id}
-          href={`/patients/${patient.id}/consultations/${c.id}`}
-          style={{
-            display: "block",
-            background: "white",
-            border: "1px solid #E5E7EB",
-            borderRadius: 12,
-            padding: 20,
-            marginBottom: 16,
-            textDecoration: "none",
-            color: "inherit",
-          }}
-        >
-          <div
+      {consultations.map((c: (typeof consultations)[number]) => {
+        const prescriptionCount = c._count.prescriptions;
+
+        return (
+          <Link
+            key={c.id}
+            href={`/patients/${patient.id}/consultations/${c.id}`}
             style={{
-              fontWeight: 600,
-              marginBottom: 6,
+              display: "block",
+              background: "white",
+              border: "1px solid #E5E7EB",
+              borderRadius: 12,
+              padding: 20,
+              marginBottom: 16,
+              textDecoration: "none",
+              color: "inherit",
             }}
           >
-            {new Date(c.date).toLocaleDateString()}
-          </div>
-
-          <div
-            style={{
-              fontSize: 14,
-              color: "#6B7280",
-            }}
-          >
-            Norwood: {c.norwoodLevel ?? "No registrado"}
-          </div>
-
-          {c.notes && (
             <div
               style={{
-                marginTop: 10,
-                fontSize: 14,
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "flex-start",
+                gap: 16,
               }}
             >
-              {c.notes}
+              <div>
+                <div
+                  style={{
+                    fontWeight: 600,
+                    marginBottom: 6,
+                  }}
+                >
+                  {new Date(c.date).toLocaleDateString()}
+                </div>
+
+                <div
+                  style={{
+                    fontSize: 14,
+                    color: "#6B7280",
+                  }}
+                >
+                  Norwood: {c.norwoodLevel ?? "No registrado"}
+                </div>
+
+                {c.notes && (
+                  <div
+                    style={{
+                      marginTop: 10,
+                      fontSize: 14,
+                    }}
+                  >
+                    {c.notes}
+                  </div>
+                )}
+              </div>
+
+              <div style={prescriptionBadge}>
+                {prescriptionCount === 0
+                  ? "Sin recetas"
+                  : `${prescriptionCount} ${
+                      prescriptionCount === 1 ? "receta" : "recetas"
+                    }`}
+              </div>
             </div>
-          )}
-        </Link>
-      ))}
+          </Link>
+        );
+      })}
     </div>
   );
 }
+
+const prescriptionBadge: React.CSSProperties = {
+  background: "#EEF2FF",
+  color: "#2563EB",
+  borderRadius: 999,
+  padding: "6px 10px",
+  fontSize: 12,
+  fontWeight: 600,
+  whiteSpace: "nowrap",
+};
