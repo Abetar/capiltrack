@@ -5,7 +5,7 @@ import PatientPdfDocument from "./PatientPdfDocument";
 
 export async function GET(
   _req: Request,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   const { id } = await params;
 
@@ -62,6 +62,9 @@ export async function GET(
     select: {
       name: true,
       logoUrl: true,
+      doctorName: true,
+      doctorLicense: true,
+      doctorPhone: true,
     },
   });
 
@@ -70,7 +73,7 @@ export async function GET(
   }
 
   const pdfBuffer = await renderToBuffer(
-    <PatientPdfDocument clinic={clinic} patient={patient} />
+    <PatientPdfDocument clinic={clinic} patient={patient} />,
   );
 
   return new Response(pdfBuffer as BodyInit, {
