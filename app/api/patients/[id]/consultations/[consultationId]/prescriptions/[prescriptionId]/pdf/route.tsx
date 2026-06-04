@@ -59,6 +59,9 @@ export async function GET(
       doctorName: true,
       doctorLicense: true,
       doctorPhone: true,
+      doctorSpecialty: true,
+      doctorBranch: true,
+      doctorUniversity: true,
     },
   });
 

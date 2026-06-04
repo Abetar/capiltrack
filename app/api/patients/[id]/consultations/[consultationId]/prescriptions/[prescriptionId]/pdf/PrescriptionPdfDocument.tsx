@@ -14,6 +14,9 @@ type Clinic = {
   doctorName: string | null;
   doctorLicense: string | null;
   doctorPhone: string | null;
+  doctorSpecialty: string | null;
+  doctorBranch: string | null;
+  doctorUniversity: string | null;
 };
 
 type PrescriptionItem = {
@@ -68,6 +71,11 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: 700,
     marginBottom: 4,
+  },
+  doctorLine: {
+    fontSize: 9,
+    marginBottom: 2,
+    color: "#374151",
   },
   logo: {
     width: 100,
@@ -147,7 +155,42 @@ export default function PrescriptionPdfDocument({
         <View style={styles.header}>
           <View style={styles.clinicInfo}>
             <Text style={styles.clinicName}>{clinic.name}</Text>
-            <Text>
+
+            {clinic.doctorName && (
+              <Text style={styles.doctorLine}>{clinic.doctorName}</Text>
+            )}
+
+            {clinic.doctorSpecialty && (
+              <Text style={styles.doctorLine}>
+                Especialidad: {clinic.doctorSpecialty}
+              </Text>
+            )}
+
+            {clinic.doctorBranch && (
+              <Text style={styles.doctorLine}>
+                Área: {clinic.doctorBranch}
+              </Text>
+            )}
+
+            {clinic.doctorUniversity && (
+              <Text style={styles.doctorLine}>
+                Universidad: {clinic.doctorUniversity}
+              </Text>
+            )}
+
+            {clinic.doctorLicense && (
+              <Text style={styles.doctorLine}>
+                Cédula profesional: {clinic.doctorLicense}
+              </Text>
+            )}
+
+            {clinic.doctorPhone && (
+              <Text style={styles.doctorLine}>
+                Contacto: {clinic.doctorPhone}
+              </Text>
+            )}
+
+            <Text style={styles.doctorLine}>
               Fecha: {new Date(prescription.date).toLocaleDateString()}
             </Text>
           </View>
@@ -247,7 +290,11 @@ export default function PrescriptionPdfDocument({
             <Text>Cédula: {clinic.doctorLicense}</Text>
           )}
 
-          {clinic.doctorPhone && <Text>Tel: {clinic.doctorPhone}</Text>}
+          {clinic.doctorSpecialty && <Text>{clinic.doctorSpecialty}</Text>}
+
+          {clinic.doctorBranch && <Text>{clinic.doctorBranch}</Text>}
+
+          {clinic.doctorUniversity && <Text>{clinic.doctorUniversity}</Text>}
         </View>
 
         <Text style={styles.footer}>Documento generado por CapilTrack</Text>

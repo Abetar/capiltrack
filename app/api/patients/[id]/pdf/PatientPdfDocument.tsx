@@ -82,6 +82,9 @@ type Clinic = {
   doctorName: string | null;
   doctorLicense: string | null;
   doctorPhone: string | null;
+  doctorSpecialty: string | null;
+  doctorBranch: string | null;
+  doctorUniversity: string | null;
 };
 
 type Patient = {
@@ -271,6 +274,21 @@ export default function PatientPdfDocument({ clinic, patient }: Props) {
                 <Text style={styles.row}>
                   <Text style={styles.bold}>Médico: </Text>
                   {clinic.doctorName || "No configurado"}
+                </Text>
+
+                <Text style={styles.row}>
+                  <Text style={styles.bold}>Especialidad: </Text>
+                  {clinic.doctorSpecialty || "No configurada"}
+                </Text>
+
+                <Text style={styles.row}>
+                  <Text style={styles.bold}>Área: </Text>
+                  {clinic.doctorBranch || "No configurada"}
+                </Text>
+
+                <Text style={styles.row}>
+                  <Text style={styles.bold}>Universidad: </Text>
+                  {clinic.doctorUniversity || "No configurada"}
                 </Text>
 
                 <Text style={styles.row}>

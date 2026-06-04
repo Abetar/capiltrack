@@ -16,6 +16,9 @@ export async function POST(req: Request) {
     const doctorName = formData.get("doctorName") as string;
     const doctorLicense = formData.get("doctorLicense") as string;
     const doctorPhone = formData.get("doctorPhone") as string;
+    const doctorSpecialty = formData.get("doctorSpecialty") as string;
+    const doctorBranch = formData.get("doctorBranch") as string;
+    const doctorUniversity = formData.get("doctorUniversity") as string;
 
     const file = formData.get("logo") as File | null;
 
@@ -69,6 +72,9 @@ export async function POST(req: Request) {
         doctorName: doctorName?.trim() || null,
         doctorLicense: doctorLicense?.trim() || null,
         doctorPhone: doctorPhone?.trim() || null,
+        doctorSpecialty: doctorSpecialty?.trim() || null,
+        doctorBranch: doctorBranch?.trim() || null,
+        doctorUniversity: doctorUniversity?.trim() || null,
       },
     });
 

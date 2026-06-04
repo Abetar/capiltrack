@@ -29,6 +29,9 @@ export default async function SettingsPage() {
         doctorName={clinic.doctorName}
         doctorLicense={clinic.doctorLicense}
         doctorPhone={clinic.doctorPhone}
+        doctorSpecialty={clinic.doctorSpecialty}
+        doctorBranch={clinic.doctorBranch}
+        doctorUniversity={clinic.doctorUniversity}
       />
     </div>
   );

@@ -9,6 +9,9 @@ type SettingsFormProps = {
   doctorName: string | null;
   doctorLicense: string | null;
   doctorPhone: string | null;
+  doctorSpecialty: string | null;
+  doctorBranch: string | null;
+  doctorUniversity: string | null;
 };
 
 export default function SettingsForm({
@@ -17,6 +20,9 @@ export default function SettingsForm({
   doctorName,
   doctorLicense,
   doctorPhone,
+  doctorSpecialty,
+  doctorBranch,
+  doctorUniversity,
 }: SettingsFormProps) {
   const router = useRouter();
 
@@ -35,13 +41,11 @@ export default function SettingsForm({
       return;
     }
 
-    const localUrl = URL.createObjectURL(file);
-    setPreviewUrl(localUrl);
+    setPreviewUrl(URL.createObjectURL(file));
   }
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-
     setLoading(true);
 
     const formData = new FormData(e.currentTarget);
@@ -111,7 +115,7 @@ export default function SettingsForm({
               name="doctorName"
               defaultValue={doctorName ?? ""}
               style={inputStyle}
-              placeholder="Ej. Dr. Adrian Hernández"
+              placeholder="Ej. Dr. Adrian Hernández López"
             />
           </Field>
 
@@ -120,11 +124,38 @@ export default function SettingsForm({
               name="doctorLicense"
               defaultValue={doctorLicense ?? ""}
               style={inputStyle}
-              placeholder="Ej. 12345678"
+              placeholder="Ej. 12963161"
             />
           </Field>
 
-          <Field label="Teléfono de contacto">
+          <Field label="Especialidad">
+            <input
+              name="doctorSpecialty"
+              defaultValue={doctorSpecialty ?? ""}
+              style={inputStyle}
+              placeholder="Ej. Medicina General"
+            />
+          </Field>
+
+          <Field label="Área / ramo">
+            <input
+              name="doctorBranch"
+              defaultValue={doctorBranch ?? ""}
+              style={inputStyle}
+              placeholder="Ej. Tricología y microinjerto capilar"
+            />
+          </Field>
+
+          <Field label="Universidad">
+            <input
+              name="doctorUniversity"
+              defaultValue={doctorUniversity ?? ""}
+              style={inputStyle}
+              placeholder="Ej. Universidad del Valle de Atemajac"
+            />
+          </Field>
+
+          <Field label="Teléfono o contacto">
             <input
               name="doctorPhone"
               defaultValue={doctorPhone ?? ""}
@@ -135,8 +166,7 @@ export default function SettingsForm({
         </div>
 
         <p style={helperText}>
-          Estos datos se usarán automáticamente en las recetas médicas para que
-          no tengas que capturarlos cada vez.
+          Estos datos aparecerán automáticamente en las recetas médicas.
         </p>
       </Section>
 

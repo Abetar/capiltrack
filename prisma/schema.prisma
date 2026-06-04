@@ -11,9 +11,12 @@ model Clinic {
   name    String
   logoUrl String?
 
-  doctorName    String?
-  doctorLicense String?
-  doctorPhone   String?
+  doctorName       String?
+  doctorLicense    String?
+  doctorPhone      String?
+  doctorSpecialty  String?
+  doctorBranch     String?
+  doctorUniversity String?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
