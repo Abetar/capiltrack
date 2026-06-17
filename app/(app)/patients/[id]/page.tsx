@@ -3,10 +3,7 @@ import { getCurrentUser } from "@/lib/auth/getCurrentUser";
 import { getPatientTimeline } from "@/lib/patient/getPatientTimeline";
 import Link from "next/link";
 import DeletePatientButton from "@/components/patients/DeletePatientButton";
-import {
-  HiClipboardDocumentList,
-  HiDocumentArrowDown,
-} from "react-icons/hi2";
+import { HiClipboardDocumentList, HiDocumentArrowDown } from "react-icons/hi2";
 
 export default async function PatientPage({
   params,
@@ -168,36 +165,46 @@ export default async function PatientPage({
         </div>
       </div>
 
-      <div style={cardStyle}>
-        <div className="patient-summary-clinical-card">
-          <div>
-            <h2 style={cardTitle}>Expediente clínico inicial</h2>
-
-            <p
-              style={{
-                fontSize: 14,
-                color: "#6B7280",
-                marginTop: -8,
-                marginBottom: 0,
-              }}
-            >
-              {hasClinicalRecord
-                ? "Este paciente ya tiene respuestas registradas."
-                : "Este paciente aún no tiene expediente clínico contestado."}
-            </p>
+      <div className="patient-clinical-record-card">
+        <div className="patient-clinical-record-content">
+          <div className="patient-clinical-record-icon">
+            <HiClipboardDocumentList size={22} />
           </div>
 
-          <Link
-            href={`/patients/${patient.id}/clinical-record`}
-            className="patient-summary-action patient-summary-action-primary"
-            style={clinicalRecordButtonStyle}
-          >
-            <HiClipboardDocumentList size={18} />
-            <span>
-              {hasClinicalRecord ? "Editar expediente" : "Llenar expediente"}
-            </span>
-          </Link>
+          <div>
+            <div className="patient-clinical-record-header">
+              <h2 className="patient-clinical-record-title">
+                Expediente clínico inicial
+              </h2>
+
+              <span
+                className={
+                  hasClinicalRecord
+                    ? "patient-clinical-record-badge patient-clinical-record-badge-complete"
+                    : "patient-clinical-record-badge patient-clinical-record-badge-pending"
+                }
+              >
+                {hasClinicalRecord ? "Completo" : "Pendiente"}
+              </span>
+            </div>
+
+            <p className="patient-clinical-record-description">
+              {hasClinicalRecord
+                ? "Este paciente ya tiene respuestas clínicas registradas y listas para consulta."
+                : "Este paciente aún no tiene expediente clínico inicial contestado."}
+            </p>
+          </div>
         </div>
+
+        <Link
+          href={`/patients/${patient.id}/clinical-record`}
+          className="patient-clinical-record-button"
+        >
+          <HiClipboardDocumentList size={18} />
+          <span>
+            {hasClinicalRecord ? "Editar expediente" : "Llenar expediente"}
+          </span>
+        </Link>
       </div>
 
       <div style={cardStyle}>
