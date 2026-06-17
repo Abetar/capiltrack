@@ -2,6 +2,12 @@ import { prisma } from "@/lib/db/prisma";
 import { getCurrentUser } from "@/lib/auth/getCurrentUser";
 import Link from "next/link";
 import DeleteProcedureButton from "@/components/procedures/DeleteProcedureButton";
+import {
+  HiCalendarDays,
+  HiPencilSquare,
+  HiPlus,
+  HiScissors,
+} from "react-icons/hi2";
 
 export default async function PatientProceduresPage({
   params,
@@ -32,211 +38,191 @@ export default async function PatientProceduresPage({
 
   const totalExtractedUF = procedures.reduce(
     (acc, p) => acc + (p.extractedFollicularUnits ?? 0),
-    0
+    0,
   );
 
   const totalImplantedUF = procedures.reduce(
     (acc, p) => acc + (p.implantedFollicularUnits ?? 0),
-    0
+    0,
   );
 
   const totalExtractedFollicles = procedures.reduce(
     (acc, p) => acc + (p.extractedFollicles ?? 0),
-    0
+    0,
   );
 
   const totalImplantedFollicles = procedures.reduce(
     (acc, p) => acc + (p.implantedFollicles ?? 0),
-    0
+    0,
   );
 
   const avgGrafts =
     totalProcedures > 0 ? Math.round(totalGrafts / totalProcedures) : 0;
 
   return (
-    <div style={{ maxWidth: 1000 }}>
-      {/* HEADER */}
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "flex-start",
-          marginBottom: 30,
-          gap: 20,
-        }}
-      >
+    <div className="patient-procedures-page">
+      <div className="patient-procedures-header">
         <div>
-          <h1
-            style={{
-              fontSize: 26,
-              fontWeight: 600,
-              marginBottom: 6,
-            }}
-          >
-            Procedimientos
-          </h1>
+          <h1 className="patient-procedures-title">Procedimientos</h1>
 
-          <div
-            style={{
-              fontSize: 13,
-              color: "#6B7280",
-            }}
-          >
+          <div className="patient-procedures-subtitle">
             {totalProcedures} procedimientos • {totalGrafts} grafts • promedio{" "}
             {avgGrafts}
           </div>
         </div>
 
-        <Link href={`/patients/${id}/procedures/new`} style={primaryButton}>
-          + Nuevo procedimiento
+        <Link
+          href={`/patients/${id}/procedures/new`}
+          className="patient-procedures-new-button"
+          style={primaryButton}
+        >
+          <HiPlus size={18} />
+          <span>Nuevo procedimiento</span>
         </Link>
       </div>
 
-      {/* RESUMEN */}
-      <div style={summaryGrid}>
+      <div className="patient-procedures-summary-grid">
         <SummaryCard label="Grafts totales" value={totalGrafts} />
         <SummaryCard label="UF extraídas" value={totalExtractedUF} />
         <SummaryCard label="UF implantadas" value={totalImplantedUF} />
-        <SummaryCard label="Folículos extraídos" value={totalExtractedFollicles} />
-        <SummaryCard label="Folículos implantados" value={totalImplantedFollicles} />
+        <SummaryCard
+          label="Folículos extraídos"
+          value={totalExtractedFollicles}
+        />
+        <SummaryCard
+          label="Folículos implantados"
+          value={totalImplantedFollicles}
+        />
       </div>
 
       {procedures.length === 0 && (
         <div style={emptyCard}>No hay procedimientos registrados</div>
       )}
 
-      {procedures.map((p) => (
-        <div key={p.id} style={procedureCard}>
-          {/* HEADER CARD */}
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "flex-start",
-              gap: 20,
-              marginBottom: 16,
-            }}
-          >
-            <div>
-              <div style={{ fontWeight: 600, fontSize: 16, color: "#111827" }}>
-                {p.technique || "Procedimiento capilar"}
-              </div>
-
-              <div style={{ fontSize: 13, color: "#6B7280", marginTop: 4 }}>
-                Fecha: {new Date(p.date).toLocaleDateString()}
-              </div>
-            </div>
-
-            <div style={{ display: "flex", gap: 10 }}>
-              <Link
-                href={`/patients/${id}/procedures/${p.id}/edit`}
-                style={editLink}
-              >
-                Editar
-              </Link>
-
-              <DeleteProcedureButton procedureId={p.id} patientId={id} />
-            </div>
-          </div>
-
-          {/* DATOS PRINCIPALES */}
-          <div style={detailsGrid}>
-            <InfoItem label="Grafts" value={p.grafts ?? "-"} />
-            <InfoItem
-              label="UF extraídas"
-              value={p.extractedFollicularUnits ?? "-"}
-            />
-            <InfoItem
-              label="UF implantadas"
-              value={p.implantedFollicularUnits ?? "-"}
-            />
-            <InfoItem
-              label="Folículos extraídos"
-              value={p.extractedFollicles ?? "-"}
-            />
-            <InfoItem
-              label="Folículos implantados"
-              value={p.implantedFollicles ?? "-"}
-            />
-            <InfoItem label="Método" value={p.method ?? "-"} />
-            <InfoItem label="Zona donante" value={p.donorArea ?? "-"} />
-            <InfoItem label="Zona receptora" value={p.recipientArea ?? "-"} />
-          </div>
-
-          {/* TIEMPOS */}
-          {(p.extractionStart ||
-            p.extractionEnd ||
-            p.implantationStart ||
-            p.implantationEnd) && (
-            <div style={{ marginTop: 18 }}>
-              <div style={sectionLabel}>Tiempos del procedimiento</div>
-
-              <div style={detailsGrid}>
-                <InfoItem
-                  label="Inicio extracción"
-                  value={formatTime(p.extractionStart)}
-                />
-                <InfoItem
-                  label="Fin extracción"
-                  value={formatTime(p.extractionEnd)}
-                />
-                <InfoItem
-                  label="Inicio implantación"
-                  value={formatTime(p.implantationStart)}
-                />
-                <InfoItem
-                  label="Fin implantación"
-                  value={formatTime(p.implantationEnd)}
-                />
-              </div>
-            </div>
-          )}
-
-          {/* EQUIPO */}
-          {(p.medicalTeam || p.nurses) && (
-            <div style={{ marginTop: 18 }}>
-              <div style={sectionLabel}>Equipo</div>
-
-              <div style={detailsGrid}>
-                <InfoItem label="Equipo médico" value={p.medicalTeam ?? "-"} />
-                <InfoItem label="Enfermería" value={p.nurses ?? "-"} />
-              </div>
-            </div>
-          )}
-
-          {/* NOTAS */}
-          {(p.notes || p.observations) && (
-            <div style={{ marginTop: 18 }}>
-              {p.notes && (
-                <div style={{ marginBottom: 10 }}>
-                  <div style={sectionLabel}>Notas</div>
-                  <p style={paragraph}>{p.notes}</p>
+      <div className="patient-procedures-list">
+        {procedures.map((p) => (
+          <div key={p.id} className="patient-procedure-card">
+            <div className="patient-procedure-card-header">
+              <div>
+                <div className="patient-procedure-technique">
+                  <HiScissors size={18} />
+                  <span>{p.technique || "Procedimiento capilar"}</span>
                 </div>
-              )}
 
-              {p.observations && (
-                <div>
-                  <div style={sectionLabel}>Observaciones</div>
-                  <p style={paragraph}>{p.observations}</p>
+                <div className="patient-procedure-date">
+                  <HiCalendarDays size={15} />
+                  <span>Fecha: {new Date(p.date).toLocaleDateString()}</span>
                 </div>
-              )}
+              </div>
+
+              <div className="patient-procedure-actions">
+                <Link
+                  href={`/patients/${id}/procedures/${p.id}/edit`}
+                  className="patient-procedure-edit-link"
+                  style={editLink}
+                >
+                  <HiPencilSquare size={17} />
+                  <span>Editar</span>
+                </Link>
+
+                <DeleteProcedureButton procedureId={p.id} patientId={id} />
+              </div>
             </div>
-          )}
-        </div>
-      ))}
+
+            <div className="patient-procedure-details-grid">
+              <InfoItem label="Grafts" value={p.grafts ?? "-"} />
+              <InfoItem
+                label="UF extraídas"
+                value={p.extractedFollicularUnits ?? "-"}
+              />
+              <InfoItem
+                label="UF implantadas"
+                value={p.implantedFollicularUnits ?? "-"}
+              />
+              <InfoItem
+                label="Folículos extraídos"
+                value={p.extractedFollicles ?? "-"}
+              />
+              <InfoItem
+                label="Folículos implantados"
+                value={p.implantedFollicles ?? "-"}
+              />
+              <InfoItem label="Método" value={p.method ?? "-"} />
+              <InfoItem label="Zona donante" value={p.donorArea ?? "-"} />
+              <InfoItem
+                label="Zona receptora"
+                value={p.recipientArea ?? "-"}
+              />
+            </div>
+
+            {(p.extractionStart ||
+              p.extractionEnd ||
+              p.implantationStart ||
+              p.implantationEnd) && (
+              <div className="patient-procedure-section">
+                <div style={sectionLabel}>Tiempos del procedimiento</div>
+
+                <div className="patient-procedure-details-grid">
+                  <InfoItem
+                    label="Inicio extracción"
+                    value={formatTime(p.extractionStart)}
+                  />
+                  <InfoItem
+                    label="Fin extracción"
+                    value={formatTime(p.extractionEnd)}
+                  />
+                  <InfoItem
+                    label="Inicio implantación"
+                    value={formatTime(p.implantationStart)}
+                  />
+                  <InfoItem
+                    label="Fin implantación"
+                    value={formatTime(p.implantationEnd)}
+                  />
+                </div>
+              </div>
+            )}
+
+            {(p.medicalTeam || p.nurses) && (
+              <div className="patient-procedure-section">
+                <div style={sectionLabel}>Equipo</div>
+
+                <div className="patient-procedure-details-grid">
+                  <InfoItem label="Equipo médico" value={p.medicalTeam ?? "-"} />
+                  <InfoItem label="Enfermería" value={p.nurses ?? "-"} />
+                </div>
+              </div>
+            )}
+
+            {(p.notes || p.observations) && (
+              <div className="patient-procedure-section">
+                {p.notes && (
+                  <div style={{ marginBottom: 10 }}>
+                    <div style={sectionLabel}>Notas</div>
+                    <p style={paragraph}>{p.notes}</p>
+                  </div>
+                )}
+
+                {p.observations && (
+                  <div>
+                    <div style={sectionLabel}>Observaciones</div>
+                    <p style={paragraph}>{p.observations}</p>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
 
 function SummaryCard({ label, value }: { label: string; value: number }) {
   return (
-    <div style={summaryCard}>
-      <div style={{ fontSize: 12, color: "#6B7280", marginBottom: 6 }}>
-        {label}
-      </div>
-      <div style={{ fontSize: 20, fontWeight: 700, color: "#111827" }}>
-        {value}
-      </div>
+    <div className="patient-procedures-summary-card">
+      <div className="patient-procedures-summary-label">{label}</div>
+      <div className="patient-procedures-summary-value">{value}</div>
     </div>
   );
 }
@@ -249,13 +235,9 @@ function InfoItem({
   value: string | number;
 }) {
   return (
-    <div>
-      <div style={{ fontSize: 12, color: "#6B7280", marginBottom: 4 }}>
-        {label}
-      </div>
-      <div style={{ fontSize: 14, color: "#111827", fontWeight: 500 }}>
-        {value}
-      </div>
+    <div className="patient-procedure-info-item">
+      <div className="patient-procedure-info-label">{label}</div>
+      <div className="patient-procedure-info-value">{value}</div>
     </div>
   );
 }
@@ -277,6 +259,9 @@ const primaryButton: React.CSSProperties = {
   textDecoration: "none",
   fontSize: 14,
   fontWeight: 600,
+  display: "inline-flex",
+  alignItems: "center",
+  gap: 8,
 };
 
 const editLink: React.CSSProperties = {
@@ -284,20 +269,9 @@ const editLink: React.CSSProperties = {
   color: "#2563EB",
   textDecoration: "none",
   fontWeight: 600,
-};
-
-const summaryGrid: React.CSSProperties = {
-  display: "grid",
-  gridTemplateColumns: "repeat(5, 1fr)",
-  gap: 12,
-  marginBottom: 24,
-};
-
-const summaryCard: React.CSSProperties = {
-  background: "white",
-  border: "1px solid #E5E7EB",
-  borderRadius: 12,
-  padding: 16,
+  display: "inline-flex",
+  alignItems: "center",
+  gap: 6,
 };
 
 const emptyCard: React.CSSProperties = {
@@ -307,20 +281,6 @@ const emptyCard: React.CSSProperties = {
   padding: 24,
   color: "#6B7280",
   fontSize: 14,
-};
-
-const procedureCard: React.CSSProperties = {
-  background: "white",
-  border: "1px solid #E5E7EB",
-  borderRadius: 12,
-  padding: 22,
-  marginBottom: 16,
-};
-
-const detailsGrid: React.CSSProperties = {
-  display: "grid",
-  gridTemplateColumns: "repeat(4, 1fr)",
-  gap: 16,
 };
 
 const sectionLabel: React.CSSProperties = {

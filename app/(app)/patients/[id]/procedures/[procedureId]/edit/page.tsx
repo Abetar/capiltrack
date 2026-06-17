@@ -1,7 +1,6 @@
 import { prisma } from "@/lib/db/prisma";
 import { getCurrentUser } from "@/lib/auth/getCurrentUser";
 import { redirect } from "next/navigation";
-import Link from "next/link";
 
 export default async function EditProcedurePage({
   params,
@@ -10,10 +9,10 @@ export default async function EditProcedurePage({
 }) {
   const { id, procedureId } = await params;
 
-  const { user, reason } = await getCurrentUser();
+  const { user } = await getCurrentUser();
 
   if (!user) {
-    return <div>Acceso restringido: {reason}</div>;
+    return <div>No autorizado</div>;
   }
 
   const procedure = await prisma.transplantProcedure.findFirst({
@@ -28,60 +27,32 @@ export default async function EditProcedurePage({
     return <div>Procedimiento no encontrado</div>;
   }
 
-  const clinicId = user.clinicId;
+  const p = procedure;
 
   async function updateProcedure(formData: FormData) {
     "use server";
 
-    const date = formData.get("date") as string;
-
-    if (!date) {
-      throw new Error("La fecha es obligatoria");
-    }
-
     await prisma.transplantProcedure.update({
-      where: {
-        id: procedureId,
-      },
+      where: { id: procedureId },
       data: {
-        clinicId,
-        patientId: id,
-
-        date: new Date(date),
-
+        date: getDate(formData, "date") ?? p.date,
         technique: getString(formData, "technique"),
         method: getString(formData, "method"),
-
         grafts: getNumber(formData, "grafts"),
-
-        extractedFollicularUnits: getNumber(
-          formData,
-          "extractedFollicularUnits"
-        ),
-        implantedFollicularUnits: getNumber(
-          formData,
-          "implantedFollicularUnits"
-        ),
-
-        extractedFollicles: getNumber(formData, "extractedFollicles"),
-        implantedFollicles: getNumber(formData, "implantedFollicles"),
-
         donorArea: getString(formData, "donorArea"),
         recipientArea: getString(formData, "recipientArea"),
+        notes: getString(formData, "notes"),
 
         anesthesiaType: getString(formData, "anesthesiaType"),
         anesthesiaMl: getNumber(formData, "anesthesiaMl"),
 
         extractionStart: getDate(formData, "extractionStart"),
         extractionEnd: getDate(formData, "extractionEnd"),
-
         implantationStart: getDate(formData, "implantationStart"),
         implantationEnd: getDate(formData, "implantationEnd"),
 
         medicalTeam: getString(formData, "medicalTeam"),
         nurses: getString(formData, "nurses"),
-
-        notes: getString(formData, "notes"),
         observations: getString(formData, "observations"),
       },
     });
@@ -90,31 +61,17 @@ export default async function EditProcedurePage({
   }
 
   return (
-    <div style={{ maxWidth: 900 }}>
-      <div style={{ marginBottom: 24 }}>
-        <Link
-          href={`/patients/${id}/procedures`}
-          style={{
-            color: "#2563EB",
-            fontSize: 14,
-            textDecoration: "none",
-          }}
-        >
-          ← Volver a procedimientos
-        </Link>
-      </div>
+    <div className="procedure-edit-page">
+      <h1 className="procedure-edit-title">Editar procedimiento</h1>
 
-      <h1 style={pageTitle}>Editar procedimiento</h1>
-
-      <form action={updateProcedure} style={formStyle}>
-        <Section title="Información general">
-          <Grid>
+      <form action={updateProcedure} className="procedure-edit-form">
+        <Section title="Información básica">
+          <div className="procedure-edit-grid">
             <Field label="Fecha">
               <input
                 type="date"
                 name="date"
-                required
-                defaultValue={formatDate(procedure.date)}
+                defaultValue={formatDate(p.date)}
                 style={inputStyle}
               />
             </Field>
@@ -122,7 +79,7 @@ export default async function EditProcedurePage({
             <Field label="Técnica">
               <input
                 name="technique"
-                defaultValue={procedure.technique ?? ""}
+                defaultValue={p.technique ?? ""}
                 style={inputStyle}
                 placeholder="Ej: FUE"
               />
@@ -131,7 +88,7 @@ export default async function EditProcedurePage({
             <Field label="Método">
               <input
                 name="method"
-                defaultValue={procedure.method ?? ""}
+                defaultValue={p.method ?? ""}
                 style={inputStyle}
                 placeholder="Ej: Sapphire"
               />
@@ -141,243 +98,132 @@ export default async function EditProcedurePage({
               <input
                 name="grafts"
                 type="number"
-                min="0"
-                defaultValue={procedure.grafts ?? ""}
+                defaultValue={p.grafts ?? ""}
                 style={inputStyle}
-                placeholder="Ej: 3500"
-              />
-            </Field>
-          </Grid>
-        </Section>
-
-        <Section title="Conteo de extracción e implantación">
-          <Grid>
-            <Field label="UF extraídas">
-              <input
-                name="extractedFollicularUnits"
-                type="number"
-                min="0"
-                defaultValue={procedure.extractedFollicularUnits ?? ""}
-                style={inputStyle}
-                placeholder="Ej: 3200"
               />
             </Field>
 
-            <Field label="UF implantadas">
-              <input
-                name="implantedFollicularUnits"
-                type="number"
-                min="0"
-                defaultValue={procedure.implantedFollicularUnits ?? ""}
-                style={inputStyle}
-                placeholder="Ej: 3150"
-              />
-            </Field>
-
-            <Field label="Folículos extraídos">
-              <input
-                name="extractedFollicles"
-                type="number"
-                min="0"
-                defaultValue={procedure.extractedFollicles ?? ""}
-                style={inputStyle}
-                placeholder="Ej: 6500"
-              />
-            </Field>
-
-            <Field label="Folículos implantados">
-              <input
-                name="implantedFollicles"
-                type="number"
-                min="0"
-                defaultValue={procedure.implantedFollicles ?? ""}
-                style={inputStyle}
-                placeholder="Ej: 6300"
-              />
-            </Field>
-          </Grid>
-        </Section>
-
-        <Section title="Zonas tratadas">
-          <Grid>
             <Field label="Zona donante">
               <input
                 name="donorArea"
-                defaultValue={procedure.donorArea ?? ""}
+                defaultValue={p.donorArea ?? ""}
                 style={inputStyle}
-                placeholder="Ej: Occipital"
               />
             </Field>
 
             <Field label="Zona receptora">
               <input
                 name="recipientArea"
-                defaultValue={procedure.recipientArea ?? ""}
+                defaultValue={p.recipientArea ?? ""}
                 style={inputStyle}
-                placeholder="Ej: Frontal, entradas, coronilla"
               />
             </Field>
-          </Grid>
+          </div>
+
+          <Field label="Notas">
+            <textarea
+              name="notes"
+              defaultValue={p.notes ?? ""}
+              style={textareaStyle}
+            />
+          </Field>
         </Section>
 
         <Section title="Anestesia">
-          <Grid>
-            <Field label="Tipo de anestesia">
+          <div className="procedure-edit-grid">
+            <Field label="Tipo">
               <input
                 name="anesthesiaType"
-                defaultValue={procedure.anesthesiaType ?? ""}
+                defaultValue={p.anesthesiaType ?? ""}
                 style={inputStyle}
-                placeholder="Ej: Local"
               />
             </Field>
 
-            <Field label="ML de anestesia">
+            <Field label="Cantidad (ml)">
               <input
                 name="anesthesiaMl"
                 type="number"
-                step="0.1"
-                min="0"
-                defaultValue={procedure.anesthesiaMl ?? ""}
+                defaultValue={p.anesthesiaMl ?? ""}
                 style={inputStyle}
-                placeholder="Ej: 12"
               />
             </Field>
-          </Grid>
+          </div>
         </Section>
 
-        <Section title="Tiempos del procedimiento">
-          <Grid>
+        <Section title="Tiempos quirúrgicos">
+          <div className="procedure-edit-grid">
             <Field label="Inicio extracción">
               <input
-                name="extractionStart"
                 type="datetime-local"
-                defaultValue={formatDateTime(procedure.extractionStart)}
+                name="extractionStart"
+                defaultValue={formatDateTime(p.extractionStart)}
                 style={inputStyle}
               />
             </Field>
 
             <Field label="Fin extracción">
               <input
-                name="extractionEnd"
                 type="datetime-local"
-                defaultValue={formatDateTime(procedure.extractionEnd)}
+                name="extractionEnd"
+                defaultValue={formatDateTime(p.extractionEnd)}
                 style={inputStyle}
               />
             </Field>
 
             <Field label="Inicio implantación">
               <input
-                name="implantationStart"
                 type="datetime-local"
-                defaultValue={formatDateTime(procedure.implantationStart)}
+                name="implantationStart"
+                defaultValue={formatDateTime(p.implantationStart)}
                 style={inputStyle}
               />
             </Field>
 
             <Field label="Fin implantación">
               <input
-                name="implantationEnd"
                 type="datetime-local"
-                defaultValue={formatDateTime(procedure.implantationEnd)}
+                name="implantationEnd"
+                defaultValue={formatDateTime(p.implantationEnd)}
                 style={inputStyle}
               />
             </Field>
-          </Grid>
+          </div>
         </Section>
 
-        <Section title="Equipo médico">
-          <Grid>
+        <Section title="Equipo">
+          <div className="procedure-edit-grid">
             <Field label="Equipo médico">
               <input
                 name="medicalTeam"
-                defaultValue={procedure.medicalTeam ?? ""}
+                defaultValue={p.medicalTeam ?? ""}
                 style={inputStyle}
-                placeholder="Ej: Dr. Sánchez + equipo quirúrgico"
               />
             </Field>
 
             <Field label="Enfermería">
               <input
                 name="nurses"
-                defaultValue={procedure.nurses ?? ""}
+                defaultValue={p.nurses ?? ""}
                 style={inputStyle}
-                placeholder="Ej: Ana Martínez / Laura Rivas"
               />
             </Field>
-          </Grid>
+          </div>
         </Section>
 
-        <Section title="Notas y observaciones">
-          <Field label="Notas">
-            <textarea
-              name="notes"
-              rows={4}
-              defaultValue={procedure.notes ?? ""}
-              style={textareaStyle}
-              placeholder="Detalles generales del procedimiento"
-            />
-          </Field>
+        <Field label="Observaciones">
+          <textarea
+            name="observations"
+            defaultValue={p.observations ?? ""}
+            style={textareaStyle}
+          />
+        </Field>
 
-          <Field label="Observaciones">
-            <textarea
-              name="observations"
-              rows={4}
-              defaultValue={procedure.observations ?? ""}
-              style={textareaStyle}
-              placeholder="Observaciones clínicas o quirúrgicas"
-            />
-          </Field>
-        </Section>
-
-        <button type="submit" style={buttonStyle}>
+        <button className="procedure-edit-submit-button" style={buttonStyle}>
           Guardar cambios
         </button>
       </form>
     </div>
   );
-}
-
-function getString(formData: FormData, key: string) {
-  const value = formData.get(key) as string | null;
-  return value && value.trim() ? value.trim() : null;
-}
-
-function getNumber(formData: FormData, key: string) {
-  const value = formData.get(key) as string | null;
-  return value && value !== "" ? Number(value) : null;
-}
-
-function getDate(formData: FormData, key: string) {
-  const value = formData.get(key) as string | null;
-  return value ? new Date(value) : null;
-}
-
-function formatDate(date: Date) {
-  return new Date(date).toISOString().slice(0, 10);
-}
-
-function formatDateTime(date: Date | null) {
-  if (!date) return "";
-  return new Date(date).toISOString().slice(0, 16);
-}
-
-function Section({
-  title,
-  children,
-}: {
-  title: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <section style={sectionStyle}>
-      <h2 style={sectionTitle}>{title}</h2>
-      {children}
-    </section>
-  );
-}
-
-function Grid({ children }: { children: React.ReactNode }) {
-  return <div style={gridStyle}>{children}</div>;
 }
 
 function Field({
@@ -388,73 +234,91 @@ function Field({
   children: React.ReactNode;
 }) {
   return (
-    <div style={{ marginBottom: 16 }}>
+    <div className="procedure-edit-field">
       <label style={labelStyle}>{label}</label>
       {children}
     </div>
   );
 }
 
-const pageTitle: React.CSSProperties = {
-  fontSize: 26,
-  fontWeight: 600,
-  marginBottom: 24,
-  color: "#111827",
-};
+function Section({
+  title,
+  children,
+}: {
+  title: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="procedure-edit-section">
+      <h3 className="procedure-edit-section-title">{title}</h3>
+      {children}
+    </div>
+  );
+}
 
-const formStyle: React.CSSProperties = {
-  display: "flex",
-  flexDirection: "column",
-  gap: 20,
-};
+function getString(formData: FormData, key: string) {
+  const value = formData.get(key);
 
-const sectionStyle: React.CSSProperties = {
-  background: "white",
-  border: "1px solid #E5E7EB",
-  borderRadius: 14,
-  padding: 22,
-};
+  if (typeof value !== "string" || value.trim() === "") {
+    return null;
+  }
 
-const sectionTitle: React.CSSProperties = {
-  fontSize: 17,
-  fontWeight: 600,
-  color: "#111827",
-  marginBottom: 18,
-};
+  return value.trim();
+}
 
-const gridStyle: React.CSSProperties = {
-  display: "grid",
-  gridTemplateColumns: "1fr 1fr",
-  gap: 16,
-};
+function getNumber(formData: FormData, key: string) {
+  const value = formData.get(key);
 
-const labelStyle: React.CSSProperties = {
+  if (typeof value !== "string" || value.trim() === "") {
+    return null;
+  }
+
+  return Number(value);
+}
+
+function getDate(formData: FormData, key: string) {
+  const value = formData.get(key);
+
+  if (typeof value !== "string" || value.trim() === "") {
+    return null;
+  }
+
+  return new Date(value);
+}
+
+function formatDate(date: Date) {
+  return date.toISOString().split("T")[0];
+}
+
+function formatDateTime(date: Date | null) {
+  if (!date) return "";
+
+  return date.toISOString().slice(0, 16);
+}
+
+const labelStyle = {
   display: "block",
   fontSize: 13,
   color: "#6B7280",
   marginBottom: 6,
 };
 
-const inputStyle: React.CSSProperties = {
+const inputStyle = {
   width: "100%",
-  padding: "10px 12px",
-  border: "1px solid #D1D5DB",
+  padding: "10px",
+  border: "1px solid #E5E7EB",
   borderRadius: 8,
   fontSize: 14,
 };
 
-const textareaStyle: React.CSSProperties = {
-  width: "100%",
-  padding: "10px 12px",
-  border: "1px solid #D1D5DB",
-  borderRadius: 8,
-  fontSize: 14,
-  resize: "vertical",
+const textareaStyle = {
+  ...inputStyle,
+  minHeight: 90,
 };
 
-const buttonStyle: React.CSSProperties = {
-  alignSelf: "flex-start",
-  background: "#2563EB",
+const buttonStyle = {
+  marginTop: 20,
+  background: "#2C6BED",
   color: "white",
   padding: "12px 18px",
   borderRadius: 8,

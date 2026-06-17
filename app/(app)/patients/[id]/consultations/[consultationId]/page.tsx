@@ -3,6 +3,15 @@ import { getCurrentUser } from "@/lib/auth/getCurrentUser";
 import Link from "next/link";
 import PhotoGrid from "@/components/photos/PhotoGrid";
 import DeleteConsultationButton from "@/components/consultations/DeleteConsultationButton";
+import {
+  HiArrowLeft,
+  HiCamera,
+  HiChartBar,
+  HiDocumentText,
+  HiPencilSquare,
+  HiPrinter,
+  HiPlus,
+} from "react-icons/hi2";
 
 export default async function ConsultationPage({
   params,
@@ -118,80 +127,43 @@ export default async function ConsultationPage({
   );
 
   return (
-    <div style={{ maxWidth: 900 }}>
-      {/* HEADER */}
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          marginBottom: 30,
-          alignItems: "center",
-        }}
-      >
+    <div className="consultation-detail-page" style={{ maxWidth: 900 }}>
+      <div className="consultation-detail-header">
         <div>
-          <h1
-            style={{
-              fontSize: 26,
-              fontWeight: 600,
-            }}
-          >
-            Consulta
-          </h1>
+          <h1 className="consultation-detail-title">Consulta</h1>
 
-          <div
-            style={{
-              fontSize: 14,
-              color: "#6B7280",
-              marginTop: 6,
-            }}
-          >
+          <div className="consultation-detail-patient">
             {consultation.patient.firstName} {consultation.patient.lastName}
           </div>
         </div>
 
-        <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
+        <div className="consultation-detail-actions">
           <Link
             href={`/patients/${id}/consultations`}
-            style={{
-              textDecoration: "none",
-              fontSize: 14,
-              color: "#6B7280",
-            }}
+            className="consultation-detail-back-link"
           >
-            ← Volver
+            <HiArrowLeft size={18} />
+            <span>Volver</span>
           </Link>
 
           <Link
             href={`/patients/${id}/consultations/${consultationId}/prescriptions`}
-            style={{
-              background: "#2563EB",
-              color: "white",
-              padding: "10px 14px",
-              borderRadius: 8,
-              textDecoration: "none",
-              fontSize: 14,
-              fontWeight: 500,
-            }}
+            className="consultation-detail-action consultation-detail-action-primary"
           >
-            Recetas médicas
+            <HiDocumentText size={18} />
+            <span>Recetas médicas</span>
           </Link>
 
-          <DeleteConsultationButton
-            consultationId={consultation.id}
-            patientId={id}
-          />
+          <div className="consultation-detail-delete-action">
+            <DeleteConsultationButton
+              consultationId={consultation.id}
+              patientId={id}
+            />
+          </div>
         </div>
       </div>
 
-      {/* INFO CONSULTA */}
-      <div
-        style={{
-          background: "white",
-          border: "1px solid #E5E7EB",
-          borderRadius: 12,
-          padding: 24,
-        }}
-      >
+      <div className="consultation-detail-card">
         <div style={{ marginBottom: 16 }}>
           <strong>Fecha:</strong>{" "}
           {new Date(consultation.date).toLocaleDateString()}
@@ -210,31 +182,16 @@ export default async function ConsultationPage({
           </div>
         </div>
 
-        {/* RECETAS */}
         <div style={{ marginTop: 24 }}>
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-              marginBottom: 12,
-            }}
-          >
+          <div className="consultation-detail-section-header">
             <strong>Recetas médicas</strong>
 
             <Link
               href={`/patients/${id}/consultations/${consultationId}/prescriptions/new`}
-              style={{
-                background: "#111827",
-                color: "white",
-                padding: "8px 12px",
-                borderRadius: 8,
-                textDecoration: "none",
-                fontSize: 13,
-                fontWeight: 500,
-              }}
+              className="consultation-detail-small-action consultation-detail-small-action-dark"
             >
-              + Nueva receta
+              <HiPlus size={16} />
+              <span>Nueva receta</span>
             </Link>
           </div>
 
@@ -245,24 +202,8 @@ export default async function ConsultationPage({
           )}
 
           {consultation.prescriptions.map((prescription) => (
-            <div
-              key={prescription.id}
-              style={{
-                marginTop: 10,
-                padding: 14,
-                border: "1px solid #E5E7EB",
-                borderRadius: 10,
-                background: "#F9FAFB",
-              }}
-            >
-              <div
-                style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  gap: 12,
-                  alignItems: "flex-start",
-                }}
-              >
+            <div key={prescription.id} className="consultation-prescription-card">
+              <div className="consultation-prescription-header">
                 <div>
                   <div
                     style={{
@@ -297,30 +238,22 @@ export default async function ConsultationPage({
                   )}
                 </div>
 
-                <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+                <div className="consultation-prescription-actions">
                   <Link
                     href={`/patients/${id}/consultations/${consultationId}/prescriptions/${prescription.id}/edit`}
-                    style={{
-                      color: "#2563EB",
-                      fontSize: 13,
-                      fontWeight: 600,
-                      textDecoration: "none",
-                    }}
+                    className="consultation-prescription-link"
                   >
-                    Editar
+                    <HiPencilSquare size={16} />
+                    <span>Editar</span>
                   </Link>
 
                   <a
                     href={`/api/patients/${id}/consultations/${consultationId}/prescriptions/${prescription.id}/pdf`}
                     target="_blank"
-                    style={{
-                      color: "#111827",
-                      fontSize: 13,
-                      fontWeight: 600,
-                      textDecoration: "none",
-                    }}
+                    className="consultation-prescription-link consultation-prescription-link-dark"
                   >
-                    Imprimir PDF
+                    <HiPrinter size={16} />
+                    <span>Imprimir PDF</span>
                   </a>
                 </div>
               </div>
@@ -359,7 +292,6 @@ export default async function ConsultationPage({
           ))}
         </div>
 
-        {/* MÉTRICAS */}
         <div style={{ marginTop: 24 }}>
           <strong>Métricas capilares</strong>
 
@@ -371,15 +303,7 @@ export default async function ConsultationPage({
 
           {consultation.metrics.map(
             (m: (typeof consultation.metrics)[number]) => (
-              <div
-                key={m.id}
-                style={{
-                  marginTop: 8,
-                  padding: 12,
-                  border: "1px solid #E5E7EB",
-                  borderRadius: 8,
-                }}
-              >
+              <div key={m.id} className="consultation-metric-card">
                 <div>
                   <strong>Densidad:</strong> {m.density ?? "—"} grafts/cm²
                 </div>
@@ -405,17 +329,8 @@ export default async function ConsultationPage({
         </div>
       </div>
 
-      {/* FOTOS CLÍNICAS */}
-      <div style={{ marginTop: 40 }}>
-        <h2
-          style={{
-            fontSize: 18,
-            fontWeight: 600,
-            marginBottom: 20,
-          }}
-        >
-          Fotos clínicas
-        </h2>
+      <div className="consultation-photos-section">
+        <h2 className="consultation-photos-title">Fotos clínicas</h2>
 
         {consultation.photos.length === 0 && (
           <div style={{ color: "#6B7280", marginBottom: 16 }}>
@@ -423,7 +338,6 @@ export default async function ConsultationPage({
           </div>
         )}
 
-        {/* FOTOS POR ZONA */}
         {zones.map((zone) => {
           const zonePhotos = consultation.photos.filter(
             (p: (typeof consultation.photos)[number]) => p.zone === zone,
@@ -448,7 +362,6 @@ export default async function ConsultationPage({
           );
         })}
 
-        {/* FOTOS SIN ZONA */}
         {photosWithoutZone.length > 0 && (
           <div style={{ marginBottom: 30 }}>
             <h3
@@ -465,36 +378,23 @@ export default async function ConsultationPage({
           </div>
         )}
 
-        <Link
-          href={`/patients/${id}/consultations/${consultationId}/photos/new`}
-          style={{
-            background: "#2C6BED",
-            color: "white",
-            padding: "10px 16px",
-            borderRadius: 8,
-            textDecoration: "none",
-            fontSize: 14,
-            fontWeight: 500,
-          }}
-        >
-          + Agregar foto
-        </Link>
+        <div className="consultation-bottom-actions">
+          <Link
+            href={`/patients/${id}/consultations/${consultationId}/photos/new`}
+            className="consultation-detail-action consultation-detail-action-primary"
+          >
+            <HiCamera size={18} />
+            <span>Agregar foto</span>
+          </Link>
 
-        <Link
-          href={`/patients/${id}/consultations/${consultationId}/metrics/new`}
-          style={{
-            background: "#111827",
-            color: "white",
-            padding: "10px 16px",
-            borderRadius: 8,
-            textDecoration: "none",
-            fontSize: 14,
-            fontWeight: 500,
-            marginLeft: 10,
-          }}
-        >
-          + Agregar métricas
-        </Link>
+          <Link
+            href={`/patients/${id}/consultations/${consultationId}/metrics/new`}
+            className="consultation-detail-action consultation-detail-action-dark"
+          >
+            <HiChartBar size={18} />
+            <span>Agregar métricas</span>
+          </Link>
+        </div>
       </div>
     </div>
   );

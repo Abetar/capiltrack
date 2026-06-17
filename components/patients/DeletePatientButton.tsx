@@ -1,6 +1,7 @@
 "use client";
 
 import { deletePatient } from "@/actions/deletePatient";
+import { HiTrash } from "react-icons/hi2";
 
 export default function DeletePatientButton({
   patientId,
@@ -22,6 +23,7 @@ export default function DeletePatientButton({
   return (
     <button
       onClick={handleDelete}
+      className="patient-summary-action patient-summary-delete-button"
       style={{
         background: "#DC2626",
         color: "white",
@@ -31,9 +33,15 @@ export default function DeletePatientButton({
         fontSize: 14,
         fontWeight: 500,
         cursor: "pointer",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        gap: 8,
       }}
     >
-      Eliminar paciente
+      <HiTrash size={18} />
+
+      <span>Eliminar paciente</span>
     </button>
   );
 }

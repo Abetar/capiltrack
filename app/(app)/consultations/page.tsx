@@ -1,6 +1,16 @@
 import { prisma } from "@/lib/db/prisma";
 import { getCurrentUser } from "@/lib/auth/getCurrentUser";
 import Link from "next/link";
+import {
+  HiMagnifyingGlass,
+  HiFunnel,
+  HiEye,
+  HiCalendarDays,
+  HiUser,
+  HiCamera,
+  HiChartBar,
+  HiClipboardDocumentList,
+} from "react-icons/hi2";
 
 export default async function ConsultationsPage({
   searchParams,
@@ -14,27 +24,8 @@ export default async function ConsultationsPage({
 
   if (!user) {
     return (
-      <div
-        style={{
-          minHeight: "100vh",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          background: "#F8FAFC",
-          padding: 20,
-        }}
-      >
-        <div
-          style={{
-            background: "white",
-            border: "1px solid #E5E7EB",
-            borderRadius: 12,
-            padding: 32,
-            maxWidth: 420,
-            width: "100%",
-            textAlign: "center",
-          }}
-        >
+      <div style={restrictedWrapper}>
+        <div style={restrictedCard}>
           <h2 style={{ fontSize: 20, fontWeight: 600, marginBottom: 12 }}>
             Acceso restringido
           </h2>
@@ -52,18 +43,7 @@ export default async function ConsultationsPage({
 
           {reason === "no_subscription" && (
             <a href="/api/stripe/checkout">
-              <button
-                style={{
-                  background: "#2C6BED",
-                  color: "white",
-                  padding: "12px 20px",
-                  borderRadius: 8,
-                  border: "none",
-                  cursor: "pointer",
-                }}
-              >
-                Reactivar suscripción
-              </button>
+              <button style={reactivateButton}>Reactivar suscripción</button>
             </a>
           )}
         </div>
@@ -139,47 +119,59 @@ export default async function ConsultationsPage({
   );
 
   return (
-    <div>
-      {/* HEADER */}
+    <div className="consultations-page">
+      <div className="consultations-header" style={{ marginBottom: 30 }}>
+        <h1 className="consultations-title" style={headerTitle}>
+          Consultas clínicas
+        </h1>
 
-      <div style={{ marginBottom: 30 }}>
-        <h1 style={headerTitle}>Consultas clínicas</h1>
-
-        <p style={headerSubtitle}>
+        <p className="consultations-subtitle" style={headerSubtitle}>
           Registro global de consultas realizadas en la clínica
         </p>
       </div>
 
-      {/* FILTROS */}
-
-      <form method="GET" style={filtersCard}>
-        <div style={filtersGrid}>
+      <form
+        method="GET"
+        className="consultations-filters-card"
+        style={filtersCard}
+      >
+        <div className="consultations-filters-grid" style={filtersGrid}>
           <div>
             <label style={labelStyle}>Buscar paciente</label>
-            <input
-              type="text"
-              name="search"
-              defaultValue={search}
-              placeholder="Nombre o apellido..."
-              style={inputStyle}
-            />
+
+            <div className="consultations-input-wrapper">
+              <HiMagnifyingGlass size={18} />
+
+              <input
+                type="text"
+                name="search"
+                defaultValue={search}
+                placeholder="Nombre o apellido..."
+                style={inputStyle}
+              />
+            </div>
           </div>
 
           <div>
             <label style={labelStyle}>Filtrar por Norwood</label>
-            <select name="norwood" defaultValue={norwood} style={inputStyle}>
-              <option value="">Todos</option>
-              <option value="1">Norwood 1</option>
-              <option value="2">Norwood 2</option>
-              <option value="3">Norwood 3</option>
-              <option value="4">Norwood 4</option>
-              <option value="5">Norwood 5</option>
-              <option value="6">Norwood 6</option>
-              <option value="7">Norwood 7</option>
-            </select>
+
+            <div className="consultations-input-wrapper">
+              <HiFunnel size={18} />
+
+              <select name="norwood" defaultValue={norwood} style={inputStyle}>
+                <option value="">Todos</option>
+                <option value="1">Norwood 1</option>
+                <option value="2">Norwood 2</option>
+                <option value="3">Norwood 3</option>
+                <option value="4">Norwood 4</option>
+                <option value="5">Norwood 5</option>
+                <option value="6">Norwood 6</option>
+                <option value="7">Norwood 7</option>
+              </select>
+            </div>
           </div>
 
-          <div style={{ display: "flex", alignItems: "end", gap: 10 }}>
+          <div className="consultations-filter-actions">
             <button type="submit" style={primaryButton}>
               Aplicar
             </button>
@@ -191,18 +183,14 @@ export default async function ConsultationsPage({
         </div>
       </form>
 
-      {/* STATS */}
-
-      <div style={statsGrid}>
+      <div className="consultations-stats-grid" style={statsGrid}>
         <StatCard title="Consultas" value={String(totalConsultations)} />
         <StatCard title="Norwood promedio" value={String(avgNorwood)} />
         <StatCard title="Fotos capturadas" value={String(totalPhotos)} />
       </div>
 
-      {/* TABLE */}
-
-      <div style={tableWrapper}>
-        <table style={table}>
+      <div className="consultations-table-wrapper" style={tableWrapper}>
+        <table className="consultations-table" style={table}>
           <thead>
             <tr>
               <th style={th}>Fecha</th>
@@ -242,6 +230,58 @@ export default async function ConsultationsPage({
           </tbody>
         </table>
 
+        <div className="consultations-mobile-list">
+          {consultations.map((c: (typeof consultations)[number]) => (
+            <article key={c.id} className="consultations-mobile-card">
+              <div className="consultations-mobile-card-header">
+                <div>
+                  <div className="consultations-mobile-patient">
+                    {c.patient.firstName} {c.patient.lastName ?? ""}
+                  </div>
+
+                  <div className="consultations-mobile-date">
+                    <HiCalendarDays size={15} />
+                    {new Date(c.date).toLocaleDateString()}
+                  </div>
+                </div>
+
+                <Link
+                  href={`/patients/${c.patientId}/consultations/${c.id}`}
+                  className="consultations-mobile-view-button"
+                >
+                  <HiEye size={18} />
+                </Link>
+              </div>
+
+              <div className="consultations-mobile-details">
+                <MobileDetail
+                  icon={<HiClipboardDocumentList size={16} />}
+                  label="Norwood"
+                  value={String(c.norwoodLevel ?? "—")}
+                />
+
+                <MobileDetail
+                  icon={<HiCamera size={16} />}
+                  label="Fotos"
+                  value={String(c.photos.length)}
+                />
+
+                <MobileDetail
+                  icon={<HiChartBar size={16} />}
+                  label="Métricas"
+                  value={String(c.metrics.length)}
+                />
+
+                <MobileDetail
+                  icon={<HiUser size={16} />}
+                  label="Paciente"
+                  value={`${c.patient.firstName} ${c.patient.lastName ?? ""}`}
+                />
+              </div>
+            </article>
+          ))}
+        </div>
+
         {consultations.length === 0 && (
           <p style={emptyText}>No hay consultas registradas.</p>
         )}
@@ -252,12 +292,61 @@ export default async function ConsultationsPage({
 
 function StatCard({ title, value }: { title: string; value: string }) {
   return (
-    <div style={statCard}>
+    <div className="consultations-stat-card" style={statCard}>
       <div style={statLabel}>{title}</div>
       <div style={statValue}>{value}</div>
     </div>
   );
 }
+
+function MobileDetail({
+  icon,
+  label,
+  value,
+}: {
+  icon: React.ReactNode;
+  label: string;
+  value: string;
+}) {
+  return (
+    <div className="consultations-mobile-detail">
+      <div className="consultations-mobile-detail-icon">{icon}</div>
+
+      <div>
+        <div className="consultations-mobile-detail-label">{label}</div>
+        <div className="consultations-mobile-detail-value">{value}</div>
+      </div>
+    </div>
+  );
+}
+
+const restrictedWrapper = {
+  minHeight: "100vh",
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  background: "#F8FAFC",
+  padding: 20,
+};
+
+const restrictedCard = {
+  background: "white",
+  border: "1px solid #E5E7EB",
+  borderRadius: 12,
+  padding: 32,
+  maxWidth: 420,
+  width: "100%",
+  textAlign: "center" as const,
+};
+
+const reactivateButton = {
+  background: "#2C6BED",
+  color: "white",
+  padding: "12px 20px",
+  borderRadius: 8,
+  border: "none",
+  cursor: "pointer",
+};
 
 const headerTitle = {
   fontSize: 28,

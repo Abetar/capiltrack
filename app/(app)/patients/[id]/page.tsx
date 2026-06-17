@@ -3,6 +3,10 @@ import { getCurrentUser } from "@/lib/auth/getCurrentUser";
 import { getPatientTimeline } from "@/lib/patient/getPatientTimeline";
 import Link from "next/link";
 import DeletePatientButton from "@/components/patients/DeletePatientButton";
+import {
+  HiClipboardDocumentList,
+  HiDocumentArrowDown,
+} from "react-icons/hi2";
 
 export default async function PatientPage({
   params,
@@ -95,57 +99,44 @@ export default async function PatientPage({
   const hasClinicalRecord = patient.clinicalAnswers.length > 0;
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 30 }}>
-      {/* HEADER PACIENTE */}
-
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-        }}
-      >
+    <div
+      className="patient-summary-page"
+      style={{ display: "flex", flexDirection: "column", gap: 30 }}
+    >
+      <div className="patient-summary-header">
         <div>
-          <h1
-            style={{
-              fontSize: 26,
-              fontWeight: 600,
-              color: "#111827",
-            }}
-          >
+          <h1 className="patient-summary-title">
             {patient.firstName} {patient.lastName ?? ""}
           </h1>
         </div>
 
-        <div style={{ display: "flex", gap: 10 }}>
+        <div className="patient-summary-actions">
           <Link
             href={`/patients/${patient.id}/clinical-record`}
+            className="patient-summary-action patient-summary-action-primary"
             style={clinicalRecordButtonStyle}
           >
-            {hasClinicalRecord ? "Ver expediente" : "Llenar expediente"}
+            <HiClipboardDocumentList size={18} />
+            <span>
+              {hasClinicalRecord ? "Ver expediente" : "Llenar expediente"}
+            </span>
           </Link>
 
           <a
             href={`/api/patients/${patient.id}/pdf`}
             target="_blank"
+            className="patient-summary-action patient-summary-action-dark"
             style={pdfButtonStyle}
           >
-            Exportar PDF
+            <HiDocumentArrowDown size={18} />
+            <span>Exportar PDF</span>
           </a>
 
           <DeletePatientButton patientId={patient.id} />
         </div>
       </div>
 
-      {/* GRID */}
-
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "1fr 1fr",
-          gap: 20,
-        }}
-      >
+      <div className="patient-summary-grid">
         <div style={cardStyle}>
           <h2 style={cardTitle}>Datos clínicos</h2>
 
@@ -173,24 +164,12 @@ export default async function PatientPage({
             label="Transplantes"
             value={patient.transplants.length}
           />
-          <ActivityRow
-            label="Expediente"
-            value={hasClinicalRecord ? 1 : 0}
-          />
+          <ActivityRow label="Expediente" value={hasClinicalRecord ? 1 : 0} />
         </div>
       </div>
 
-      {/* EXPEDIENTE CARD */}
-
       <div style={cardStyle}>
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-            gap: 20,
-          }}
-        >
+        <div className="patient-summary-clinical-card">
           <div>
             <h2 style={cardTitle}>Expediente clínico inicial</h2>
 
@@ -210,14 +189,16 @@ export default async function PatientPage({
 
           <Link
             href={`/patients/${patient.id}/clinical-record`}
+            className="patient-summary-action patient-summary-action-primary"
             style={clinicalRecordButtonStyle}
           >
-            {hasClinicalRecord ? "Editar expediente" : "Llenar expediente"}
+            <HiClipboardDocumentList size={18} />
+            <span>
+              {hasClinicalRecord ? "Editar expediente" : "Llenar expediente"}
+            </span>
           </Link>
         </div>
       </div>
-
-      {/* TIMELINE */}
 
       <div style={cardStyle}>
         <h2 style={cardTitle}>Historia clínica</h2>
@@ -260,8 +241,6 @@ export default async function PatientPage({
     </div>
   );
 }
-
-/* CONSULTATION EVENT */
 
 function ConsultationEvent({
   consultation,
@@ -348,8 +327,6 @@ function ConsultationEvent({
   );
 }
 
-/* TREATMENT EVENT */
-
 function TreatmentEvent({
   treatment,
   patientId,
@@ -381,8 +358,6 @@ function TreatmentEvent({
     </TimelineWrapper>
   );
 }
-
-/* TRANSPLANT EVENT */
 
 function TransplantEvent({
   procedure,
@@ -416,8 +391,6 @@ function TransplantEvent({
   );
 }
 
-/* WRAPPER */
-
 function TimelineWrapper({
   children,
   color,
@@ -432,8 +405,6 @@ function TimelineWrapper({
     </div>
   );
 }
-
-/* UI */
 
 function InfoRow({ label, value }: { label: string; value: string }) {
   return (
@@ -460,8 +431,6 @@ function ActivityRow({ label, value }: { label: string; value: number }) {
     </div>
   );
 }
-
-/* STYLES */
 
 const cardStyle = {
   background: "white",
@@ -535,6 +504,7 @@ const pdfButtonStyle = {
   textDecoration: "none",
   display: "flex",
   alignItems: "center",
+  gap: 8,
 };
 
 const clinicalRecordButtonStyle = {
@@ -547,4 +517,5 @@ const clinicalRecordButtonStyle = {
   textDecoration: "none",
   display: "flex",
   alignItems: "center",
+  gap: 8,
 };

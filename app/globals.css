@@ -5,16 +5,16 @@ Base variables
 */
 
 :root {
-  --background: #F8FAFC;
+  --background: #f8fafc;
   --foreground: #111827;
 
-  --border: #E5E7EB;
-  --input: #D1D5DB;
+  --border: #e5e7eb;
+  --input: #d1d5db;
 
-  --primary: #2C6BED;
-  --primary-hover: #1F56D9;
+  --primary: #2c6bed;
+  --primary-hover: #1f56d9;
 
-  --card: #FFFFFF;
+  --card: #ffffff;
 }
 
 /*
@@ -126,4 +126,1506 @@ Button utility
 
 .ui-button:hover {
   background: var(--primary-hover);
+}
+
+/*
+|--------------------------------------------------------------------------
+| Header Actions
+|--------------------------------------------------------------------------
+*/
+
+.capiltrack-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+}
+
+.capiltrack-view-switcher {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.capiltrack-view-status {
+  font-size: 12px;
+  color: #6b7280;
+  white-space: nowrap;
+}
+
+.capiltrack-view-status strong {
+  color: #1d4ed8;
+}
+
+.capiltrack-header-view-toggle {
+  border: 1px solid #bfdbfe;
+  background: #eff6ff;
+  color: #1d4ed8;
+  border-radius: 999px;
+  padding: 8px 12px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.capiltrack-header-view-toggle:hover {
+  background: #dbeafe;
+}
+
+/*
+|--------------------------------------------------------------------------
+| Vista Mobile activa
+|--------------------------------------------------------------------------
+*/
+
+.capiltrack-mobile-view-enabled .capiltrack-layout-root {
+  flex-direction: column !important;
+}
+
+.capiltrack-mobile-view-enabled .capiltrack-page-content {
+  padding: 16px !important;
+}
+
+/*
+|--------------------------------------------------------------------------
+| Sidebar escritorio
+|--------------------------------------------------------------------------
+*/
+
+.app-sidebar {
+  width: 240px;
+  background: white;
+  border-right: 1px solid #e5e7eb;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  flex-shrink: 0;
+}
+
+.app-sidebar-inner {
+  padding: 24px 20px;
+}
+
+.app-sidebar-logo {
+  margin-bottom: 30px;
+}
+
+.app-sidebar-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/*
+|--------------------------------------------------------------------------
+| Sidebar modo mobile
+|--------------------------------------------------------------------------
+*/
+
+.app-sidebar-mobile-mode {
+  width: 100%;
+  background: white;
+  border-bottom: 1px solid #e5e7eb;
+  padding: 10px 12px;
+}
+
+.app-sidebar-mobile-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.app-sidebar-mobile-menu-button {
+  border: 1px solid #d1d5db;
+  background: #ffffff;
+  color: #111827;
+  border-radius: 10px;
+  padding: 9px 12px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.app-sidebar-mobile-current {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 0;
+  padding: 7px 10px;
+  border-radius: 999px;
+  background: #eef2ff;
+  color: #1d4ed8;
+  font-size: 13px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.app-sidebar-mobile-dropdown {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid #e5e7eb;
+}
+
+/*
+|--------------------------------------------------------------------------
+| Teléfono / tablet chica
+|--------------------------------------------------------------------------
+*/
+
+@media (max-width: 1024px) {
+  .capiltrack-app-header {
+    height: auto !important;
+    min-height: 60px;
+    padding: 12px !important;
+    gap: 8px;
+  }
+
+  .capiltrack-header-actions {
+    gap: 8px;
+  }
+
+  .capiltrack-view-status {
+    display: none;
+  }
+
+  .capiltrack-header-view-toggle {
+    font-size: 12px;
+    padding: 8px 10px;
+  }
+
+  .capiltrack-mobile-view-enabled .capiltrack-page-content {
+    padding: 12px !important;
+  }
+}
+
+/*
+|--------------------------------------------------------------------------
+| Patient Layout Mobile View
+|--------------------------------------------------------------------------
+*/
+
+.capiltrack-mobile-view-enabled .patient-layout-container {
+  max-width: 100% !important;
+}
+
+@media (max-width: 768px) {
+  .capiltrack-mobile-view-enabled .patient-layout-header {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+  }
+
+  .capiltrack-mobile-view-enabled .patient-layout-header-info {
+    width: 100% !important;
+  }
+
+  .capiltrack-mobile-view-enabled .patient-layout-edit-button {
+    width: 100% !important;
+    text-align: center !important;
+  }
+
+  .capiltrack-mobile-view-enabled .patient-layout-tabs {
+    gap: 16px !important;
+    margin-left: -12px !important;
+    margin-right: -12px !important;
+    padding-left: 12px !important;
+    padding-right: 12px !important;
+    white-space: nowrap !important;
+    overflow-x: auto !important;
+  }
+}
+
+/*
+|--------------------------------------------------------------------------
+| Patient Tabs - Mobile App View
+|--------------------------------------------------------------------------
+*/
+
+.patient-layout-edit-icon {
+  display: none;
+}
+
+.patient-layout-tab-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.patient-layout-tab-icon {
+  display: inline-flex;
+  align-items: center;
+}
+
+@media (max-width: 768px) {
+  .capiltrack-mobile-view-enabled .patient-layout-title {
+    font-size: 22px !important;
+  }
+
+  .capiltrack-mobile-view-enabled .patient-layout-meta {
+    font-size: 12px !important;
+  }
+
+  .capiltrack-mobile-view-enabled .patient-layout-edit-button {
+    width: auto !important;
+    padding: 10px !important;
+    border-radius: 999px !important;
+  }
+
+  .capiltrack-mobile-view-enabled .patient-layout-edit-text {
+    display: none !important;
+  }
+
+  .capiltrack-mobile-view-enabled .patient-layout-edit-icon {
+    display: inline-flex !important;
+    align-items: center;
+  }
+
+  .capiltrack-mobile-view-enabled .patient-layout-tabs {
+    gap: 10px !important;
+    border-bottom: none !important;
+    padding-bottom: 0 !important;
+  }
+
+  .capiltrack-mobile-view-enabled .patient-layout-tab-link {
+    width: 44px;
+    height: 44px;
+    justify-content: center;
+    border: 1px solid #e5e7eb;
+    border-radius: 999px;
+    background: white;
+    color: #374151;
+  }
+
+  .capiltrack-mobile-view-enabled .patient-layout-tab-text {
+    display: none !important;
+  }
+
+  .capiltrack-mobile-view-enabled .patient-layout-tab-icon {
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+  }
+}
+
+/*
+|--------------------------------------------------------------------------
+| Procedures Page Mobile View
+|--------------------------------------------------------------------------
+*/
+
+.procedures-input-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.procedures-input-wrapper svg {
+  color: #6b7280;
+  flex-shrink: 0;
+}
+
+.procedures-filter-actions {
+  display: flex;
+  align-items: end;
+  gap: 10px;
+}
+
+.procedures-mobile-list {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .capiltrack-mobile-view-enabled .procedures-title {
+    font-size: 22px !important;
+  }
+
+  .capiltrack-mobile-view-enabled .procedures-subtitle {
+    font-size: 12px !important;
+  }
+
+  .capiltrack-mobile-view-enabled .procedures-filters-card {
+    padding: 14px !important;
+  }
+
+  .capiltrack-mobile-view-enabled .procedures-filters-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .capiltrack-mobile-view-enabled .procedures-filter-actions {
+    align-items: stretch !important;
+  }
+
+  .capiltrack-mobile-view-enabled .procedures-filter-actions button,
+  .capiltrack-mobile-view-enabled .procedures-filter-actions a {
+    flex: 1;
+    text-align: center;
+  }
+
+  .capiltrack-mobile-view-enabled .procedures-stats-grid {
+    grid-template-columns: 1fr !important;
+    gap: 10px !important;
+  }
+
+  .capiltrack-mobile-view-enabled .procedures-stat-card {
+    padding: 12px !important;
+  }
+
+  .capiltrack-mobile-view-enabled .procedures-table {
+    display: none !important;
+  }
+
+  .capiltrack-mobile-view-enabled .procedures-table-wrapper {
+    padding: 12px !important;
+  }
+
+  .capiltrack-mobile-view-enabled .procedures-mobile-list {
+    display: flex !important;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .capiltrack-mobile-view-enabled .procedures-mobile-card {
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 14px;
+    background: #ffffff;
+  }
+
+  .capiltrack-mobile-view-enabled .procedures-mobile-card-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+
+  .capiltrack-mobile-view-enabled .procedures-mobile-patient {
+    font-size: 15px;
+    font-weight: 700;
+    color: #111827;
+  }
+
+  .capiltrack-mobile-view-enabled .procedures-mobile-date {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    margin-top: 4px;
+    font-size: 12px;
+    color: #6b7280;
+  }
+
+  .capiltrack-mobile-view-enabled .procedures-mobile-view-button {
+    width: 36px;
+    height: 36px;
+    border-radius: 999px;
+    background: #eff6ff;
+    color: #1d4ed8;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .capiltrack-mobile-view-enabled .procedures-mobile-details {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+
+  .capiltrack-mobile-view-enabled .procedures-mobile-detail {
+    display: flex;
+    gap: 8px;
+    align-items: flex-start;
+    min-width: 0;
+  }
+
+  .capiltrack-mobile-view-enabled .procedures-mobile-detail-icon {
+    color: #2563eb;
+    margin-top: 2px;
+    flex-shrink: 0;
+  }
+
+  .capiltrack-mobile-view-enabled .procedures-mobile-detail-label {
+    font-size: 11px;
+    color: #6b7280;
+  }
+
+  .capiltrack-mobile-view-enabled .procedures-mobile-detail-value {
+    font-size: 13px;
+    color: #111827;
+    font-weight: 600;
+    word-break: break-word;
+  }
+}
+
+
+/*
+|--------------------------------------------------------------------------
+| Consultations Page Mobile View
+|--------------------------------------------------------------------------
+*/
+
+.consultations-input-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.consultations-input-wrapper svg {
+  color: #6b7280;
+  flex-shrink: 0;
+}
+
+.consultations-filter-actions {
+  display: flex;
+  align-items: end;
+  gap: 10px;
+}
+
+.consultations-mobile-list {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .capiltrack-mobile-view-enabled .consultations-title {
+    font-size: 22px !important;
+  }
+
+  .capiltrack-mobile-view-enabled .consultations-subtitle {
+    font-size: 12px !important;
+  }
+
+  .capiltrack-mobile-view-enabled .consultations-filters-card {
+    padding: 14px !important;
+  }
+
+  .capiltrack-mobile-view-enabled .consultations-filters-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .capiltrack-mobile-view-enabled .consultations-filter-actions {
+    align-items: stretch !important;
+  }
+
+  .capiltrack-mobile-view-enabled .consultations-filter-actions button,
+  .capiltrack-mobile-view-enabled .consultations-filter-actions a {
+    flex: 1;
+    text-align: center;
+  }
+
+  .capiltrack-mobile-view-enabled .consultations-stats-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 10px !important;
+  }
+
+  .capiltrack-mobile-view-enabled .consultations-stat-card {
+    padding: 12px !important;
+    min-height: 86px;
+  }
+
+  .capiltrack-mobile-view-enabled .consultations-table {
+    display: none !important;
+  }
+
+  .capiltrack-mobile-view-enabled .consultations-table-wrapper {
+    padding: 12px !important;
+  }
+
+  .capiltrack-mobile-view-enabled .consultations-mobile-list {
+    display: flex !important;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .capiltrack-mobile-view-enabled .consultations-mobile-card {
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 14px;
+    background: #ffffff;
+  }
+
+  .capiltrack-mobile-view-enabled .consultations-mobile-card-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+
+  .capiltrack-mobile-view-enabled .consultations-mobile-patient {
+    font-size: 15px;
+    font-weight: 700;
+    color: #111827;
+  }
+
+  .capiltrack-mobile-view-enabled .consultations-mobile-date {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    margin-top: 4px;
+    font-size: 12px;
+    color: #6b7280;
+  }
+
+  .capiltrack-mobile-view-enabled .consultations-mobile-view-button {
+    width: 36px;
+    height: 36px;
+    border-radius: 999px;
+    background: #eff6ff;
+    color: #1d4ed8;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .capiltrack-mobile-view-enabled .consultations-mobile-details {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+
+  .capiltrack-mobile-view-enabled .consultations-mobile-detail {
+    display: flex;
+    gap: 8px;
+    align-items: flex-start;
+    min-width: 0;
+  }
+
+  .capiltrack-mobile-view-enabled .consultations-mobile-detail-icon {
+    color: #2563eb;
+    margin-top: 2px;
+    flex-shrink: 0;
+  }
+
+  .capiltrack-mobile-view-enabled .consultations-mobile-detail-label {
+    font-size: 11px;
+    color: #6b7280;
+  }
+
+  .capiltrack-mobile-view-enabled .consultations-mobile-detail-value {
+    font-size: 13px;
+    color: #111827;
+    font-weight: 600;
+    word-break: break-word;
+  }
+}
+/*
+|--------------------------------------------------------------------------
+| Patient Summary Mobile View
+|--------------------------------------------------------------------------
+*/
+
+.patient-summary-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.patient-summary-title {
+  font-size: 24px;
+  font-weight: 700;
+  color: #111827;
+  margin: 0;
+}
+
+.patient-summary-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.patient-summary-action {
+  white-space: nowrap;
+}
+
+.patient-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
+}
+
+@media (max-width: 768px) {
+  .capiltrack-mobile-view-enabled .patient-summary-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .capiltrack-mobile-view-enabled .patient-summary-title {
+    font-size: 22px;
+  }
+
+  .capiltrack-mobile-view-enabled .patient-summary-actions {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+  }
+
+  .capiltrack-mobile-view-enabled .patient-summary-action,
+  .capiltrack-mobile-view-enabled .patient-summary-actions button {
+    width: 100% !important;
+    min-height: 44px;
+    justify-content: center !important;
+    padding: 10px !important;
+    border-radius: 12px !important;
+    font-size: 0 !important;
+  }
+
+  .capiltrack-mobile-view-enabled .patient-summary-action span,
+  .capiltrack-mobile-view-enabled .patient-summary-actions button {
+    font-size: 0 !important;
+  }
+
+  .capiltrack-mobile-view-enabled .patient-summary-action svg {
+    width: 20px;
+    height: 20px;
+  }
+
+  .capiltrack-mobile-view-enabled .patient-summary-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .capiltrack-mobile-view-enabled .patient-summary-clinical-card {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+}
+/*
+|--------------------------------------------------------------------------
+| Consultation Detail Mobile View
+|--------------------------------------------------------------------------
+*/
+
+.consultation-detail-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.consultation-detail-title {
+  font-size: 28px;
+  font-weight: 700;
+  color: #111827;
+  margin: 0;
+}
+
+.consultation-detail-patient {
+  font-size: 14px;
+  color: #6b7280;
+  margin-top: 6px;
+}
+
+.consultation-detail-actions,
+.consultation-bottom-actions,
+.consultation-prescription-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.consultation-detail-back-link,
+.consultation-detail-action,
+.consultation-detail-small-action,
+.consultation-prescription-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  text-decoration: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.consultation-detail-back-link {
+  color: #6b7280;
+}
+
+.consultation-detail-action {
+  padding: 10px 16px;
+}
+
+.consultation-detail-action-primary {
+  background: #2563eb;
+  color: white;
+}
+
+.consultation-detail-action-dark,
+.consultation-detail-small-action-dark,
+.consultation-prescription-link-dark {
+  background: #111827;
+  color: white;
+}
+
+.consultation-detail-card {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 24px;
+}
+
+.consultation-detail-section-header,
+.consultation-prescription-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.consultation-detail-small-action {
+  padding: 8px 12px;
+}
+
+.consultation-prescription-card,
+.consultation-metric-card {
+  margin-top: 12px;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  padding: 14px;
+  background: #f9fafb;
+}
+
+.consultation-prescription-link {
+  padding: 8px 10px;
+  color: #2563eb;
+  background: #eff6ff;
+}
+
+.consultation-photos-section {
+  margin-top: 30px;
+}
+
+.consultation-photos-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: #111827;
+  margin-bottom: 16px;
+}
+
+@media (max-width: 768px) {
+  .capiltrack-mobile-view-enabled .consultation-detail-page {
+    max-width: 100% !important;
+  }
+
+  .capiltrack-mobile-view-enabled .consultation-detail-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .capiltrack-mobile-view-enabled .consultation-detail-title {
+    font-size: 24px;
+  }
+
+  .capiltrack-mobile-view-enabled .consultation-detail-actions {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+  }
+
+  .capiltrack-mobile-view-enabled .consultation-detail-actions span,
+  .capiltrack-mobile-view-enabled .consultation-bottom-actions span,
+  .capiltrack-mobile-view-enabled .consultation-prescription-actions span {
+    display: none;
+  }
+
+  .capiltrack-mobile-view-enabled .consultation-detail-back-link,
+  .capiltrack-mobile-view-enabled .consultation-detail-action,
+  .capiltrack-mobile-view-enabled .consultation-detail-delete-action button {
+    width: 100% !important;
+    min-height: 44px;
+    padding: 10px !important;
+    border-radius: 12px !important;
+  }
+
+  .capiltrack-mobile-view-enabled .consultation-detail-card {
+    padding: 16px;
+  }
+
+  .capiltrack-mobile-view-enabled .consultation-detail-section-header,
+  .capiltrack-mobile-view-enabled .consultation-prescription-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .capiltrack-mobile-view-enabled .consultation-detail-small-action {
+    width: 100%;
+    min-height: 40px;
+  }
+
+  .capiltrack-mobile-view-enabled .consultation-prescription-actions {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .capiltrack-mobile-view-enabled .consultation-prescription-link {
+    min-height: 40px;
+  }
+
+  .capiltrack-mobile-view-enabled .consultation-bottom-actions {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+  }
+
+  .capiltrack-mobile-view-enabled .consultation-bottom-actions a {
+    width: 100%;
+    min-height: 44px;
+  }
+}
+/*
+|--------------------------------------------------------------------------
+| Consultation Detail Action Buttons Fix
+|--------------------------------------------------------------------------
+*/
+
+@media (max-width: 768px) {
+  .capiltrack-mobile-view-enabled .consultation-detail-actions {
+    grid-template-columns: repeat(3, 1fr) !important;
+    align-items: stretch !important;
+  }
+
+  .capiltrack-mobile-view-enabled .consultation-detail-delete-action button {
+    font-size: 0 !important;
+  }
+
+  .capiltrack-mobile-view-enabled .consultation-detail-delete-action button::before {
+    content: "🗑";
+    font-size: 20px;
+    line-height: 1;
+  }
+}
+
+/*
+|--------------------------------------------------------------------------
+| New Consultation Page
+|--------------------------------------------------------------------------
+*/
+
+.new-consultation-page {
+  max-width: 900px;
+  display: grid;
+  grid-template-columns: 1fr 320px;
+  gap: 30px;
+}
+
+.new-consultation-main,
+.new-consultation-history-card {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 24px;
+}
+
+.new-consultation-header,
+.new-consultation-history-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.new-consultation-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: 999px;
+  background: #eff6ff;
+  color: #2563eb;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.new-consultation-title {
+  font-size: 26px;
+  font-weight: 700;
+  color: #111827;
+  margin: 0;
+}
+
+.new-consultation-subtitle,
+.new-consultation-muted {
+  font-size: 14px;
+  color: #6b7280;
+  margin: 4px 0 0;
+}
+
+.new-consultation-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.new-consultation-label {
+  display: block;
+  font-size: 14px;
+  color: #374151;
+  margin-bottom: 6px;
+}
+
+.new-consultation-input-wrapper,
+.new-consultation-textarea-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.new-consultation-input-wrapper svg,
+.new-consultation-textarea-wrapper svg {
+  color: #6b7280;
+  flex-shrink: 0;
+}
+
+.new-consultation-textarea-wrapper {
+  align-items: flex-start;
+}
+
+.new-consultation-textarea-wrapper svg {
+  margin-top: 12px;
+}
+
+.new-consultation-textarea {
+  min-height: 120px;
+  resize: vertical;
+}
+
+.new-consultation-error {
+  color: #dc2626;
+  font-size: 14px;
+}
+
+.new-consultation-history-header h3 {
+  font-size: 16px;
+  font-weight: 700;
+  margin: 0;
+  color: #111827;
+}
+
+.new-consultation-history-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.new-consultation-history-item {
+  border-bottom: 1px solid #e5e7eb;
+  padding-bottom: 12px;
+}
+
+.new-consultation-history-date {
+  font-size: 13px;
+  color: #6b7280;
+}
+
+.new-consultation-history-norwood {
+  font-size: 14px;
+  font-weight: 600;
+  color: #111827;
+  margin-top: 2px;
+}
+
+.new-consultation-history-notes {
+  font-size: 13px;
+  color: #374151;
+  margin-top: 4px;
+}
+
+@media (max-width: 768px) {
+  .capiltrack-mobile-view-enabled .new-consultation-page {
+    max-width: 100%;
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+
+  .capiltrack-mobile-view-enabled .new-consultation-main,
+  .capiltrack-mobile-view-enabled .new-consultation-history-card {
+    padding: 16px;
+  }
+
+  .capiltrack-mobile-view-enabled .new-consultation-title {
+    font-size: 22px;
+  }
+
+  .capiltrack-mobile-view-enabled .new-consultation-subtitle {
+    font-size: 12px;
+  }
+}
+
+/*
+|--------------------------------------------------------------------------
+| Procedure Edit Page
+|--------------------------------------------------------------------------
+*/
+
+.procedure-edit-page {
+  max-width: 800px;
+}
+
+.procedure-edit-title {
+  font-size: 28px;
+  font-weight: 700;
+  color: #111827;
+  margin-bottom: 24px;
+}
+
+.procedure-edit-form {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 24px;
+}
+
+.procedure-edit-section {
+  margin-bottom: 24px;
+}
+
+.procedure-edit-section-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: #111827;
+  margin-bottom: 14px;
+}
+
+.procedure-edit-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.procedure-edit-field {
+  margin-bottom: 18px;
+}
+
+@media (max-width: 768px) {
+  .capiltrack-mobile-view-enabled .procedure-edit-page {
+    max-width: 100%;
+  }
+
+  .capiltrack-mobile-view-enabled .procedure-edit-title {
+    font-size: 22px;
+  }
+
+  .capiltrack-mobile-view-enabled .procedure-edit-form {
+    padding: 16px;
+  }
+
+  .capiltrack-mobile-view-enabled .procedure-edit-grid {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+
+  .capiltrack-mobile-view-enabled .procedure-edit-submit-button {
+    width: 100%;
+  }
+}
+
+/*
+|--------------------------------------------------------------------------
+| Patient Procedures Page
+|--------------------------------------------------------------------------
+*/
+
+.patient-procedures-page {
+  max-width: 1000px;
+}
+
+.patient-procedures-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 30px;
+  gap: 20px;
+}
+
+.patient-procedures-title {
+  font-size: 26px;
+  font-weight: 700;
+  margin: 0 0 6px;
+  color: #111827;
+}
+
+.patient-procedures-subtitle {
+  font-size: 13px;
+  color: #6b7280;
+}
+
+.patient-procedures-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.patient-procedures-summary-card {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 16px;
+}
+
+.patient-procedures-summary-label {
+  font-size: 12px;
+  color: #6b7280;
+  margin-bottom: 6px;
+}
+
+.patient-procedures-summary-value {
+  font-size: 20px;
+  font-weight: 700;
+  color: #111827;
+}
+
+.patient-procedures-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.patient-procedure-card {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 22px;
+}
+
+.patient-procedure-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 20px;
+  margin-bottom: 16px;
+}
+
+.patient-procedure-technique {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 700;
+  font-size: 16px;
+  color: #111827;
+}
+
+.patient-procedure-date {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: #6b7280;
+  margin-top: 4px;
+}
+
+.patient-procedure-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.patient-procedure-details-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+}
+
+.patient-procedure-section {
+  margin-top: 18px;
+}
+
+.patient-procedure-info-label {
+  font-size: 12px;
+  color: #6b7280;
+  margin-bottom: 4px;
+}
+
+.patient-procedure-info-value {
+  font-size: 14px;
+  color: #111827;
+  font-weight: 500;
+  word-break: break-word;
+}
+
+@media (max-width: 768px) {
+  .capiltrack-mobile-view-enabled .patient-procedures-page {
+    max-width: 100%;
+  }
+
+  .capiltrack-mobile-view-enabled .patient-procedures-header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+    margin-bottom: 18px;
+  }
+
+  .capiltrack-mobile-view-enabled .patient-procedures-title {
+    font-size: 24px;
+  }
+
+  .capiltrack-mobile-view-enabled .patient-procedures-new-button {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .capiltrack-mobile-view-enabled .patient-procedures-summary-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
+
+  .capiltrack-mobile-view-enabled .patient-procedures-summary-card {
+    padding: 14px;
+    min-height: 88px;
+  }
+
+  .capiltrack-mobile-view-enabled .patient-procedure-card {
+    padding: 16px;
+  }
+
+  .capiltrack-mobile-view-enabled .patient-procedure-card-header {
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .capiltrack-mobile-view-enabled .patient-procedure-actions {
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+  }
+
+  .capiltrack-mobile-view-enabled .patient-procedure-edit-link,
+  .capiltrack-mobile-view-enabled .patient-procedure-actions button {
+    width: 100% !important;
+    min-height: 42px;
+    justify-content: center !important;
+    border-radius: 10px !important;
+  }
+
+  .capiltrack-mobile-view-enabled .patient-procedure-edit-link span,
+  .capiltrack-mobile-view-enabled .patient-procedure-actions button {
+    font-size: 0 !important;
+  }
+
+  .capiltrack-mobile-view-enabled .patient-procedure-edit-link svg {
+    width: 19px;
+    height: 19px;
+  }
+
+  .capiltrack-mobile-view-enabled .patient-procedure-actions button::before {
+    content: "🗑";
+    font-size: 20px;
+    line-height: 1;
+  }
+
+  .capiltrack-mobile-view-enabled .patient-procedure-details-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px 10px;
+  }
+}
+/*
+|--------------------------------------------------------------------------
+| Clinical Questions Page
+|--------------------------------------------------------------------------
+*/
+
+.clinical-questions-container {
+  max-width: 1000px;
+}
+
+.clinical-questions-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  margin-bottom: 28px;
+}
+
+.clinical-questions-header-icon {
+  width: 46px;
+  height: 46px;
+  border-radius: 999px;
+  background: #eff6ff;
+  color: #2563eb;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.clinical-questions-title {
+  font-size: 28px;
+  font-weight: 700;
+  margin: 0 0 8px;
+  color: #111827;
+}
+
+.clinical-questions-subtitle,
+.clinical-questions-card-description {
+  color: #6b7280;
+  font-size: 14px;
+  line-height: 1.6;
+  max-width: 700px;
+}
+
+.clinical-questions-empty-card,
+.clinical-questions-error-card,
+.clinical-questions-questionnaire-card {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 16px;
+  padding: 28px;
+}
+
+.clinical-questions-questionnaire-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 24px;
+  cursor: pointer;
+}
+
+.clinical-questions-card-link {
+  text-decoration: none;
+}
+
+.clinical-questions-card-content {
+  min-width: 0;
+  flex: 1;
+}
+
+.clinical-questions-card-title {
+  font-size: 20px;
+  font-weight: 700;
+  margin: 0 0 10px;
+  color: #111827;
+}
+
+.clinical-questions-card-meta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+  flex-wrap: wrap;
+}
+
+.clinical-questions-badge {
+  background: #eef2ff;
+  color: #1d4ed8;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.clinical-questions-card-note {
+  font-size: 13px;
+  color: #6b7280;
+}
+
+.clinical-questions-preview-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.clinical-questions-preview-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: #f9fafb;
+}
+
+.clinical-questions-preview-order {
+  color: #9ca3af;
+  font-size: 13px;
+  min-width: 22px;
+}
+
+.clinical-questions-preview-text {
+  font-size: 14px;
+  color: #374151;
+}
+
+.clinical-questions-empty-text {
+  font-size: 14px;
+  color: #9ca3af;
+}
+
+.clinical-questions-primary-button,
+.clinical-questions-open-button {
+  background: #2563eb;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  padding: 12px 18px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  text-decoration: none;
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.clinical-questions-open-button {
+  padding: 10px 14px;
+}
+
+@media (max-width: 768px) {
+  .capiltrack-mobile-view-enabled .clinical-questions-container {
+    max-width: 100%;
+  }
+
+  .capiltrack-mobile-view-enabled .clinical-questions-header {
+    gap: 12px;
+  }
+
+  .capiltrack-mobile-view-enabled .clinical-questions-header-icon {
+    width: 40px;
+    height: 40px;
+  }
+
+  .capiltrack-mobile-view-enabled .clinical-questions-title {
+    font-size: 22px;
+  }
+
+  .capiltrack-mobile-view-enabled .clinical-questions-subtitle,
+  .capiltrack-mobile-view-enabled .clinical-questions-card-description {
+    font-size: 12px;
+  }
+
+  .capiltrack-mobile-view-enabled .clinical-questions-empty-card,
+  .capiltrack-mobile-view-enabled .clinical-questions-error-card,
+  .capiltrack-mobile-view-enabled .clinical-questions-questionnaire-card {
+    padding: 16px;
+  }
+
+  .capiltrack-mobile-view-enabled .clinical-questions-questionnaire-card {
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .capiltrack-mobile-view-enabled .clinical-questions-open-button,
+  .capiltrack-mobile-view-enabled .clinical-questions-primary-button {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .capiltrack-mobile-view-enabled .clinical-questions-preview-item {
+    align-items: flex-start;
+  }
 }

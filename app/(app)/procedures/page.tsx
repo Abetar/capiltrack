@@ -1,6 +1,16 @@
 import { prisma } from "@/lib/db/prisma";
 import { getCurrentUser } from "@/lib/auth/getCurrentUser";
 import Link from "next/link";
+import {
+  HiMagnifyingGlass,
+  HiFunnel,
+  HiEye,
+  HiCalendarDays,
+  HiUser,
+  HiScissors,
+  HiMapPin,
+  HiChartBar,
+} from "react-icons/hi2";
 
 export default async function ProceduresPage({
   searchParams,
@@ -14,27 +24,8 @@ export default async function ProceduresPage({
 
   if (!user) {
     return (
-      <div
-        style={{
-          minHeight: "100vh",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          background: "#F8FAFC",
-          padding: 20,
-        }}
-      >
-        <div
-          style={{
-            background: "white",
-            border: "1px solid #E5E7EB",
-            borderRadius: 12,
-            padding: 32,
-            maxWidth: 420,
-            width: "100%",
-            textAlign: "center",
-          }}
-        >
+      <div style={restrictedWrapper}>
+        <div style={restrictedCard}>
           <h2 style={{ fontSize: 20, fontWeight: 600, marginBottom: 12 }}>
             Acceso restringido
           </h2>
@@ -52,18 +43,7 @@ export default async function ProceduresPage({
 
           {reason === "no_subscription" && (
             <a href="/api/stripe/checkout">
-              <button
-                style={{
-                  background: "#2C6BED",
-                  color: "white",
-                  padding: "12px 20px",
-                  borderRadius: 8,
-                  border: "none",
-                  cursor: "pointer",
-                }}
-              >
-                Reactivar suscripción
-              </button>
+              <button style={reactivateButton}>Reactivar suscripción</button>
             </a>
           )}
         </div>
@@ -77,11 +57,7 @@ export default async function ProceduresPage({
 
   const whereClause = {
     clinicId,
-    ...(technique
-      ? {
-          technique,
-        }
-      : {}),
+    ...(technique ? { technique } : {}),
     ...(search
       ? {
           patient: {
@@ -137,47 +113,51 @@ export default async function ProceduresPage({
       : 0;
 
   return (
-    <div>
-      {/* HEADER */}
+    <div className="procedures-page">
+      <div className="procedures-header" style={{ marginBottom: 30 }}>
+        <h1 className="procedures-title" style={headerTitle}>
+          Procedimientos de injerto
+        </h1>
 
-      <div style={{ marginBottom: 30 }}>
-        <h1 style={headerTitle}>Procedimientos de injerto</h1>
-
-        <p style={headerSubtitle}>
+        <p className="procedures-subtitle" style={headerSubtitle}>
           Registro global de procedimientos realizados
         </p>
       </div>
 
-      {/* FILTROS */}
-
-      <form method="GET" style={filtersCard}>
-        <div style={filtersGrid}>
+      <form method="GET" className="procedures-filters-card" style={filtersCard}>
+        <div className="procedures-filters-grid" style={filtersGrid}>
           <div>
             <label style={labelStyle}>Buscar paciente</label>
-            <input
-              type="text"
-              name="search"
-              defaultValue={search}
-              placeholder="Nombre o apellido..."
-              style={inputStyle}
-            />
+            <div className="procedures-input-wrapper">
+              <HiMagnifyingGlass size={18} />
+              <input
+                type="text"
+                name="search"
+                defaultValue={search}
+                placeholder="Nombre o apellido..."
+                style={inputStyle}
+              />
+            </div>
           </div>
 
           <div>
             <label style={labelStyle}>Filtrar por técnica</label>
-            <select
-              name="technique"
-              defaultValue={technique}
-              style={inputStyle}
-            >
-              <option value="">Todas</option>
-              <option value="FUE">FUE</option>
-              <option value="FUT">FUT</option>
-              <option value="DHI">DHI</option>
-            </select>
+            <div className="procedures-input-wrapper">
+              <HiFunnel size={18} />
+              <select
+                name="technique"
+                defaultValue={technique}
+                style={inputStyle}
+              >
+                <option value="">Todas</option>
+                <option value="FUE">FUE</option>
+                <option value="FUT">FUT</option>
+                <option value="DHI">DHI</option>
+              </select>
+            </div>
           </div>
 
-          <div style={{ display: "flex", alignItems: "end", gap: 10 }}>
+          <div className="procedures-filter-actions">
             <button type="submit" style={primaryButton}>
               Aplicar
             </button>
@@ -189,18 +169,14 @@ export default async function ProceduresPage({
         </div>
       </form>
 
-      {/* STATS */}
-
-      <div style={statsGrid}>
+      <div className="procedures-stats-grid" style={statsGrid}>
         <StatCard title="Procedimientos" value={String(totalProcedures)} />
         <StatCard title="Total grafts" value={String(totalGrafts)} />
         <StatCard title="Promedio grafts" value={String(avgGrafts)} />
       </div>
 
-      {/* TABLE */}
-
-      <div style={tableWrapper}>
-        <table style={table}>
+      <div className="procedures-table-wrapper" style={tableWrapper}>
+        <table className="procedures-table" style={table}>
           <thead>
             <tr>
               <th style={th}>Fecha</th>
@@ -240,6 +216,58 @@ export default async function ProceduresPage({
           </tbody>
         </table>
 
+        <div className="procedures-mobile-list">
+          {procedures.map((p: (typeof procedures)[number]) => (
+            <article key={p.id} className="procedures-mobile-card">
+              <div className="procedures-mobile-card-header">
+                <div>
+                  <div className="procedures-mobile-patient">
+                    {p.patient.firstName} {p.patient.lastName ?? ""}
+                  </div>
+
+                  <div className="procedures-mobile-date">
+                    <HiCalendarDays size={15} />
+                    {new Date(p.date).toLocaleDateString()}
+                  </div>
+                </div>
+
+                <Link
+                  href={`/patients/${p.patientId}`}
+                  className="procedures-mobile-view-button"
+                >
+                  <HiEye size={18} />
+                </Link>
+              </div>
+
+              <div className="procedures-mobile-details">
+                <MobileDetail
+                  icon={<HiScissors size={16} />}
+                  label="Técnica"
+                  value={p.technique ?? "—"}
+                />
+
+                <MobileDetail
+                  icon={<HiChartBar size={16} />}
+                  label="Grafts"
+                  value={String(p.grafts ?? "—")}
+                />
+
+                <MobileDetail
+                  icon={<HiUser size={16} />}
+                  label="Método"
+                  value={p.method ?? "—"}
+                />
+
+                <MobileDetail
+                  icon={<HiMapPin size={16} />}
+                  label="Zona"
+                  value={p.recipientArea ?? "—"}
+                />
+              </div>
+            </article>
+          ))}
+        </div>
+
         {procedures.length === 0 && (
           <p style={emptyText}>No hay procedimientos registrados.</p>
         )}
@@ -250,12 +278,61 @@ export default async function ProceduresPage({
 
 function StatCard({ title, value }: { title: string; value: string }) {
   return (
-    <div style={statCard}>
+    <div className="procedures-stat-card" style={statCard}>
       <div style={statLabel}>{title}</div>
       <div style={statValue}>{value}</div>
     </div>
   );
 }
+
+function MobileDetail({
+  icon,
+  label,
+  value,
+}: {
+  icon: React.ReactNode;
+  label: string;
+  value: string;
+}) {
+  return (
+    <div className="procedures-mobile-detail">
+      <div className="procedures-mobile-detail-icon">{icon}</div>
+
+      <div>
+        <div className="procedures-mobile-detail-label">{label}</div>
+        <div className="procedures-mobile-detail-value">{value}</div>
+      </div>
+    </div>
+  );
+}
+
+const restrictedWrapper = {
+  minHeight: "100vh",
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  background: "#F8FAFC",
+  padding: 20,
+};
+
+const restrictedCard = {
+  background: "white",
+  border: "1px solid #E5E7EB",
+  borderRadius: 12,
+  padding: 32,
+  maxWidth: 420,
+  width: "100%",
+  textAlign: "center" as const,
+};
+
+const reactivateButton = {
+  background: "#2C6BED",
+  color: "white",
+  padding: "12px 20px",
+  borderRadius: 8,
+  border: "none",
+  cursor: "pointer",
+};
 
 const headerTitle = {
   fontSize: 28,

@@ -1,8 +1,15 @@
+// app/(app)/clinical-questions/page.tsx
+
 import Link from "next/link";
 import { redirect } from "next/navigation";
-
 import { prisma } from "@/lib/db/prisma";
 import { getCurrentUser } from "@/lib/auth/getCurrentUser";
+import {
+  HiClipboardDocumentList,
+  HiPlus,
+  HiArrowRight,
+  HiCheckCircle,
+} from "react-icons/hi2";
 
 export default async function ClinicalQuestionsPage() {
   const { user, reason } = await getCurrentUser();
@@ -80,169 +87,96 @@ export default async function ClinicalQuestionsPage() {
 
   return (
     <Container>
-      {/* HEADER */}
-      <div style={{ marginBottom: 28 }}>
-        <h1
-          style={{
-            fontSize: 28,
-            fontWeight: 700,
-            marginBottom: 8,
-            color: "#111827",
-          }}
-        >
-          Preguntas expediente
-        </h1>
+      <div className="clinical-questions-header">
+        <div className="clinical-questions-header-icon">
+          <HiClipboardDocumentList size={24} />
+        </div>
 
-        <p
-          style={{
-            color: "#6B7280",
-            fontSize: 14,
-            lineHeight: 1.6,
-            maxWidth: 700,
-          }}
-        >
-          Configura las preguntas que se utilizarán para construir el
-          expediente clínico inicial de cada paciente.
-        </p>
+        <div>
+          <h1 className="clinical-questions-title">Preguntas expediente</h1>
+
+          <p className="clinical-questions-subtitle">
+            Configura las preguntas que se utilizarán para construir el
+            expediente clínico inicial de cada paciente.
+          </p>
+        </div>
       </div>
 
-      {/* NO QUESTIONNAIRE */}
       {!questionnaire && (
-        <div style={emptyCard}>
+        <div className="clinical-questions-empty-card">
           <div>
-            <h2
-              style={{
-                fontSize: 18,
-                fontWeight: 600,
-                marginBottom: 8,
-                color: "#111827",
-              }}
-            >
+            <h2 className="clinical-questions-card-title">
               No hay cuestionario creado
             </h2>
 
-            <p
-              style={{
-                fontSize: 14,
-                color: "#6B7280",
-                lineHeight: 1.6,
-                marginBottom: 24,
-              }}
-            >
+            <p className="clinical-questions-card-description">
               Crea el expediente clínico inicial que utilizarás para recopilar
               información importante de tus pacientes.
             </p>
           </div>
 
           <form action={createQuestionnaire}>
-            <button style={primaryButton}>
-              Crear cuestionario
+            <button className="clinical-questions-primary-button">
+              <HiPlus size={18} />
+              <span>Crear cuestionario</span>
             </button>
           </form>
         </div>
       )}
 
-      {/* QUESTIONNAIRE */}
       {questionnaire && (
         <Link
           href={`/clinical-questions/${questionnaire.id}`}
-          style={{
-            textDecoration: "none",
-          }}
+          className="clinical-questions-card-link"
         >
-          <div style={questionnaireCard}>
-            <div>
-              <div
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 10,
-                  marginBottom: 10,
-                }}
-              >
-                <div style={badge}>
-                  Activo
+          <div className="clinical-questions-questionnaire-card">
+            <div className="clinical-questions-card-content">
+              <div className="clinical-questions-card-meta">
+                <div className="clinical-questions-badge">
+                  <HiCheckCircle size={15} />
+                  <span>Activo</span>
                 </div>
 
-                <span
-                  style={{
-                    fontSize: 13,
-                    color: "#6B7280",
-                  }}
-                >
+                <span className="clinical-questions-card-note">
                   1 cuestionario por clínica
                 </span>
               </div>
 
-              <h2
-                style={{
-                  fontSize: 20,
-                  fontWeight: 600,
-                  color: "#111827",
-                  marginBottom: 10,
-                }}
-              >
+              <h2 className="clinical-questions-card-title">
                 {questionnaire.title}
               </h2>
 
-              <p
-                style={{
-                  fontSize: 14,
-                  color: "#6B7280",
-                  marginBottom: 20,
-                }}
-              >
+              <p className="clinical-questions-card-description">
                 {questionnaire.questions.length} preguntas activas
               </p>
 
-              <div
-                style={{
-                  display: "flex",
-                  flexDirection: "column",
-                  gap: 10,
-                }}
-              >
+              <div className="clinical-questions-preview-list">
                 {questionnaire.questions.slice(0, 5).map((question) => (
                   <div
                     key={question.id}
-                    style={questionPreview}
+                    className="clinical-questions-preview-item"
                   >
-                    <span
-                      style={{
-                        color: "#9CA3AF",
-                        fontSize: 13,
-                        minWidth: 22,
-                      }}
-                    >
+                    <span className="clinical-questions-preview-order">
                       {question.order}.
                     </span>
 
-                    <span
-                      style={{
-                        fontSize: 14,
-                        color: "#374151",
-                      }}
-                    >
+                    <span className="clinical-questions-preview-text">
                       {question.questionText}
                     </span>
                   </div>
                 ))}
 
                 {questionnaire.questions.length === 0 && (
-                  <div
-                    style={{
-                      fontSize: 14,
-                      color: "#9CA3AF",
-                    }}
-                  >
+                  <div className="clinical-questions-empty-text">
                     Aún no hay preguntas creadas.
                   </div>
                 )}
               </div>
             </div>
 
-            <div style={openButton}>
-              Abrir cuestionario
+            <div className="clinical-questions-open-button">
+              <span>Abrir cuestionario</span>
+              <HiArrowRight size={18} />
             </div>
           </div>
         </Link>
@@ -251,24 +185,8 @@ export default async function ClinicalQuestionsPage() {
   );
 }
 
-/* ========================= */
-/* COMPONENTS */
-/* ========================= */
-
-function Container({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
-  return (
-    <div
-      style={{
-        maxWidth: 1000,
-      }}
-    >
-      {children}
-    </div>
-  );
+function Container({ children }: { children: React.ReactNode }) {
+  return <div className="clinical-questions-container">{children}</div>;
 }
 
 function ErrorCard({
@@ -279,95 +197,10 @@ function ErrorCard({
   description: string;
 }) {
   return (
-    <div
-      style={{
-        background: "white",
-        border: "1px solid #E5E7EB",
-        borderRadius: 14,
-        padding: 28,
-      }}
-    >
-      <h2
-        style={{
-          fontSize: 20,
-          fontWeight: 600,
-          marginBottom: 8,
-        }}
-      >
-        {title}
-      </h2>
+    <div className="clinical-questions-error-card">
+      <h2 className="clinical-questions-card-title">{title}</h2>
 
-      <p
-        style={{
-          color: "#6B7280",
-          fontSize: 14,
-        }}
-      >
-        {description}
-      </p>
+      <p className="clinical-questions-card-description">{description}</p>
     </div>
   );
 }
-
-/* ========================= */
-/* STYLES */
-/* ========================= */
-
-const emptyCard: React.CSSProperties = {
-  background: "white",
-  border: "1px solid #E5E7EB",
-  borderRadius: 16,
-  padding: 32,
-};
-
-const questionnaireCard: React.CSSProperties = {
-  background: "white",
-  border: "1px solid #E5E7EB",
-  borderRadius: 16,
-  padding: 28,
-  display: "flex",
-  justifyContent: "space-between",
-  alignItems: "flex-start",
-  gap: 24,
-  cursor: "pointer",
-  transition: "all 0.15s ease",
-};
-
-const badge: React.CSSProperties = {
-  background: "#EEF2FF",
-  color: "#1D4ED8",
-  padding: "4px 10px",
-  borderRadius: 999,
-  fontSize: 12,
-  fontWeight: 600,
-};
-
-const questionPreview: React.CSSProperties = {
-  display: "flex",
-  alignItems: "center",
-  gap: 8,
-  padding: "10px 12px",
-  borderRadius: 10,
-  background: "#F9FAFB",
-};
-
-const primaryButton: React.CSSProperties = {
-  background: "#2563EB",
-  color: "white",
-  border: "none",
-  borderRadius: 10,
-  padding: "12px 18px",
-  fontSize: 14,
-  fontWeight: 600,
-  cursor: "pointer",
-};
-
-const openButton: React.CSSProperties = {
-  background: "#2563EB",
-  color: "white",
-  borderRadius: 10,
-  padding: "10px 14px",
-  fontSize: 14,
-  fontWeight: 600,
-  whiteSpace: "nowrap",
-};

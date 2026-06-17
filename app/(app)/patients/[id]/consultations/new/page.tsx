@@ -1,74 +1,71 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import { useRouter, useParams } from "next/navigation"
+import { useState, useEffect } from "react";
+import { useRouter, useParams } from "next/navigation";
+import {
+  HiCalendarDays,
+  HiClipboardDocumentList,
+  HiClock,
+  HiDocumentText,
+} from "react-icons/hi2";
 
 type Consultation = {
-  id: string
-  date: string
-  norwoodLevel: number | null
-  notes: string | null
-}
+  id: string;
+  date: string;
+  norwoodLevel: number | null;
+  notes: string | null;
+};
 
 export default function NewConsultationPage() {
+  const router = useRouter();
+  const params = useParams();
 
-  const router = useRouter()
-  const params = useParams()
+  const patientId = params?.id as string;
 
-  const patientId = params?.id as string
+  const today = new Date().toISOString().split("T")[0];
 
-  const today = new Date().toISOString().split("T")[0]
+  const [date, setDate] = useState(today);
+  const [norwoodLevel, setNorwoodLevel] = useState("");
+  const [notes, setNotes] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const [date, setDate] = useState(today)
-  const [norwoodLevel, setNorwoodLevel] = useState("")
-  const [notes, setNotes] = useState("")
-  const [error, setError] = useState("")
-  const [loading, setLoading] = useState(false)
-
-  const [history, setHistory] = useState<Consultation[]>([])
-  const [loadingHistory, setLoadingHistory] = useState(true)
+  const [history, setHistory] = useState<Consultation[]>([]);
+  const [loadingHistory, setLoadingHistory] = useState(true);
 
   useEffect(() => {
-
-    if (!patientId) return
+    if (!patientId) return;
 
     async function loadHistory() {
-
       try {
-
-        const res = await fetch(`/api/patients/${patientId}/consultations`)
+        const res = await fetch(`/api/patients/${patientId}/consultations`);
 
         if (!res.ok) {
-          console.error("Error loading consultations")
-          setLoadingHistory(false)
-          return
+          console.error("Error loading consultations");
+          setLoadingHistory(false);
+          return;
         }
 
-        const data = await res.json()
+        const data = await res.json();
 
-        setHistory(data.consultations || [])
-
+        setHistory(data.consultations || []);
       } catch (err) {
-        console.error("Error loading history", err)
+        console.error("Error loading history", err);
       }
 
-      setLoadingHistory(false)
+      setLoadingHistory(false);
     }
 
-    loadHistory()
-
-  }, [patientId])
-
+    loadHistory();
+  }, [patientId]);
 
   async function submit(e: React.FormEvent) {
+    e.preventDefault();
 
-    e.preventDefault()
-
-    setError("")
-    setLoading(true)
+    setError("");
+    setLoading(true);
 
     try {
-
       const res = await fetch("/api/consultations", {
         method: "POST",
         headers: {
@@ -80,213 +77,146 @@ export default function NewConsultationPage() {
           norwoodLevel: norwoodLevel ? Number(norwoodLevel) : null,
           notes,
         }),
-      })
+      });
 
-      const data = await res.json()
+      const data = await res.json();
 
       if (!res.ok) {
-        setError(data.error || "Error creando consulta")
-        setLoading(false)
-        return
+        setError(data.error || "Error creando consulta");
+        setLoading(false);
+        return;
       }
 
-      router.push(`/patients/${patientId}/consultations`)
-
+      router.push(`/patients/${patientId}/consultations`);
     } catch (err) {
-
-      console.error(err)
-      setError("Error inesperado creando consulta")
-      setLoading(false)
-
+      console.error(err);
+      setError("Error inesperado creando consulta");
+      setLoading(false);
     }
   }
 
   return (
-    <div
-      style={{
-        maxWidth: 900,
-        display: "grid",
-        gridTemplateColumns: "1fr 320px",
-        gap: 30
-      }}
-    >
-
-      {/* FORMULARIO */}
-
-      <div>
-
-        <h1
-          style={{
-            fontSize: 26,
-            fontWeight: 600,
-            marginBottom: 20,
-          }}
-        >
-          Nueva consulta
-        </h1>
-
-        <form
-          onSubmit={submit}
-          style={{
-            display: "flex",
-            flexDirection: "column",
-            gap: 16,
-          }}
-        >
-
-          {/* FECHA */}
+    <div className="new-consultation-page">
+      <section className="new-consultation-main">
+        <div className="new-consultation-header">
+          <div className="new-consultation-icon">
+            <HiClipboardDocumentList size={22} />
+          </div>
 
           <div>
-            <label style={{ fontSize: 14 }}>
+            <h1 className="new-consultation-title">Nueva consulta</h1>
+            <p className="new-consultation-subtitle">
+              Registra una nueva evaluación clínica del paciente.
+            </p>
+          </div>
+        </div>
+
+        <form onSubmit={submit} className="new-consultation-form">
+          <div>
+            <label className="new-consultation-label">
               Fecha de consulta
             </label>
 
-            <input
-              type="date"
-              className="ui-input"
-              value={date}
-              onChange={(e) => setDate(e.target.value)}
-              required
-            />
+            <div className="new-consultation-input-wrapper">
+              <HiCalendarDays size={18} />
+
+              <input
+                type="date"
+                className="ui-input"
+                value={date}
+                onChange={(e) => setDate(e.target.value)}
+                required
+              />
+            </div>
           </div>
 
-          {/* NORWOOD */}
+          <div>
+            <label className="new-consultation-label">
+              Nivel Norwood
+            </label>
 
-          <select
-            className="ui-input"
-            value={norwoodLevel}
-            onChange={(e) => setNorwoodLevel(e.target.value)}
-          >
-            <option value="">Nivel Norwood</option>
-            <option value="1">Norwood I</option>
-            <option value="2">Norwood II</option>
-            <option value="3">Norwood III</option>
-            <option value="4">Norwood IV</option>
-            <option value="5">Norwood V</option>
-            <option value="6">Norwood VI</option>
-            <option value="7">Norwood VII</option>
-          </select>
+            <select
+              className="ui-input"
+              value={norwoodLevel}
+              onChange={(e) => setNorwoodLevel(e.target.value)}
+            >
+              <option value="">Selecciona nivel Norwood</option>
+              <option value="1">Norwood I</option>
+              <option value="2">Norwood II</option>
+              <option value="3">Norwood III</option>
+              <option value="4">Norwood IV</option>
+              <option value="5">Norwood V</option>
+              <option value="6">Norwood VI</option>
+              <option value="7">Norwood VII</option>
+            </select>
+          </div>
 
-          {/* NOTAS */}
+          <div>
+            <label className="new-consultation-label">
+              Notas clínicas
+            </label>
 
-          <textarea
-            className="ui-input"
-            placeholder="Notas clínicas"
-            value={notes}
-            onChange={(e) => setNotes(e.target.value)}
-          />
+            <div className="new-consultation-textarea-wrapper">
+              <HiDocumentText size={18} />
 
-          {error && (
-            <p style={{ color: "red" }}>{error}</p>
-          )}
+              <textarea
+                className="ui-input new-consultation-textarea"
+                placeholder="Notas clínicas"
+                value={notes}
+                onChange={(e) => setNotes(e.target.value)}
+              />
+            </div>
+          </div>
 
-          <button
-            className="ui-button"
-            disabled={loading}
-          >
+          {error && <p className="new-consultation-error">{error}</p>}
+
+          <button className="ui-button" disabled={loading}>
             {loading ? "Guardando..." : "Guardar consulta"}
           </button>
-
         </form>
+      </section>
 
-      </div>
+      <aside className="new-consultation-history-card">
+        <div className="new-consultation-history-header">
+          <HiClock size={18} />
 
-      {/* HISTORIAL */}
-
-      <div
-        style={{
-          border: "1px solid #E5E7EB",
-          borderRadius: 12,
-          padding: 20,
-          background: "white",
-          height: "fit-content"
-        }}
-      >
-
-        <h3
-          style={{
-            fontSize: 16,
-            fontWeight: 600,
-            marginBottom: 16
-          }}
-        >
-          Historial de consultas
-        </h3>
+          <h3>Historial de consultas</h3>
+        </div>
 
         {loadingHistory && (
-          <p style={{ fontSize: 14, color: "#6B7280" }}>
-            Cargando historial...
-          </p>
+          <p className="new-consultation-muted">Cargando historial...</p>
         )}
 
         {!loadingHistory && history.length === 0 && (
-          <p style={{ fontSize: 14, color: "#6B7280" }}>
+          <p className="new-consultation-muted">
             No hay consultas registradas
           </p>
         )}
 
         {!loadingHistory && history.length > 0 && (
-
-          <div
-            style={{
-              display: "flex",
-              flexDirection: "column",
-              gap: 14
-            }}
-          >
-
+          <div className="new-consultation-history-list">
             {history.map((c) => (
-
-              <div
-                key={c.id}
-                style={{
-                  borderBottom: "1px solid #E5E7EB",
-                  paddingBottom: 10
-                }}
-              >
-
-                <div
-                  style={{
-                    fontSize: 13,
-                    color: "#6B7280"
-                  }}
-                >
+              <div key={c.id} className="new-consultation-history-item">
+                <div className="new-consultation-history-date">
                   {new Date(c.date).toLocaleDateString()}
                 </div>
 
-                <div
-                  style={{
-                    fontSize: 14,
-                    fontWeight: 500
-                  }}
-                >
+                <div className="new-consultation-history-norwood">
                   Norwood {c.norwoodLevel ?? "—"}
                 </div>
 
                 {c.notes && (
-                  <div
-                    style={{
-                      fontSize: 13,
-                      color: "#374151",
-                      marginTop: 4
-                    }}
-                  >
+                  <div className="new-consultation-history-notes">
                     {c.notes.length > 80
-                      ? c.notes.slice(0,80) + "..."
+                      ? c.notes.slice(0, 80) + "..."
                       : c.notes}
                   </div>
                 )}
-
               </div>
-
             ))}
-
           </div>
-
         )}
-
-      </div>
-
+      </aside>
     </div>
-  )
+  );
 }
