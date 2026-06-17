@@ -202,7 +202,10 @@ export default async function ConsultationPage({
           )}
 
           {consultation.prescriptions.map((prescription) => (
-            <div key={prescription.id} className="consultation-prescription-card">
+            <div
+              key={prescription.id}
+              className="consultation-prescription-card"
+            >
               <div className="consultation-prescription-header">
                 <div>
                   <div

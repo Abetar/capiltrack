@@ -3,6 +3,16 @@ import { getCurrentUser } from "@/lib/auth/getCurrentUser";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 
+type PrescriptionItemInput = {
+  medication: string;
+  presentation: string | null;
+  dosage: string | null;
+  frequency: string | null;
+  duration: string | null;
+  indications: string | null;
+  order: number;
+};
+
 export default async function NewPrescriptionPage({
   params,
 }: {
@@ -47,6 +57,7 @@ export default async function NewPrescriptionPage({
 
     const date = formData.get("date") as string;
 
+    const prescriptionDate = date ? new Date(date) : new Date();
     const diagnosis = getString(formData, "diagnosis");
     const generalNotes = getString(formData, "generalNotes");
 
@@ -57,7 +68,7 @@ export default async function NewPrescriptionPage({
     const durations = formData.getAll("duration") as string[];
     const indications = formData.getAll("indications") as string[];
 
-    const items = medications
+    const items: PrescriptionItemInput[] = medications
       .map((medication, index) => ({
         medication: medication?.trim(),
         presentation: presentations[index]?.trim() || null,
@@ -71,6 +82,20 @@ export default async function NewPrescriptionPage({
 
     if (items.length === 0) {
       throw new Error("Debes agregar al menos un medicamento.");
+    }
+
+    const duplicatedPrescription = await findDuplicatePrescription({
+      clinicId: user.clinicId,
+      patientId: id,
+      consultationId,
+      date: prescriptionDate,
+      diagnosis,
+      generalNotes,
+      items,
+    });
+
+    if (duplicatedPrescription) {
+      redirect(`/patients/${id}/consultations/${consultationId}/prescriptions`);
     }
 
     const clinicData = await prisma.clinic.findUnique({
@@ -90,7 +115,7 @@ export default async function NewPrescriptionPage({
         patientId: id,
         consultationId,
 
-        date: date ? new Date(date) : new Date(),
+        date: prescriptionDate,
 
         diagnosis,
         generalNotes,
@@ -206,6 +231,62 @@ export default async function NewPrescriptionPage({
       </form>
     </div>
   );
+}
+
+async function findDuplicatePrescription({
+  clinicId,
+  patientId,
+  consultationId,
+  date,
+  diagnosis,
+  generalNotes,
+  items,
+}: {
+  clinicId: string;
+  patientId: string;
+  consultationId: string;
+  date: Date;
+  diagnosis: string | null;
+  generalNotes: string | null;
+  items: PrescriptionItemInput[];
+}) {
+  const possibleDuplicates = await prisma.prescription.findMany({
+    where: {
+      clinicId,
+      patientId,
+      consultationId,
+      date,
+      diagnosis,
+      generalNotes,
+    },
+    include: {
+      items: {
+        orderBy: {
+          order: "asc",
+        },
+      },
+    },
+  });
+
+  return possibleDuplicates.find((prescription) => {
+    if (prescription.items.length !== items.length) {
+      return false;
+    }
+
+    return prescription.items.every((existingItem, index) => {
+      const incomingItem = items[index];
+
+      return (
+        existingItem.medication === incomingItem.medication &&
+        existingItem.presentation === incomingItem.presentation &&
+        existingItem.dosage === incomingItem.dosage &&
+        existingItem.frequency === incomingItem.frequency &&
+        existingItem.duration === incomingItem.duration &&
+        existingItem.indications === incomingItem.indications &&
+        existingItem.order === incomingItem.order
+      );
+    });
+  });
 }
 
 function getString(formData: FormData, key: string) {
