@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import TimelineEditorPhotoCard from "./TimelineEditorPhotoCard";
 
@@ -26,6 +26,7 @@ export default function TimelineEditor({
   photos: TimelinePhoto[];
 }) {
   const router = useRouter();
+  const drawerRef = useRef<HTMLDivElement | null>(null);
 
   const initialPhotos = useMemo(() => {
     return [...photos].sort((a, b) => {
@@ -71,9 +72,7 @@ export default function TimelineEditor({
       const sourceIndex = current.findIndex((item) => item.id === sourceId);
       const targetIndex = current.findIndex((item) => item.id === targetId);
 
-      if (sourceIndex === -1 || targetIndex === -1) {
-        return current;
-      }
+      if (sourceIndex === -1 || targetIndex === -1) return current;
 
       const copy = [...current];
       const [removed] = copy.splice(sourceIndex, 1);
@@ -82,6 +81,34 @@ export default function TimelineEditor({
 
       return copy;
     });
+  }
+
+  function autoScrollDrawer(event: React.DragEvent) {
+    const drawerElement = drawerRef.current;
+
+    if (!drawerElement) return;
+
+    const rect = drawerElement.getBoundingClientRect();
+    const threshold = 130;
+
+    const distanceFromTop = event.clientY - rect.top;
+    const distanceFromBottom = rect.bottom - event.clientY;
+
+    if (distanceFromTop < threshold) {
+      const intensity = (threshold - distanceFromTop) / threshold;
+      drawerElement.scrollBy({
+        top: -Math.ceil(28 * intensity),
+        behavior: "auto",
+      });
+    }
+
+    if (distanceFromBottom < threshold) {
+      const intensity = (threshold - distanceFromBottom) / threshold;
+      drawerElement.scrollBy({
+        top: Math.ceil(28 * intensity),
+        behavior: "auto",
+      });
+    }
   }
 
   function updateLabel(photoId: string, value: string) {
@@ -106,7 +133,9 @@ export default function TimelineEditor({
     setDraggingId(photoId);
   }
 
-  function handleDragOver(photoId: string) {
+  function handleDragOver(photoId: string, event: React.DragEvent) {
+    autoScrollDrawer(event);
+
     setDragOverId(photoId);
 
     if (!draggingId || draggingId === photoId) return;
@@ -161,7 +190,7 @@ export default function TimelineEditor({
 
       {open && (
         <div style={overlay}>
-          <div style={drawer}>
+          <div ref={drawerRef} style={drawer}>
             <div style={drawerHeader}>
               <div>
                 <h2 style={drawerTitle}>Editar línea de tiempo</h2>

@@ -25,7 +25,7 @@ export default function TimelineEditorPhotoCard({
   onLabelChange: (photoId: string, value: string) => void;
   onToggleExcluded: (photoId: string) => void;
   onDragStart: (photoId: string) => void;
-  onDragOver: (photoId: string) => void;
+  onDragOver: (photoId: string, event: React.DragEvent) => void;
   onDrop: () => void;
   onDragEnd: () => void;
 }) {
@@ -38,7 +38,7 @@ export default function TimelineEditorPhotoCard({
       }}
       onDragOver={(event) => {
         event.preventDefault();
-        onDragOver(photo.id);
+        onDragOver(photo.id, event);
       }}
       onDrop={(event) => {
         event.preventDefault();
