@@ -145,9 +145,16 @@ model Photo {
   zone  String?
   notes String?
 
+  timelineOrder       Int?
+  timelineLabel       String?
+  excludeFromTimeline Boolean @default(false)
+
   createdAt DateTime @default(now())
 
   @@index([clinicId])
+  @@index([patientId])
+  @@index([consultationId])
+  @@index([zone])
 }
 
 model Treatment {
@@ -186,11 +193,11 @@ model Prescription {
 
   date DateTime @default(now())
 
-  diagnosis      String?
-  generalNotes   String?
-  doctorName     String?
-  doctorLicense  String?
-  doctorPhone    String?
+  diagnosis     String?
+  generalNotes  String?
+  doctorName    String?
+  doctorLicense String?
+  doctorPhone   String?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

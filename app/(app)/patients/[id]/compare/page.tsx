@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/db/prisma";
 import { getCurrentUser } from "@/lib/auth/getCurrentUser";
 import TimelineComparisonSlider from "@/components/photos/TimelineComparisonSlider";
+import TimelineEditor from "./TimelineEditor";
 
 export default async function ComparePage({
   params,
@@ -12,62 +13,7 @@ export default async function ComparePage({
   const { user, reason } = await getCurrentUser();
 
   if (!user) {
-    return (
-      <div
-        style={{
-          minHeight: "100vh",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          background: "#F8FAFC",
-          padding: 20,
-        }}
-      >
-        <div
-          style={{
-            background: "white",
-            border: "1px solid #E5E7EB",
-            borderRadius: 12,
-            padding: 32,
-            maxWidth: 420,
-            width: "100%",
-            textAlign: "center",
-          }}
-        >
-          <h2 style={{ fontSize: 20, fontWeight: 600, marginBottom: 12 }}>
-            Acceso restringido
-          </h2>
-
-          <p style={{ fontSize: 14, color: "#6B7280", marginBottom: 20 }}>
-            {reason === "no_subscription" &&
-              "Tu suscripción ha expirado o no está activa. Para continuar usando CapilTrack, necesitas renovar tu acceso."}
-
-            {reason === "blocked" &&
-              "Tu cuenta ha sido bloqueada. Contacta al administrador para más información."}
-
-            {reason === "not_authenticated" &&
-              "Debes iniciar sesión para acceder."}
-          </p>
-
-          {reason === "no_subscription" && (
-            <a href="/api/stripe/checkout">
-              <button
-                style={{
-                  background: "#2C6BED",
-                  color: "white",
-                  padding: "12px 20px",
-                  borderRadius: 8,
-                  border: "none",
-                  cursor: "pointer",
-                }}
-              >
-                Reactivar suscripción
-              </button>
-            </a>
-          )}
-        </div>
-      </div>
-    );
+    return <div>Acceso restringido: {reason}</div>;
   }
 
   const zones = ["frontal", "crown", "donor", "left", "right", "top", "macro"];
@@ -90,11 +36,6 @@ export default async function ComparePage({
     include: {
       consultation: true,
     },
-    orderBy: {
-      consultation: {
-        date: "asc",
-      },
-    },
   });
 
   if (photos.length < 2) {
@@ -114,11 +55,27 @@ export default async function ComparePage({
       </h1>
 
       {zones.map((zone) => {
-        const zonePhotos = photos.filter(
-          (p: (typeof photos)[number]) => p.zone === zone,
+        const allZonePhotos = photos
+          .filter((p: (typeof photos)[number]) => p.zone === zone)
+          .sort((a, b) => {
+            if (a.timelineOrder !== null && b.timelineOrder !== null) {
+              return a.timelineOrder - b.timelineOrder;
+            }
+
+            if (a.timelineOrder !== null) return -1;
+            if (b.timelineOrder !== null) return 1;
+
+            const aDate = a.consultation?.date ?? a.createdAt;
+            const bDate = b.consultation?.date ?? b.createdAt;
+
+            return aDate.getTime() - bDate.getTime();
+          });
+
+        const visibleZonePhotos = allZonePhotos.filter(
+          (photo) => !photo.excludeFromTimeline,
         );
 
-        if (zonePhotos.length < 2) return null;
+        if (allZonePhotos.length < 2) return null;
 
         return (
           <div
@@ -133,15 +90,48 @@ export default async function ComparePage({
           >
             <div
               style={{
-                fontWeight: 600,
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                gap: 12,
                 marginBottom: 14,
-                fontSize: 16,
               }}
             >
-              {zoneLabels[zone] || zone}
+              <div
+                style={{
+                  fontWeight: 600,
+                  fontSize: 16,
+                }}
+              >
+                {zoneLabels[zone] || zone}
+              </div>
+
+              <TimelineEditor
+                patientId={id}
+                zoneLabel={zoneLabels[zone] || zone}
+                photos={allZonePhotos.map((photo) => ({
+                  id: photo.id,
+                  url: photo.url,
+                  createdAt: photo.createdAt.toISOString(),
+                  timelineOrder: photo.timelineOrder,
+                  timelineLabel: photo.timelineLabel,
+                  excludeFromTimeline: photo.excludeFromTimeline,
+                  consultation: photo.consultation
+                    ? {
+                        date: photo.consultation.date.toISOString(),
+                      }
+                    : null,
+                }))}
+              />
             </div>
 
-            <TimelineComparisonSlider photos={zonePhotos} />
+            {visibleZonePhotos.length >= 2 ? (
+              <TimelineComparisonSlider photos={visibleZonePhotos} />
+            ) : (
+              <div style={{ fontSize: 14, color: "#6B7280" }}>
+                No hay suficientes fotos visibles para comparar en esta zona.
+              </div>
+            )}
           </div>
         );
       })}

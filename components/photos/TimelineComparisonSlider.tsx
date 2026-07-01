@@ -6,6 +6,9 @@ type Photo = {
   id: string;
   url: string;
   createdAt: Date | string;
+  timelineOrder?: number | null;
+  timelineLabel?: string | null;
+  excludeFromTimeline?: boolean;
   consultation?: {
     date: Date | string;
   } | null;
@@ -16,22 +19,33 @@ export default function TimelineComparisonSlider({
 }: {
   photos: Photo[];
 }) {
-  const sorted = [...photos].sort((a, b) => {
-    const aDate = getPhotoDate(a);
-    const bDate = getPhotoDate(b);
+  const sorted = [...photos]
+    .filter((photo) => !photo.excludeFromTimeline)
+    .sort((a, b) => {
+      if (a.timelineOrder !== null && a.timelineOrder !== undefined && b.timelineOrder !== null && b.timelineOrder !== undefined) {
+        return a.timelineOrder - b.timelineOrder;
+      }
 
-    return aDate.getTime() - bDate.getTime();
-  });
+      if (a.timelineOrder !== null && a.timelineOrder !== undefined) return -1;
+      if (b.timelineOrder !== null && b.timelineOrder !== undefined) return 1;
+
+      const aDate = getPhotoDate(a);
+      const bDate = getPhotoDate(b);
+
+      return aDate.getTime() - bDate.getTime();
+    });
 
   const [index, setIndex] = useState(sorted.length - 1);
+
+  if (sorted.length < 2) {
+    return null;
+  }
 
   const before = sorted[0];
   const current = sorted[index];
 
   return (
     <div style={{ width: "100%" }}>
-      {/* COMPARISON */}
-
       <div
         style={{
           display: "grid",
@@ -41,23 +55,21 @@ export default function TimelineComparisonSlider({
         }}
       >
         <div>
-          <img src={before.url} style={imageStyle} />
+          <img src={before.url} style={imageStyle} alt="" />
 
           <div style={captionStyle}>
-            Antes — {formatDate(getPhotoDate(before))}
+            Antes — {getPhotoLabel(before)}
           </div>
         </div>
 
         <div>
-          <img src={current.url} style={imageStyle} />
+          <img src={current.url} style={imageStyle} alt="" />
 
           <div style={captionStyle}>
-            Evolución — {formatDate(getPhotoDate(current))}
+            Evolución — {getPhotoLabel(current)}
           </div>
         </div>
       </div>
-
-      {/* SLIDER */}
 
       <input
         type="range"
@@ -71,8 +83,6 @@ export default function TimelineComparisonSlider({
         }}
       />
 
-      {/* TIMELINE MARKERS */}
-
       <div
         style={{
           display: "flex",
@@ -80,10 +90,21 @@ export default function TimelineComparisonSlider({
           fontSize: 12,
           color: "#6B7280",
           marginTop: 4,
+          gap: 8,
+          overflowX: "auto",
+          paddingBottom: 4,
         }}
       >
-        {sorted.map((p) => (
-          <span key={p.id}>{formatDate(getPhotoDate(p))}</span>
+        {sorted.map((photo) => (
+          <span
+            key={photo.id}
+            style={{
+              whiteSpace: "nowrap",
+              flexShrink: 0,
+            }}
+          >
+            {getPhotoLabel(photo)}
+          </span>
         ))}
       </div>
     </div>
@@ -96,6 +117,14 @@ function getPhotoDate(photo: Photo) {
   }
 
   return new Date(photo.createdAt);
+}
+
+function getPhotoLabel(photo: Photo) {
+  if (photo.timelineLabel?.trim()) {
+    return photo.timelineLabel.trim();
+  }
+
+  return formatDate(getPhotoDate(photo));
 }
 
 function formatDate(date: Date) {
