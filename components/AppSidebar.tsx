@@ -46,6 +46,7 @@ export default function AppSidebar() {
 
   const navItems = [
     { label: "Dashboard", href: "/dashboard" },
+    { label: "Agenda", href: "/agenda" },
     { label: "Pacientes", href: "/patients" },
     { label: "Consultas", href: "/consultations" },
     { label: "Procedimientos", href: "/procedures" },

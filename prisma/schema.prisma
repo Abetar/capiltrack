@@ -24,6 +24,15 @@ model Clinic {
   users          User[]
   patients       Patient[]
   questionnaires ClinicalQuestionnaire[]
+
+  appointments           Appointment[]
+  appointmentEvents      AppointmentEvent[]
+  scheduleAvailabilities ScheduleAvailability[]
+  scheduleBlocks         ScheduleBlock[]
+  scheduleSettings       ScheduleSettings?
+
+  whatsappConversations WhatsAppConversation[]
+  whatsappMessages      WhatsAppMessage[]
 }
 
 model User {
@@ -39,6 +48,10 @@ model User {
 
   accounts Account[]
   sessions Session[]
+
+  appointmentEvents AppointmentEvent[]
+
+  assignedWhatsAppConversations WhatsAppConversation[] @relation("WhatsAppConversationAssignedUser")
 
   isBlocked Boolean @default(false)
 
@@ -79,6 +92,9 @@ model Patient {
   transplants     TransplantProcedure[]
   clinicalAnswers PatientClinicalAnswer[]
   prescriptions   Prescription[]
+  appointments    Appointment[]
+
+  whatsappConversations WhatsAppConversation[]
 
   @@index([clinicId])
 }
@@ -355,9 +371,327 @@ model PatientClinicalAnswer {
   @@index([questionId])
 }
 
-/*
-AUTH MODELS
-*/
+/**
+ * AGENDA MODELS
+ */
+
+model Appointment {
+  id String @id @default(cuid())
+
+  clinicId String
+  clinic   Clinic @relation(fields: [clinicId], references: [id], onDelete: Cascade)
+
+  patientId String?
+  patient   Patient? @relation(fields: [patientId], references: [id], onDelete: SetNull)
+
+  title String?
+
+  patientName  String
+  patientPhone String
+  patientEmail String?
+
+  startAt DateTime
+  endAt   DateTime
+
+  timezone String @default("America/Mexico_City")
+
+  status AppointmentStatus @default(PENDING)
+  source AppointmentSource @default(MANUAL)
+
+  appointmentType String?
+  notes           String?
+
+  reminderSentAt     DateTime?
+  confirmationSentAt DateTime?
+  confirmedAt        DateTime?
+  cancelledAt        DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  events                AppointmentEvent[]
+  whatsappConversations WhatsAppConversation[]
+
+  @@index([clinicId])
+  @@index([patientId])
+  @@index([startAt])
+  @@index([endAt])
+  @@index([status])
+  @@index([clinicId, startAt])
+}
+
+model AppointmentEvent {
+  id String @id @default(cuid())
+
+  clinicId String
+  clinic   Clinic @relation(fields: [clinicId], references: [id], onDelete: Cascade)
+
+  appointmentId String
+  appointment   Appointment @relation(fields: [appointmentId], references: [id], onDelete: Cascade)
+
+  actorUserId String?
+  actorUser   User?   @relation(fields: [actorUserId], references: [id], onDelete: SetNull)
+
+  type   AppointmentEventType
+  source AppointmentEventSource
+
+  message  String
+  metadata Json?
+
+  createdAt DateTime @default(now())
+
+  @@index([clinicId])
+  @@index([appointmentId])
+  @@index([actorUserId])
+  @@index([type])
+  @@index([source])
+  @@index([createdAt])
+  @@index([clinicId, createdAt])
+  @@index([appointmentId, createdAt])
+}
+
+model ScheduleAvailability {
+  id String @id @default(cuid())
+
+  clinicId String
+  clinic   Clinic @relation(fields: [clinicId], references: [id], onDelete: Cascade)
+
+  dayOfWeek Int
+
+  startTime String
+  endTime   String
+
+  isActive Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([clinicId])
+  @@index([clinicId, dayOfWeek])
+}
+
+model ScheduleBlock {
+  id String @id @default(cuid())
+
+  clinicId String
+  clinic   Clinic @relation(fields: [clinicId], references: [id], onDelete: Cascade)
+
+  title String?
+
+  startAt DateTime
+  endAt   DateTime
+
+  notes String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([clinicId])
+  @@index([startAt])
+  @@index([endAt])
+  @@index([clinicId, startAt])
+}
+
+model ScheduleSettings {
+  id String @id @default(cuid())
+
+  clinicId String @unique
+  clinic   Clinic @relation(fields: [clinicId], references: [id], onDelete: Cascade)
+
+  timezone String @default("America/Mexico_City")
+
+  defaultAppointmentMinutes Int @default(60)
+  minimumBookingNoticeHours Int @default(2)
+  reminderHoursBefore       Int @default(24)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+/**
+ * WHATSAPP AGENT MODELS
+ */
+
+model WhatsAppConversation {
+  id String @id @default(cuid())
+
+  clinicId String
+  clinic   Clinic @relation(fields: [clinicId], references: [id], onDelete: Cascade)
+
+  patientId String?
+  patient   Patient? @relation(fields: [patientId], references: [id], onDelete: SetNull)
+
+  appointmentId String?
+  appointment   Appointment? @relation(fields: [appointmentId], references: [id], onDelete: SetNull)
+
+  assignedUserId String?
+  assignedUser   User?   @relation("WhatsAppConversationAssignedUser", fields: [assignedUserId], references: [id], onDelete: SetNull)
+
+  phoneNumber String
+  displayName String?
+
+  status        WhatsAppConversationStatus @default(OPEN)
+  currentIntent WhatsAppConversationIntent @default(NONE)
+
+  requiresHuman    Boolean @default(false)
+  escalationReason String?
+
+  context Json?
+
+  lastMessageAt  DateTime?
+  lastInboundAt  DateTime?
+  lastOutboundAt DateTime?
+  closedAt       DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  messages WhatsAppMessage[]
+
+  @@index([clinicId])
+  @@index([patientId])
+  @@index([appointmentId])
+  @@index([assignedUserId])
+  @@index([phoneNumber])
+  @@index([status])
+  @@index([currentIntent])
+  @@index([requiresHuman])
+  @@index([lastMessageAt])
+  @@index([clinicId, phoneNumber])
+  @@index([clinicId, status])
+  @@index([clinicId, lastMessageAt])
+}
+
+model WhatsAppMessage {
+  id String @id @default(cuid())
+
+  clinicId String
+  clinic   Clinic @relation(fields: [clinicId], references: [id], onDelete: Cascade)
+
+  conversationId String
+  conversation   WhatsAppConversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+
+  provider          String?
+  providerMessageId String? @unique
+
+  direction WhatsAppMessageDirection
+  sender    WhatsAppMessageSender
+
+  contentType WhatsAppMessageContentType @default(TEXT)
+
+  text String?
+
+  status WhatsAppMessageStatus
+
+  rawPayload      Json?
+  interpretedData Json?
+
+  errorMessage String?
+
+  receivedAt  DateTime?
+  sentAt      DateTime?
+  deliveredAt DateTime?
+  readAt      DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([clinicId])
+  @@index([conversationId])
+  @@index([direction])
+  @@index([sender])
+  @@index([status])
+  @@index([createdAt])
+  @@index([clinicId, createdAt])
+  @@index([conversationId, createdAt])
+}
+
+enum AppointmentStatus {
+  PENDING
+  CONFIRMED
+  CANCELLED
+  COMPLETED
+  NO_SHOW
+}
+
+enum AppointmentSource {
+  MANUAL
+  WHATSAPP_AI
+}
+
+enum AppointmentEventType {
+  CREATED
+  CONFIRMED
+  RESCHEDULED
+  CANCELLED
+  COMPLETED
+  NO_SHOW
+  REMINDER_SENT
+  CONFIRMATION_REQUEST_SENT
+  PATIENT_CONFIRMED
+  PATIENT_REQUESTED_DOCTOR
+}
+
+enum AppointmentEventSource {
+  MANUAL
+  WHATSAPP_AI
+  SYSTEM
+  PATIENT
+}
+
+enum WhatsAppConversationStatus {
+  OPEN
+  WAITING_FOR_PATIENT
+  WAITING_FOR_STAFF
+  ESCALATED
+  CLOSED
+}
+
+enum WhatsAppConversationIntent {
+  NONE
+  BOOK_APPOINTMENT
+  RESCHEDULE_APPOINTMENT
+  CANCEL_APPOINTMENT
+  CONFIRM_ATTENDANCE
+  REQUEST_DOCTOR
+  GENERAL_QUESTION
+}
+
+enum WhatsAppMessageDirection {
+  INBOUND
+  OUTBOUND
+}
+
+enum WhatsAppMessageSender {
+  PATIENT
+  AI_AGENT
+  DOCTOR
+  SYSTEM
+}
+
+enum WhatsAppMessageContentType {
+  TEXT
+  IMAGE
+  AUDIO
+  VIDEO
+  DOCUMENT
+  LOCATION
+  INTERACTIVE
+  UNKNOWN
+}
+
+enum WhatsAppMessageStatus {
+  RECEIVED
+  PENDING
+  SENT
+  DELIVERED
+  READ
+  FAILED
+}
+
+/**
+ * AUTH MODELS
+ */
 
 model Account {
   id                String @id @default(cuid())
