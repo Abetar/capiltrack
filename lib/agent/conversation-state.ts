@@ -88,17 +88,9 @@ function formatStoredAppointment({
     return startAt;
   }
 
-  const localDate = formatInTimeZone(
-    date,
-    timezone,
-    "yyyy-MM-dd",
-  );
+  const localDate = formatInTimeZone(date, timezone, "yyyy-MM-dd");
 
-  const localTime = formatInTimeZone(
-    date,
-    timezone,
-    "HH:mm",
-  );
+  const localTime = formatInTimeZone(date, timezone, "HH:mm");
 
   return formatAppointmentDateTime({
     date: localDate,
@@ -107,19 +99,13 @@ function formatStoredAppointment({
   });
 }
 
-function manageMenuResponse(
-  context: ConversationContext,
-): AgentResponse {
-  const selectedAppointment =
-    context.availableAppointments?.find(
-      (appointment) =>
-        appointment.id === context.appointmentId,
-    );
+function manageMenuResponse(context: ConversationContext): AgentResponse {
+  const selectedAppointment = context.availableAppointments?.find(
+    (appointment) => appointment.id === context.appointmentId,
+  );
 
   const timezone =
-    selectedAppointment?.timezone ||
-    context.timezone ||
-    DEFAULT_TIMEZONE;
+    selectedAppointment?.timezone || context.timezone || DEFAULT_TIMEZONE;
 
   const appointmentDescription = selectedAppointment
     ? formatStoredAppointment({
@@ -224,10 +210,7 @@ export function resolveConversationState({
     ) {
       return {
         handled: true,
-        nextContext: changeState(
-          context,
-          "BOOK_SELECT_DATE",
-        ),
+        nextContext: changeState(context, "BOOK_SELECT_DATE"),
         response: {
           text: "Perfecto. ¿Para qué día te gustaría agendar tu cita?",
           requiresAiInterpretation: true,
@@ -243,10 +226,7 @@ export function resolveConversationState({
     ) {
       return {
         handled: true,
-        nextContext: changeState(
-          context,
-          "MANAGE_FIND_APPOINTMENT",
-        ),
+        nextContext: changeState(context, "MANAGE_FIND_APPOINTMENT"),
         response: {
           text: "Claro. Voy a buscar tus próximas citas.",
         },
@@ -278,10 +258,7 @@ export function resolveConversationState({
     ) {
       return {
         handled: true,
-        nextContext: changeState(
-          context,
-          "WAITING_FOR_HUMAN",
-        ),
+        nextContext: changeState(context, "WAITING_FOR_HUMAN"),
         response: {
           text: "De acuerdo. Avisaré a la clínica para que puedan continuar contigo.",
           requiresHuman: true,
@@ -297,8 +274,7 @@ export function resolveConversationState({
   }
 
   if (context.state === "MANAGE_FIND_APPOINTMENT") {
-    const appointments =
-      context.availableAppointments ?? [];
+    const appointments = context.availableAppointments ?? [];
 
     if (appointments.length === 0) {
       return {
@@ -308,18 +284,14 @@ export function resolveConversationState({
       };
     }
 
-    const selectedIndex = Number.parseInt(
-      normalizedMessage,
-      10,
-    );
+    const selectedIndex = Number.parseInt(normalizedMessage, 10);
 
     if (
       Number.isInteger(selectedIndex) &&
       selectedIndex >= 1 &&
       selectedIndex <= appointments.length
     ) {
-      const selectedAppointment =
-        appointments[selectedIndex - 1];
+      const selectedAppointment = appointments[selectedIndex - 1];
 
       const nextContext: ConversationContext = {
         ...context,
@@ -339,18 +311,14 @@ export function resolveConversationState({
       nextContext: context,
       response: {
         text: "Elige una de tus próximas citas.",
-        options: appointments.map(
-          (appointment, index) => ({
-            id: String(index + 1),
-            label: formatStoredAppointment({
-              startAt: appointment.startAt,
-              timezone:
-                appointment.timezone ||
-                context.timezone ||
-                DEFAULT_TIMEZONE,
-            }),
+        options: appointments.map((appointment, index) => ({
+          id: String(index + 1),
+          label: formatStoredAppointment({
+            startAt: appointment.startAt,
+            timezone:
+              appointment.timezone || context.timezone || DEFAULT_TIMEZONE,
           }),
-        ),
+        })),
       },
     };
   }
@@ -368,8 +336,7 @@ export function resolveConversationState({
           availableSlots: undefined,
         },
         response: {
-          text:
-            "Claro. ¿Para qué día te gustaría cambiar tu cita?",
+          text: "Claro. ¿Para qué día te gustaría cambiar tu cita?",
           requiresAiInterpretation: true,
         },
       };
@@ -417,7 +384,13 @@ export function resolveConversationState({
   }
 
   if (context.state === "BOOK_SELECT_TIME") {
-    if (normalizedMessage === "4") {
+    if (
+      normalizedMessage === "4" ||
+      normalizedMessage === "otro día" ||
+      normalizedMessage === "otro dia" ||
+      normalizedMessage === "elegir otro día" ||
+      normalizedMessage === "elegir otro dia"
+    ) {
       return {
         handled: true,
         nextContext: {
@@ -435,10 +408,7 @@ export function resolveConversationState({
       };
     }
 
-    const selectedIndex = Number.parseInt(
-      normalizedMessage,
-      10,
-    );
+    const selectedIndex = Number.parseInt(normalizedMessage, 10);
 
     if (
       Number.isInteger(selectedIndex) &&
@@ -446,16 +416,13 @@ export function resolveConversationState({
       context.availableSlots &&
       selectedIndex <= context.availableSlots.length
     ) {
-      const selectedSlot =
-        context.availableSlots[selectedIndex - 1];
+      const selectedSlot = context.availableSlots[selectedIndex - 1];
 
-      const formattedDateTime =
-        formatAppointmentDateTime({
-          date: selectedSlot.localDate,
-          time: selectedSlot.localStartTime,
-          timezone:
-            context.timezone ?? DEFAULT_TIMEZONE,
-        });
+      const formattedDateTime = formatAppointmentDateTime({
+        date: selectedSlot.localDate,
+        time: selectedSlot.localStartTime,
+        timezone: context.timezone ?? DEFAULT_TIMEZONE,
+      });
 
       return {
         handled: true,
@@ -463,10 +430,8 @@ export function resolveConversationState({
           ...context,
           state: "BOOK_CONFIRM",
           requestedDate: selectedSlot.localDate,
-          requestedStartTime:
-            selectedSlot.localStartTime,
-          lastOfferedSlotStartAt:
-            selectedSlot.startAt,
+          requestedStartTime: selectedSlot.localStartTime,
+          lastOfferedSlotStartAt: selectedSlot.startAt,
         },
         response: {
           text: `¿Confirmas tu cita el ${formattedDateTime}?`,
@@ -494,12 +459,10 @@ export function resolveConversationState({
       response: {
         text: "Elige uno de los horarios disponibles.",
         options: [
-          ...(context.availableSlots ?? []).map(
-            (slot, index) => ({
-              id: String(index + 1),
-              label: formatTime(slot.localStartTime),
-            }),
-          ),
+          ...(context.availableSlots ?? []).map((slot, index) => ({
+            id: String(index + 1),
+            label: formatTime(slot.localStartTime),
+          })),
           {
             id: "4",
             label: "Elegir otro día",
@@ -528,10 +491,7 @@ export function resolveConversationState({
       };
     }
 
-    const selectedIndex = Number.parseInt(
-      normalizedMessage,
-      10,
-    );
+    const selectedIndex = Number.parseInt(normalizedMessage, 10);
 
     if (
       Number.isInteger(selectedIndex) &&
@@ -539,16 +499,13 @@ export function resolveConversationState({
       context.availableSlots &&
       selectedIndex <= context.availableSlots.length
     ) {
-      const selectedSlot =
-        context.availableSlots[selectedIndex - 1];
+      const selectedSlot = context.availableSlots[selectedIndex - 1];
 
-      const formattedDateTime =
-        formatAppointmentDateTime({
-          date: selectedSlot.localDate,
-          time: selectedSlot.localStartTime,
-          timezone:
-            context.timezone ?? DEFAULT_TIMEZONE,
-        });
+      const formattedDateTime = formatAppointmentDateTime({
+        date: selectedSlot.localDate,
+        time: selectedSlot.localStartTime,
+        timezone: context.timezone ?? DEFAULT_TIMEZONE,
+      });
 
       return {
         handled: true,
@@ -556,10 +513,8 @@ export function resolveConversationState({
           ...context,
           state: "RESCHEDULE_CONFIRM",
           requestedDate: selectedSlot.localDate,
-          requestedStartTime:
-            selectedSlot.localStartTime,
-          lastOfferedSlotStartAt:
-            selectedSlot.startAt,
+          requestedStartTime: selectedSlot.localStartTime,
+          lastOfferedSlotStartAt: selectedSlot.startAt,
         },
         response: {
           text: `¿Confirmas cambiar tu cita al ${formattedDateTime}?`,
@@ -587,12 +542,10 @@ export function resolveConversationState({
       response: {
         text: "Elige uno de los horarios disponibles.",
         options: [
-          ...(context.availableSlots ?? []).map(
-            (slot, index) => ({
-              id: String(index + 1),
-              label: formatTime(slot.localStartTime),
-            }),
-          ),
+          ...(context.availableSlots ?? []).map((slot, index) => ({
+            id: String(index + 1),
+            label: formatTime(slot.localStartTime),
+          })),
           {
             id: "4",
             label: "Elegir otro día",
@@ -607,10 +560,7 @@ export function resolveConversationState({
     context.state === "RESCHEDULE_CONFIRM" ||
     context.state === "CANCEL_CONFIRM"
   ) {
-    if (
-      context.state === "BOOK_CONFIRM" &&
-      normalizedMessage === "2"
-    ) {
+    if (context.state === "BOOK_CONFIRM" && normalizedMessage === "2") {
       return {
         handled: true,
         nextContext: {
@@ -622,12 +572,10 @@ export function resolveConversationState({
         response: {
           text: "Claro. Elige otro horario disponible.",
           options: [
-            ...(context.availableSlots ?? []).map(
-              (slot, index) => ({
-                id: String(index + 1),
-                label: formatTime(slot.localStartTime),
-              }),
-            ),
+            ...(context.availableSlots ?? []).map((slot, index) => ({
+              id: String(index + 1),
+              label: formatTime(slot.localStartTime),
+            })),
             {
               id: "4",
               label: "Elegir otro día",
@@ -637,10 +585,7 @@ export function resolveConversationState({
       };
     }
 
-    if (
-      context.state === "BOOK_CONFIRM" &&
-      normalizedMessage === "3"
-    ) {
+    if (context.state === "BOOK_CONFIRM" && normalizedMessage === "3") {
       return {
         handled: true,
         nextContext: {
@@ -649,16 +594,12 @@ export function resolveConversationState({
         },
         response: {
           ...mainMenuResponse(),
-          text:
-            "No hay problema. No realicé ningún cambio.\n\n¿En qué más te puedo ayudar?",
+          text: "No hay problema. No realicé ningún cambio.\n\n¿En qué más te puedo ayudar?",
         },
       };
     }
 
-    if (
-      context.state === "RESCHEDULE_CONFIRM" &&
-      normalizedMessage === "2"
-    ) {
+    if (context.state === "RESCHEDULE_CONFIRM" && normalizedMessage === "2") {
       return {
         handled: true,
         nextContext: {
@@ -670,12 +611,10 @@ export function resolveConversationState({
         response: {
           text: "Claro. Elige otro horario disponible.",
           options: [
-            ...(context.availableSlots ?? []).map(
-              (slot, index) => ({
-                id: String(index + 1),
-                label: formatTime(slot.localStartTime),
-              }),
-            ),
+            ...(context.availableSlots ?? []).map((slot, index) => ({
+              id: String(index + 1),
+              label: formatTime(slot.localStartTime),
+            })),
             {
               id: "4",
               label: "Elegir otro día",
@@ -685,10 +624,7 @@ export function resolveConversationState({
       };
     }
 
-    if (
-      context.state === "RESCHEDULE_CONFIRM" &&
-      normalizedMessage === "3"
-    ) {
+    if (context.state === "RESCHEDULE_CONFIRM" && normalizedMessage === "3") {
       const nextContext: ConversationContext = {
         ...context,
         state: "MANAGE_MENU",
@@ -703,16 +639,12 @@ export function resolveConversationState({
         nextContext,
         response: {
           ...manageMenuResponse(nextContext),
-          text:
-            "No hay problema. No realicé ningún cambio.\n\n¿Qué deseas hacer con tu cita?",
+          text: "No hay problema. No realicé ningún cambio.\n\n¿Qué deseas hacer con tu cita?",
         },
       };
     }
 
-    if (
-      context.state === "CANCEL_CONFIRM" &&
-      normalizedMessage === "2"
-    ) {
+    if (context.state === "CANCEL_CONFIRM" && normalizedMessage === "2") {
       return {
         handled: true,
         nextContext: {
@@ -755,8 +687,7 @@ export function resolveConversationState({
           nextContext,
           response: {
             ...manageMenuResponse(nextContext),
-            text:
-              "No hay problema. No realicé ningún cambio.\n\n¿Qué deseas hacer con tu cita?",
+            text: "No hay problema. No realicé ningún cambio.\n\n¿Qué deseas hacer con tu cita?",
           },
         };
       }
@@ -769,8 +700,7 @@ export function resolveConversationState({
         },
         response: {
           ...mainMenuResponse(),
-          text:
-            "No hay problema. No realicé ningún cambio.\n\n¿En qué más te puedo ayudar?",
+          text: "No hay problema. No realicé ningún cambio.\n\n¿En qué más te puedo ayudar?",
         },
       };
     }
