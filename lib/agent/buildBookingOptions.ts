@@ -19,6 +19,8 @@ type BuildBookingOptionsInput = {
   mode?: BookingFlowMode;
 };
 
+const SLOTS_PER_PAGE = 3;
+
 function formatTime(value: string) {
   const [hoursText, minutes] = value.split(":");
   const hours = Number(hoursText);
@@ -192,6 +194,7 @@ export async function buildBookingOptions({
         requestedDate: interpretation.resolvedDate,
         appointmentMinutes,
         availableSlots: [],
+        slotPage: 0,
       },
       response: {
         text:
@@ -220,7 +223,13 @@ export async function buildBookingOptions({
       ? preferredSlots
       : availability.slots;
 
-  const limitedSlots = slots.slice(0, 3);
+  const visibleSlots = slots.slice(
+    0,
+    SLOTS_PER_PAGE,
+  );
+
+  const hasMoreSlots =
+    slots.length > SLOTS_PER_PAGE;
 
   const nextContext: ConversationContext = {
     ...context,
@@ -229,7 +238,8 @@ export async function buildBookingOptions({
     requestedStartTime:
       interpretation.resolvedStartTime ?? undefined,
     appointmentMinutes,
-    availableSlots: limitedSlots.map((slot) => ({
+    slotPage: 0,
+    availableSlots: slots.map((slot) => ({
       startAt: slot.startAtIso,
       endAt: slot.endAtIso,
       localDate: slot.localDate,
@@ -238,12 +248,29 @@ export async function buildBookingOptions({
     })),
   };
 
-  const options = limitedSlots.map(
+  const options = visibleSlots.map(
     (slot, index) => ({
       id: String(index + 1),
       label: formatTime(slot.localStartTime),
     }),
   );
+
+  if (hasMoreSlots) {
+    options.push({
+      id: "4",
+      label: "Ver más horarios",
+    });
+
+    options.push({
+      id: "5",
+      label: "Elegir otro día",
+    });
+  } else {
+    options.push({
+      id: "4",
+      label: "Elegir otro día",
+    });
+  }
 
   const requestedDateChanged =
     availability.resolvedDate !==
@@ -271,13 +298,7 @@ export async function buildBookingOptions({
     nextContext,
     response: {
       text,
-      options: [
-        ...options,
-        {
-          id: "4",
-          label: "Elegir otro día",
-        },
-      ],
+      options,
     },
   };
 }

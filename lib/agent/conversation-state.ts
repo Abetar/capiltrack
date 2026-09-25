@@ -20,6 +20,7 @@ type ResolveConversationStateResult = {
 };
 
 const DEFAULT_TIMEZONE = "America/Mexico_City";
+const SLOTS_PER_PAGE = 3;
 
 const AFFIRMATIVE_RESPONSES = new Set([
   "si",
@@ -383,23 +384,94 @@ export function resolveConversationState({
     };
   }
 
-  if (context.state === "BOOK_SELECT_TIME") {
-    if (
-      normalizedMessage === "4" ||
-      normalizedMessage === "otro día" ||
-      normalizedMessage === "otro dia" ||
-      normalizedMessage === "elegir otro día" ||
-      normalizedMessage === "elegir otro dia"
-    ) {
+  if (
+    context.state === "BOOK_SELECT_TIME" ||
+    context.state === "RESCHEDULE_SELECT_TIME"
+  ) {
+    const isReschedule = context.state === "RESCHEDULE_SELECT_TIME";
+    const slots = context.availableSlots ?? [];
+    const slotPage = context.slotPage ?? 0;
+    const pageStart = slotPage * SLOTS_PER_PAGE;
+    const visibleSlots = slots.slice(pageStart, pageStart + SLOTS_PER_PAGE);
+    const hasMoreSlots = pageStart + visibleSlots.length < slots.length;
+    const moreOptionId = hasMoreSlots
+      ? String(visibleSlots.length + 1)
+      : null;
+    const otherDayOptionId = String(
+      visibleSlots.length + (hasMoreSlots ? 2 : 1),
+    );
+
+    const isMoreRequest =
+      (moreOptionId !== null && normalizedMessage === moreOptionId) ||
+      normalizedMessage === "ver más horarios" ||
+      normalizedMessage === "ver mas horarios" ||
+      normalizedMessage === "más horarios" ||
+      normalizedMessage === "mas horarios";
+
+    if (isMoreRequest && hasMoreSlots) {
+      const nextPage = slotPage + 1;
+      const nextPageStart = nextPage * SLOTS_PER_PAGE;
+      const nextVisibleSlots = slots.slice(
+        nextPageStart,
+        nextPageStart + SLOTS_PER_PAGE,
+      );
+      const nextHasMoreSlots =
+        nextPageStart + nextVisibleSlots.length < slots.length;
+
       return {
         handled: true,
         nextContext: {
           ...context,
-          state: "BOOK_SELECT_DATE",
+          slotPage: nextPage,
+        },
+        response: {
+          text: nextHasMoreSlots
+            ? "También tengo estos horarios disponibles:"
+            : "Estos son los últimos horarios disponibles:",
+          options: [
+            ...nextVisibleSlots.map((slot, index) => ({
+              id: String(index + 1),
+              label: formatTime(slot.localStartTime),
+            })),
+            ...(nextHasMoreSlots
+              ? [
+                  {
+                    id: String(nextVisibleSlots.length + 1),
+                    label: "Ver más horarios",
+                  },
+                ]
+              : []),
+            {
+              id: String(
+                nextVisibleSlots.length + (nextHasMoreSlots ? 2 : 1),
+              ),
+              label: "Elegir otro día",
+            },
+          ],
+        },
+      };
+    }
+
+    const isOtherDayRequest =
+      normalizedMessage === otherDayOptionId ||
+      normalizedMessage === "otro día" ||
+      normalizedMessage === "otro dia" ||
+      normalizedMessage === "elegir otro día" ||
+      normalizedMessage === "elegir otro dia";
+
+    if (isOtherDayRequest) {
+      return {
+        handled: true,
+        nextContext: {
+          ...context,
+          state: isReschedule
+            ? "RESCHEDULE_SELECT_DATE"
+            : "BOOK_SELECT_DATE",
           requestedDate: undefined,
           requestedStartTime: undefined,
           lastOfferedSlotStartAt: undefined,
           availableSlots: undefined,
+          slotPage: undefined,
         },
         response: {
           text: "Claro. ¿Qué otro día te gustaría?",
@@ -413,10 +485,9 @@ export function resolveConversationState({
     if (
       Number.isInteger(selectedIndex) &&
       selectedIndex >= 1 &&
-      context.availableSlots &&
-      selectedIndex <= context.availableSlots.length
+      selectedIndex <= visibleSlots.length
     ) {
-      const selectedSlot = context.availableSlots[selectedIndex - 1];
+      const selectedSlot = visibleSlots[selectedIndex - 1];
 
       const formattedDateTime = formatAppointmentDateTime({
         date: selectedSlot.localDate,
@@ -428,27 +499,28 @@ export function resolveConversationState({
         handled: true,
         nextContext: {
           ...context,
-          state: "BOOK_CONFIRM",
+          state: isReschedule
+            ? "RESCHEDULE_CONFIRM"
+            : "BOOK_CONFIRM",
           requestedDate: selectedSlot.localDate,
           requestedStartTime: selectedSlot.localStartTime,
           lastOfferedSlotStartAt: selectedSlot.startAt,
         },
         response: {
-          text: `¿Confirmas tu cita el ${formattedDateTime}?`,
-          options: [
-            {
-              id: "1",
-              label: "Confirmar",
-            },
-            {
-              id: "2",
-              label: "Elegir otro horario",
-            },
-            {
-              id: "3",
-              label: "Cancelar",
-            },
-          ],
+          text: isReschedule
+            ? `¿Confirmas cambiar tu cita al ${formattedDateTime}?`
+            : `¿Confirmas tu cita el ${formattedDateTime}?`,
+          options: isReschedule
+            ? [
+                { id: "1", label: "Confirmar cambio" },
+                { id: "2", label: "Elegir otro horario" },
+                { id: "3", label: "Cancelar cambio" },
+              ]
+            : [
+                { id: "1", label: "Confirmar" },
+                { id: "2", label: "Elegir otro horario" },
+                { id: "3", label: "Cancelar" },
+              ],
         },
       };
     }
@@ -459,101 +531,20 @@ export function resolveConversationState({
       response: {
         text: "Elige uno de los horarios disponibles.",
         options: [
-          ...(context.availableSlots ?? []).map((slot, index) => ({
+          ...visibleSlots.map((slot, index) => ({
             id: String(index + 1),
             label: formatTime(slot.localStartTime),
           })),
+          ...(hasMoreSlots
+            ? [
+                {
+                  id: String(visibleSlots.length + 1),
+                  label: "Ver más horarios",
+                },
+              ]
+            : []),
           {
-            id: "4",
-            label: "Elegir otro día",
-          },
-        ],
-      },
-    };
-  }
-
-  if (context.state === "RESCHEDULE_SELECT_TIME") {
-    if (
-      normalizedMessage === "4" ||
-      normalizedMessage === "otro día" ||
-      normalizedMessage === "otro dia" ||
-      normalizedMessage === "elegir otro día" ||
-      normalizedMessage === "elegir otro dia"
-    ) {
-      return {
-        handled: true,
-        nextContext: {
-          ...context,
-          state: "RESCHEDULE_SELECT_DATE",
-          requestedDate: undefined,
-          requestedStartTime: undefined,
-          lastOfferedSlotStartAt: undefined,
-          availableSlots: undefined,
-        },
-        response: {
-          text: "Claro. ¿Qué otro día te gustaría?",
-          requiresAiInterpretation: true,
-        },
-      };
-    }
-
-    const selectedIndex = Number.parseInt(normalizedMessage, 10);
-
-    if (
-      Number.isInteger(selectedIndex) &&
-      selectedIndex >= 1 &&
-      context.availableSlots &&
-      selectedIndex <= context.availableSlots.length
-    ) {
-      const selectedSlot = context.availableSlots[selectedIndex - 1];
-
-      const formattedDateTime = formatAppointmentDateTime({
-        date: selectedSlot.localDate,
-        time: selectedSlot.localStartTime,
-        timezone: context.timezone ?? DEFAULT_TIMEZONE,
-      });
-
-      return {
-        handled: true,
-        nextContext: {
-          ...context,
-          state: "RESCHEDULE_CONFIRM",
-          requestedDate: selectedSlot.localDate,
-          requestedStartTime: selectedSlot.localStartTime,
-          lastOfferedSlotStartAt: selectedSlot.startAt,
-        },
-        response: {
-          text: `¿Confirmas cambiar tu cita al ${formattedDateTime}?`,
-          options: [
-            {
-              id: "1",
-              label: "Confirmar cambio",
-            },
-            {
-              id: "2",
-              label: "Elegir otro horario",
-            },
-            {
-              id: "3",
-              label: "Cancelar cambio",
-            },
-          ],
-        },
-      };
-    }
-
-    return {
-      handled: true,
-      nextContext: context,
-      response: {
-        text: "Elige uno de los horarios disponibles.",
-        options: [
-          ...(context.availableSlots ?? []).map((slot, index) => ({
-            id: String(index + 1),
-            label: formatTime(slot.localStartTime),
-          })),
-          {
-            id: "4",
+            id: otherDayOptionId,
             label: "Elegir otro día",
           },
         ],
@@ -575,19 +566,41 @@ export function resolveConversationState({
           requestedStartTime: undefined,
           lastOfferedSlotStartAt: undefined,
         },
-        response: {
-          text: "Claro. Elige otro horario disponible.",
-          options: [
-            ...(context.availableSlots ?? []).map((slot, index) => ({
-              id: String(index + 1),
-              label: formatTime(slot.localStartTime),
-            })),
-            {
-              id: "4",
-              label: "Elegir otro día",
-            },
-          ],
-        },
+        response: (() => {
+          const slots = context.availableSlots ?? [];
+          const slotPage = context.slotPage ?? 0;
+          const pageStart = slotPage * SLOTS_PER_PAGE;
+          const visibleSlots = slots.slice(
+            pageStart,
+            pageStart + SLOTS_PER_PAGE,
+          );
+          const hasMoreSlots =
+            pageStart + visibleSlots.length < slots.length;
+
+          return {
+            text: "Claro. Elige otro horario disponible.",
+            options: [
+              ...visibleSlots.map((slot, index) => ({
+                id: String(index + 1),
+                label: formatTime(slot.localStartTime),
+              })),
+              ...(hasMoreSlots
+                ? [
+                    {
+                      id: String(visibleSlots.length + 1),
+                      label: "Ver más horarios",
+                    },
+                  ]
+                : []),
+              {
+                id: String(
+                  visibleSlots.length + (hasMoreSlots ? 2 : 1),
+                ),
+                label: "Elegir otro día",
+              },
+            ],
+          };
+        })(),
       };
     }
 
@@ -614,19 +627,41 @@ export function resolveConversationState({
           requestedStartTime: undefined,
           lastOfferedSlotStartAt: undefined,
         },
-        response: {
-          text: "Claro. Elige otro horario disponible.",
-          options: [
-            ...(context.availableSlots ?? []).map((slot, index) => ({
-              id: String(index + 1),
-              label: formatTime(slot.localStartTime),
-            })),
-            {
-              id: "4",
-              label: "Elegir otro día",
-            },
-          ],
-        },
+        response: (() => {
+          const slots = context.availableSlots ?? [];
+          const slotPage = context.slotPage ?? 0;
+          const pageStart = slotPage * SLOTS_PER_PAGE;
+          const visibleSlots = slots.slice(
+            pageStart,
+            pageStart + SLOTS_PER_PAGE,
+          );
+          const hasMoreSlots =
+            pageStart + visibleSlots.length < slots.length;
+
+          return {
+            text: "Claro. Elige otro horario disponible.",
+            options: [
+              ...visibleSlots.map((slot, index) => ({
+                id: String(index + 1),
+                label: formatTime(slot.localStartTime),
+              })),
+              ...(hasMoreSlots
+                ? [
+                    {
+                      id: String(visibleSlots.length + 1),
+                      label: "Ver más horarios",
+                    },
+                  ]
+                : []),
+              {
+                id: String(
+                  visibleSlots.length + (hasMoreSlots ? 2 : 1),
+                ),
+                label: "Elegir otro día",
+              },
+            ],
+          };
+        })(),
       };
     }
 

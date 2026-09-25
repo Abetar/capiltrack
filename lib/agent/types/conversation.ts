@@ -1,23 +1,19 @@
 export const CONVERSATION_STATES = [
   "MAIN_MENU",
-
   "BOOK_SELECT_DATE",
   "BOOK_SELECT_TIME",
   "BOOK_CONFIRM",
-
   "MANAGE_FIND_APPOINTMENT",
   "MANAGE_MENU",
-
   "RESCHEDULE_SELECT_DATE",
   "RESCHEDULE_SELECT_TIME",
   "RESCHEDULE_CONFIRM",
-
   "CANCEL_CONFIRM",
-
   "WAITING_FOR_HUMAN",
 ] as const;
 
-export type ConversationState = (typeof CONVERSATION_STATES)[number];
+export type ConversationState =
+  (typeof CONVERSATION_STATES)[number];
 
 export type ConversationIntent =
   | "NONE"
@@ -44,11 +40,15 @@ export type ConversationContext = {
   }>;
 
   requestedDate?: string;
+
   requestedStartTime?: string;
+
   appointmentMinutes?: number;
 
   patientName?: string;
+
   patientPhone?: string;
+
   patientEmail?: string;
 
   lastOfferedSlotStartAt?: string;
@@ -60,6 +60,12 @@ export type ConversationContext = {
     localStartTime: string;
     localEndTime: string;
   }>;
+
+  /*
+   * Página actual de horarios mostrados al paciente.
+   * Cada página contiene hasta 3 horarios.
+   */
+  slotPage?: number;
 };
 
 export type AgentResponse = {
