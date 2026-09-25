@@ -525,30 +525,15 @@ export function resolveConversationState({
       };
     }
 
+    /*
+     * Si no coincide con una opción determinística, dejamos que
+     * interpretPatientInput() intente entender lenguaje natural
+     * como "5pm", "a las 5 de la tarde" o "quiero el de las 5".
+     */
     return {
-      handled: true,
+      handled: false,
       nextContext: context,
-      response: {
-        text: "Elige uno de los horarios disponibles.",
-        options: [
-          ...visibleSlots.map((slot, index) => ({
-            id: String(index + 1),
-            label: formatTime(slot.localStartTime),
-          })),
-          ...(hasMoreSlots
-            ? [
-                {
-                  id: String(visibleSlots.length + 1),
-                  label: "Ver más horarios",
-                },
-              ]
-            : []),
-          {
-            id: otherDayOptionId,
-            label: "Elegir otro día",
-          },
-        ],
-      },
+      response: null,
     };
   }
 
