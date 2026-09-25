@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { handleInboundMessage } from "@/lib/agent/handleInboundMessage";
 import { handleOutboundResponse } from "@/lib/agent/handleOutboundResponse";
 import { getWhatsAppIntegrationByPhoneNumberId } from "@/lib/whatsapp/getWhatsAppIntegrationByPhoneNumberId";
+import { normalizePhoneNumber } from "@/lib/whatsapp/normalizePhoneNumber";
 import { sendMetaWhatsAppMessage } from "@/lib/whatsapp/sendMetaWhatsAppMessage";
 import {
   markOutboundMessageFailed,
@@ -219,7 +220,7 @@ export async function POST(req: Request) {
               await sendMetaWhatsAppMessage({
                 phoneNumberId:
                   integration.phoneNumberId,
-                to: from,
+                to: normalizePhoneNumber(from),
                 text:
                   outboundResult.message.text ??
                   inboundResult.agentResult.response
