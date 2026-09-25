@@ -52,6 +52,33 @@ function normalizeMessage(value: string) {
     .replace(/\s+/g, " ");
 }
 
+/*
+ * Una opción numérica solamente es válida cuando TODO el
+ * mensaje es un número.
+ *
+ * Ejemplos:
+ *
+ * "3"   -> 3
+ * "03"  -> 3
+ * "3pm" -> null
+ * "3 pm" -> null
+ * "3abc" -> null
+ *
+ * Esto evita que expresiones naturales de horario como
+ * "3pm" sean confundidas con la opción número 3.
+ */
+function parseNumericOption(value: string) {
+  if (!/^\d+$/.test(value)) {
+    return null;
+  }
+
+  const parsed = Number.parseInt(value, 10);
+
+  return Number.isInteger(parsed)
+    ? parsed
+    : null;
+}
+
 function changeState(
   context: ConversationContext,
   state: ConversationState,
@@ -70,8 +97,11 @@ function formatTime(value: string) {
     return value;
   }
 
-  const period = hours >= 12 ? "p. m." : "a. m.";
-  const normalizedHours = hours % 12 || 12;
+  const period =
+    hours >= 12 ? "p. m." : "a. m.";
+
+  const normalizedHours =
+    hours % 12 || 12;
 
   return `${normalizedHours}:${minutes} ${period}`;
 }
@@ -89,9 +119,17 @@ function formatStoredAppointment({
     return startAt;
   }
 
-  const localDate = formatInTimeZone(date, timezone, "yyyy-MM-dd");
+  const localDate = formatInTimeZone(
+    date,
+    timezone,
+    "yyyy-MM-dd",
+  );
 
-  const localTime = formatInTimeZone(date, timezone, "HH:mm");
+  const localTime = formatInTimeZone(
+    date,
+    timezone,
+    "HH:mm",
+  );
 
   return formatAppointmentDateTime({
     date: localDate,
@@ -100,20 +138,29 @@ function formatStoredAppointment({
   });
 }
 
-function manageMenuResponse(context: ConversationContext): AgentResponse {
-  const selectedAppointment = context.availableAppointments?.find(
-    (appointment) => appointment.id === context.appointmentId,
-  );
+function manageMenuResponse(
+  context: ConversationContext,
+): AgentResponse {
+  const selectedAppointment =
+    context.availableAppointments?.find(
+      (appointment) =>
+        appointment.id ===
+        context.appointmentId,
+    );
 
   const timezone =
-    selectedAppointment?.timezone || context.timezone || DEFAULT_TIMEZONE;
+    selectedAppointment?.timezone ||
+    context.timezone ||
+    DEFAULT_TIMEZONE;
 
-  const appointmentDescription = selectedAppointment
-    ? formatStoredAppointment({
-        startAt: selectedAppointment.startAt,
-        timezone,
-      })
-    : null;
+  const appointmentDescription =
+    selectedAppointment
+      ? formatStoredAppointment({
+          startAt:
+            selectedAppointment.startAt,
+          timezone,
+        })
+      : null;
 
   return {
     text: appointmentDescription
@@ -146,7 +193,8 @@ function mainMenuResponse(): AgentResponse {
       },
       {
         id: "2",
-        label: "Consultar o cambiar una cita",
+        label:
+          "Consultar o cambiar una cita",
       },
       {
         id: "3",
@@ -164,7 +212,8 @@ export function resolveConversationState({
   message,
   context,
 }: ResolveConversationStateInput): ResolveConversationStateResult {
-  const normalizedMessage = normalizeMessage(message);
+  const normalizedMessage =
+    normalizeMessage(message);
 
   if (!normalizedMessage) {
     return {
@@ -178,22 +227,21 @@ export function resolveConversationState({
 
   /*
    * COMANDO GLOBAL DE NAVEGACIÓN
-   *
-   * Permite abandonar cualquier flujo y regresar al
-   * menú principal sin perder la referencia de una cita
-   * que ya exista en la conversación.
    */
   if (
     normalizedMessage === "menu" ||
     normalizedMessage === "menú" ||
     normalizedMessage === "inicio" ||
-    normalizedMessage === "volver al menu" ||
-    normalizedMessage === "volver al menú"
+    normalizedMessage ===
+      "volver al menu" ||
+    normalizedMessage ===
+      "volver al menú"
   ) {
     const nextContext: ConversationContext = {
       state: "MAIN_MENU",
       timezone: context.timezone,
-      appointmentId: context.appointmentId,
+      appointmentId:
+        context.appointmentId,
     };
 
     return {
@@ -207,11 +255,15 @@ export function resolveConversationState({
     if (
       normalizedMessage === "1" ||
       normalizedMessage === "agendar" ||
-      normalizedMessage === "agendar una cita"
+      normalizedMessage ===
+        "agendar una cita"
     ) {
       return {
         handled: true,
-        nextContext: changeState(context, "BOOK_SELECT_DATE"),
+        nextContext: changeState(
+          context,
+          "BOOK_SELECT_DATE",
+        ),
         response: {
           text: "Perfecto. ¿Para qué día te gustaría agendar tu cita?",
           requiresAiInterpretation: true,
@@ -221,13 +273,18 @@ export function resolveConversationState({
 
     if (
       normalizedMessage === "2" ||
-      normalizedMessage === "consultar" ||
+      normalizedMessage ===
+        "consultar" ||
       normalizedMessage === "cambiar" ||
-      normalizedMessage === "consultar o cambiar una cita"
+      normalizedMessage ===
+        "consultar o cambiar una cita"
     ) {
       return {
         handled: true,
-        nextContext: changeState(context, "MANAGE_FIND_APPOINTMENT"),
+        nextContext: changeState(
+          context,
+          "MANAGE_FIND_APPOINTMENT",
+        ),
         response: {
           text: "Claro. Voy a buscar tus próximas citas.",
         },
@@ -236,14 +293,17 @@ export function resolveConversationState({
 
     if (
       normalizedMessage === "3" ||
-      normalizedMessage === "cancelar" ||
-      normalizedMessage === "cancelar una cita"
+      normalizedMessage ===
+        "cancelar" ||
+      normalizedMessage ===
+        "cancelar una cita"
     ) {
       return {
         handled: true,
         nextContext: {
           ...context,
-          state: "MANAGE_FIND_APPOINTMENT",
+          state:
+            "MANAGE_FIND_APPOINTMENT",
         },
         response: {
           text: "Claro. Voy a buscar la cita que deseas cancelar.",
@@ -253,13 +313,18 @@ export function resolveConversationState({
 
     if (
       normalizedMessage === "4" ||
-      normalizedMessage === "hablar con la clínica" ||
-      normalizedMessage === "hablar con el doctor" ||
+      normalizedMessage ===
+        "hablar con la clínica" ||
+      normalizedMessage ===
+        "hablar con el doctor" ||
       normalizedMessage === "doctor"
     ) {
       return {
         handled: true,
-        nextContext: changeState(context, "WAITING_FOR_HUMAN"),
+        nextContext: changeState(
+          context,
+          "WAITING_FOR_HUMAN",
+        ),
         response: {
           text: "De acuerdo. Avisaré a la clínica para que puedan continuar contigo.",
           requiresHuman: true,
@@ -274,8 +339,12 @@ export function resolveConversationState({
     };
   }
 
-  if (context.state === "MANAGE_FIND_APPOINTMENT") {
-    const appointments = context.availableAppointments ?? [];
+  if (
+    context.state ===
+    "MANAGE_FIND_APPOINTMENT"
+  ) {
+    const appointments =
+      context.availableAppointments ?? [];
 
     if (appointments.length === 0) {
       return {
@@ -285,25 +354,32 @@ export function resolveConversationState({
       };
     }
 
-    const selectedIndex = Number.parseInt(normalizedMessage, 10);
+    const selectedIndex =
+      parseNumericOption(
+        normalizedMessage,
+      );
 
     if (
-      Number.isInteger(selectedIndex) &&
+      selectedIndex !== null &&
       selectedIndex >= 1 &&
-      selectedIndex <= appointments.length
+      selectedIndex <=
+        appointments.length
     ) {
-      const selectedAppointment = appointments[selectedIndex - 1];
+      const selectedAppointment =
+        appointments[selectedIndex - 1];
 
       const nextContext: ConversationContext = {
         ...context,
         state: "MANAGE_MENU",
-        appointmentId: selectedAppointment.id,
+        appointmentId:
+          selectedAppointment.id,
       };
 
       return {
         handled: true,
         nextContext,
-        response: manageMenuResponse(nextContext),
+        response:
+          manageMenuResponse(nextContext),
       };
     }
 
@@ -312,14 +388,20 @@ export function resolveConversationState({
       nextContext: context,
       response: {
         text: "Elige una de tus próximas citas.",
-        options: appointments.map((appointment, index) => ({
-          id: String(index + 1),
-          label: formatStoredAppointment({
-            startAt: appointment.startAt,
-            timezone:
-              appointment.timezone || context.timezone || DEFAULT_TIMEZONE,
+        options: appointments.map(
+          (appointment, index) => ({
+            id: String(index + 1),
+            label:
+              formatStoredAppointment({
+                startAt:
+                  appointment.startAt,
+                timezone:
+                  appointment.timezone ||
+                  context.timezone ||
+                  DEFAULT_TIMEZONE,
+              }),
           }),
-        })),
+        ),
       },
     };
   }
@@ -330,11 +412,14 @@ export function resolveConversationState({
         handled: true,
         nextContext: {
           ...context,
-          state: "RESCHEDULE_SELECT_DATE",
+          state:
+            "RESCHEDULE_SELECT_DATE",
           requestedDate: undefined,
           requestedStartTime: undefined,
-          lastOfferedSlotStartAt: undefined,
+          lastOfferedSlotStartAt:
+            undefined,
           availableSlots: undefined,
+          slotPage: undefined,
         },
         response: {
           text: "Claro. ¿Para qué día te gustaría cambiar tu cita?",
@@ -373,50 +458,93 @@ export function resolveConversationState({
           state: "MAIN_MENU",
           timezone: context.timezone,
         },
-        response: mainMenuResponse(),
+        response:
+          mainMenuResponse(),
       };
     }
 
     return {
       handled: true,
       nextContext: context,
-      response: manageMenuResponse(context),
+      response:
+        manageMenuResponse(context),
     };
   }
 
   if (
-    context.state === "BOOK_SELECT_TIME" ||
-    context.state === "RESCHEDULE_SELECT_TIME"
+    context.state ===
+      "BOOK_SELECT_TIME" ||
+    context.state ===
+      "RESCHEDULE_SELECT_TIME"
   ) {
-    const isReschedule = context.state === "RESCHEDULE_SELECT_TIME";
-    const slots = context.availableSlots ?? [];
-    const slotPage = context.slotPage ?? 0;
-    const pageStart = slotPage * SLOTS_PER_PAGE;
-    const visibleSlots = slots.slice(pageStart, pageStart + SLOTS_PER_PAGE);
-    const hasMoreSlots = pageStart + visibleSlots.length < slots.length;
+    const isReschedule =
+      context.state ===
+      "RESCHEDULE_SELECT_TIME";
+
+    const slots =
+      context.availableSlots ?? [];
+
+    const slotPage =
+      context.slotPage ?? 0;
+
+    const pageStart =
+      slotPage * SLOTS_PER_PAGE;
+
+    const visibleSlots = slots.slice(
+      pageStart,
+      pageStart + SLOTS_PER_PAGE,
+    );
+
+    const hasMoreSlots =
+      pageStart +
+        visibleSlots.length <
+      slots.length;
+
     const moreOptionId = hasMoreSlots
-      ? String(visibleSlots.length + 1)
+      ? String(
+          visibleSlots.length + 1,
+        )
       : null;
+
     const otherDayOptionId = String(
-      visibleSlots.length + (hasMoreSlots ? 2 : 1),
+      visibleSlots.length +
+        (hasMoreSlots ? 2 : 1),
     );
 
     const isMoreRequest =
-      (moreOptionId !== null && normalizedMessage === moreOptionId) ||
-      normalizedMessage === "ver más horarios" ||
-      normalizedMessage === "ver mas horarios" ||
-      normalizedMessage === "más horarios" ||
-      normalizedMessage === "mas horarios";
+      (moreOptionId !== null &&
+        normalizedMessage ===
+          moreOptionId) ||
+      normalizedMessage ===
+        "ver más horarios" ||
+      normalizedMessage ===
+        "ver mas horarios" ||
+      normalizedMessage ===
+        "más horarios" ||
+      normalizedMessage ===
+        "mas horarios";
 
-    if (isMoreRequest && hasMoreSlots) {
-      const nextPage = slotPage + 1;
-      const nextPageStart = nextPage * SLOTS_PER_PAGE;
-      const nextVisibleSlots = slots.slice(
-        nextPageStart,
-        nextPageStart + SLOTS_PER_PAGE,
-      );
+    if (
+      isMoreRequest &&
+      hasMoreSlots
+    ) {
+      const nextPage =
+        slotPage + 1;
+
+      const nextPageStart =
+        nextPage * SLOTS_PER_PAGE;
+
+      const nextVisibleSlots =
+        slots.slice(
+          nextPageStart,
+          nextPageStart +
+            SLOTS_PER_PAGE,
+        );
+
       const nextHasMoreSlots =
-        nextPageStart + nextVisibleSlots.length < slots.length;
+        nextPageStart +
+          nextVisibleSlots.length <
+        slots.length;
 
       return {
         handled: true,
@@ -429,23 +557,37 @@ export function resolveConversationState({
             ? "También tengo estos horarios disponibles:"
             : "Estos son los últimos horarios disponibles:",
           options: [
-            ...nextVisibleSlots.map((slot, index) => ({
-              id: String(index + 1),
-              label: formatTime(slot.localStartTime),
-            })),
+            ...nextVisibleSlots.map(
+              (slot, index) => ({
+                id: String(
+                  index + 1,
+                ),
+                label: formatTime(
+                  slot.localStartTime,
+                ),
+              }),
+            ),
             ...(nextHasMoreSlots
               ? [
                   {
-                    id: String(nextVisibleSlots.length + 1),
-                    label: "Ver más horarios",
+                    id: String(
+                      nextVisibleSlots.length +
+                        1,
+                    ),
+                    label:
+                      "Ver más horarios",
                   },
                 ]
               : []),
             {
               id: String(
-                nextVisibleSlots.length + (nextHasMoreSlots ? 2 : 1),
+                nextVisibleSlots.length +
+                  (nextHasMoreSlots
+                    ? 2
+                    : 1),
               ),
-              label: "Elegir otro día",
+              label:
+                "Elegir otro día",
             },
           ],
         },
@@ -453,11 +595,16 @@ export function resolveConversationState({
     }
 
     const isOtherDayRequest =
-      normalizedMessage === otherDayOptionId ||
-      normalizedMessage === "otro día" ||
-      normalizedMessage === "otro dia" ||
-      normalizedMessage === "elegir otro día" ||
-      normalizedMessage === "elegir otro dia";
+      normalizedMessage ===
+        otherDayOptionId ||
+      normalizedMessage ===
+        "otro día" ||
+      normalizedMessage ===
+        "otro dia" ||
+      normalizedMessage ===
+        "elegir otro día" ||
+      normalizedMessage ===
+        "elegir otro dia";
 
     if (isOtherDayRequest) {
       return {
@@ -469,7 +616,8 @@ export function resolveConversationState({
             : "BOOK_SELECT_DATE",
           requestedDate: undefined,
           requestedStartTime: undefined,
-          lastOfferedSlotStartAt: undefined,
+          lastOfferedSlotStartAt:
+            undefined,
           availableSlots: undefined,
           slotPage: undefined,
         },
@@ -480,20 +628,43 @@ export function resolveConversationState({
       };
     }
 
-    const selectedIndex = Number.parseInt(normalizedMessage, 10);
+    /*
+     * IMPORTANTE:
+     *
+     * Antes se utilizaba:
+     *
+     * Number.parseInt(normalizedMessage, 10)
+     *
+     * Eso provocaba que "3pm" se
+     * convirtiera en 3 y seleccionara
+     * accidentalmente la tercera opción.
+     */
+    const selectedIndex =
+      parseNumericOption(
+        normalizedMessage,
+      );
 
     if (
-      Number.isInteger(selectedIndex) &&
+      selectedIndex !== null &&
       selectedIndex >= 1 &&
-      selectedIndex <= visibleSlots.length
+      selectedIndex <=
+        visibleSlots.length
     ) {
-      const selectedSlot = visibleSlots[selectedIndex - 1];
+      const selectedSlot =
+        visibleSlots[
+          selectedIndex - 1
+        ];
 
-      const formattedDateTime = formatAppointmentDateTime({
-        date: selectedSlot.localDate,
-        time: selectedSlot.localStartTime,
-        timezone: context.timezone ?? DEFAULT_TIMEZONE,
-      });
+      const formattedDateTime =
+        formatAppointmentDateTime({
+          date:
+            selectedSlot.localDate,
+          time:
+            selectedSlot.localStartTime,
+          timezone:
+            context.timezone ??
+            DEFAULT_TIMEZONE,
+        });
 
       return {
         handled: true,
@@ -502,9 +673,12 @@ export function resolveConversationState({
           state: isReschedule
             ? "RESCHEDULE_CONFIRM"
             : "BOOK_CONFIRM",
-          requestedDate: selectedSlot.localDate,
-          requestedStartTime: selectedSlot.localStartTime,
-          lastOfferedSlotStartAt: selectedSlot.startAt,
+          requestedDate:
+            selectedSlot.localDate,
+          requestedStartTime:
+            selectedSlot.localStartTime,
+          lastOfferedSlotStartAt:
+            selectedSlot.startAt,
         },
         response: {
           text: isReschedule
@@ -512,23 +686,51 @@ export function resolveConversationState({
             : `¿Confirmas tu cita el ${formattedDateTime}?`,
           options: isReschedule
             ? [
-                { id: "1", label: "Confirmar cambio" },
-                { id: "2", label: "Elegir otro horario" },
-                { id: "3", label: "Cancelar cambio" },
+                {
+                  id: "1",
+                  label:
+                    "Confirmar cambio",
+                },
+                {
+                  id: "2",
+                  label:
+                    "Elegir otro horario",
+                },
+                {
+                  id: "3",
+                  label:
+                    "Cancelar cambio",
+                },
               ]
             : [
-                { id: "1", label: "Confirmar" },
-                { id: "2", label: "Elegir otro horario" },
-                { id: "3", label: "Cancelar" },
+                {
+                  id: "1",
+                  label: "Confirmar",
+                },
+                {
+                  id: "2",
+                  label:
+                    "Elegir otro horario",
+                },
+                {
+                  id: "3",
+                  label: "Cancelar",
+                },
               ],
         },
       };
     }
 
     /*
-     * Si no coincide con una opción determinística, dejamos que
-     * interpretPatientInput() intente entender lenguaje natural
-     * como "5pm", "a las 5 de la tarde" o "quiero el de las 5".
+     * No fue una opción determinística.
+     *
+     * Dejamos pasar el mensaje hacia
+     * interpretPatientInput(), que puede
+     * entender expresiones como:
+     *
+     * "3pm"
+     * "a las 3 de la tarde"
+     * "quiero el de las 3"
      */
     return {
       handled: false,
@@ -539,49 +741,81 @@ export function resolveConversationState({
 
   if (
     context.state === "BOOK_CONFIRM" ||
-    context.state === "RESCHEDULE_CONFIRM" ||
+    context.state ===
+      "RESCHEDULE_CONFIRM" ||
     context.state === "CANCEL_CONFIRM"
   ) {
-    if (context.state === "BOOK_CONFIRM" && normalizedMessage === "2") {
+    if (
+      context.state ===
+        "BOOK_CONFIRM" &&
+      normalizedMessage === "2"
+    ) {
       return {
         handled: true,
         nextContext: {
           ...context,
           state: "BOOK_SELECT_TIME",
           requestedStartTime: undefined,
-          lastOfferedSlotStartAt: undefined,
+          lastOfferedSlotStartAt:
+            undefined,
         },
         response: (() => {
-          const slots = context.availableSlots ?? [];
-          const slotPage = context.slotPage ?? 0;
-          const pageStart = slotPage * SLOTS_PER_PAGE;
-          const visibleSlots = slots.slice(
-            pageStart,
-            pageStart + SLOTS_PER_PAGE,
-          );
+          const slots =
+            context.availableSlots ?? [];
+
+          const slotPage =
+            context.slotPage ?? 0;
+
+          const pageStart =
+            slotPage *
+            SLOTS_PER_PAGE;
+
+          const visibleSlots =
+            slots.slice(
+              pageStart,
+              pageStart +
+                SLOTS_PER_PAGE,
+            );
+
           const hasMoreSlots =
-            pageStart + visibleSlots.length < slots.length;
+            pageStart +
+              visibleSlots.length <
+            slots.length;
 
           return {
             text: "Claro. Elige otro horario disponible.",
             options: [
-              ...visibleSlots.map((slot, index) => ({
-                id: String(index + 1),
-                label: formatTime(slot.localStartTime),
-              })),
+              ...visibleSlots.map(
+                (slot, index) => ({
+                  id: String(
+                    index + 1,
+                  ),
+                  label: formatTime(
+                    slot.localStartTime,
+                  ),
+                }),
+              ),
               ...(hasMoreSlots
                 ? [
                     {
-                      id: String(visibleSlots.length + 1),
-                      label: "Ver más horarios",
+                      id: String(
+                        visibleSlots.length +
+                          1,
+                      ),
+                      label:
+                        "Ver más horarios",
                     },
                   ]
                 : []),
               {
                 id: String(
-                  visibleSlots.length + (hasMoreSlots ? 2 : 1),
+                  visibleSlots.length +
+                    (hasMoreSlots
+                      ? 2
+                      : 1),
                 ),
-                label: "Elegir otro día",
+                label:
+                  "Elegir otro día",
               },
             ],
           };
@@ -589,7 +823,11 @@ export function resolveConversationState({
       };
     }
 
-    if (context.state === "BOOK_CONFIRM" && normalizedMessage === "3") {
+    if (
+      context.state ===
+        "BOOK_CONFIRM" &&
+      normalizedMessage === "3"
+    ) {
       return {
         handled: true,
         nextContext: {
@@ -603,46 +841,78 @@ export function resolveConversationState({
       };
     }
 
-    if (context.state === "RESCHEDULE_CONFIRM" && normalizedMessage === "2") {
+    if (
+      context.state ===
+        "RESCHEDULE_CONFIRM" &&
+      normalizedMessage === "2"
+    ) {
       return {
         handled: true,
         nextContext: {
           ...context,
-          state: "RESCHEDULE_SELECT_TIME",
+          state:
+            "RESCHEDULE_SELECT_TIME",
           requestedStartTime: undefined,
-          lastOfferedSlotStartAt: undefined,
+          lastOfferedSlotStartAt:
+            undefined,
         },
         response: (() => {
-          const slots = context.availableSlots ?? [];
-          const slotPage = context.slotPage ?? 0;
-          const pageStart = slotPage * SLOTS_PER_PAGE;
-          const visibleSlots = slots.slice(
-            pageStart,
-            pageStart + SLOTS_PER_PAGE,
-          );
+          const slots =
+            context.availableSlots ?? [];
+
+          const slotPage =
+            context.slotPage ?? 0;
+
+          const pageStart =
+            slotPage *
+            SLOTS_PER_PAGE;
+
+          const visibleSlots =
+            slots.slice(
+              pageStart,
+              pageStart +
+                SLOTS_PER_PAGE,
+            );
+
           const hasMoreSlots =
-            pageStart + visibleSlots.length < slots.length;
+            pageStart +
+              visibleSlots.length <
+            slots.length;
 
           return {
             text: "Claro. Elige otro horario disponible.",
             options: [
-              ...visibleSlots.map((slot, index) => ({
-                id: String(index + 1),
-                label: formatTime(slot.localStartTime),
-              })),
+              ...visibleSlots.map(
+                (slot, index) => ({
+                  id: String(
+                    index + 1,
+                  ),
+                  label: formatTime(
+                    slot.localStartTime,
+                  ),
+                }),
+              ),
               ...(hasMoreSlots
                 ? [
                     {
-                      id: String(visibleSlots.length + 1),
-                      label: "Ver más horarios",
+                      id: String(
+                        visibleSlots.length +
+                          1,
+                      ),
+                      label:
+                        "Ver más horarios",
                     },
                   ]
                 : []),
               {
                 id: String(
-                  visibleSlots.length + (hasMoreSlots ? 2 : 1),
+                  visibleSlots.length +
+                    (hasMoreSlots
+                      ? 2
+                      : 1),
                 ),
-                label: "Elegir otro día",
+                label:
+                  "Elegir otro día",
               },
             ],
           };
@@ -650,13 +920,18 @@ export function resolveConversationState({
       };
     }
 
-    if (context.state === "RESCHEDULE_CONFIRM" && normalizedMessage === "3") {
+    if (
+      context.state ===
+        "RESCHEDULE_CONFIRM" &&
+      normalizedMessage === "3"
+    ) {
       const nextContext: ConversationContext = {
         ...context,
         state: "MANAGE_MENU",
         requestedDate: undefined,
         requestedStartTime: undefined,
-        lastOfferedSlotStartAt: undefined,
+        lastOfferedSlotStartAt:
+          undefined,
         availableSlots: undefined,
       };
 
@@ -664,29 +939,38 @@ export function resolveConversationState({
         handled: true,
         nextContext,
         response: {
-          ...manageMenuResponse(nextContext),
+          ...manageMenuResponse(
+            nextContext,
+          ),
           text: "No hay problema. No realicé ningún cambio.\n\n¿Qué deseas hacer con tu cita?",
         },
       };
     }
 
-    if (context.state === "CANCEL_CONFIRM" && normalizedMessage === "2") {
+    if (
+      context.state ===
+        "CANCEL_CONFIRM" &&
+      normalizedMessage === "2"
+    ) {
       return {
         handled: true,
         nextContext: {
           ...context,
           state: "MANAGE_MENU",
         },
-        response: manageMenuResponse({
-          ...context,
-          state: "MANAGE_MENU",
-        }),
+        response:
+          manageMenuResponse({
+            ...context,
+            state: "MANAGE_MENU",
+          }),
       };
     }
 
     if (
       normalizedMessage === "1" ||
-      AFFIRMATIVE_RESPONSES.has(normalizedMessage)
+      AFFIRMATIVE_RESPONSES.has(
+        normalizedMessage,
+      )
     ) {
       return {
         handled: true,
@@ -697,14 +981,23 @@ export function resolveConversationState({
       };
     }
 
-    if (NEGATIVE_RESPONSES.has(normalizedMessage)) {
-      if (context.state === "RESCHEDULE_CONFIRM") {
+    if (
+      NEGATIVE_RESPONSES.has(
+        normalizedMessage,
+      )
+    ) {
+      if (
+        context.state ===
+        "RESCHEDULE_CONFIRM"
+      ) {
         const nextContext: ConversationContext = {
           ...context,
           state: "MANAGE_MENU",
           requestedDate: undefined,
-          requestedStartTime: undefined,
-          lastOfferedSlotStartAt: undefined,
+          requestedStartTime:
+            undefined,
+          lastOfferedSlotStartAt:
+            undefined,
           availableSlots: undefined,
         };
 
@@ -712,7 +1005,9 @@ export function resolveConversationState({
           handled: true,
           nextContext,
           response: {
-            ...manageMenuResponse(nextContext),
+            ...manageMenuResponse(
+              nextContext,
+            ),
             text: "No hay problema. No realicé ningún cambio.\n\n¿Qué deseas hacer con tu cita?",
           },
         };
@@ -738,7 +1033,10 @@ export function resolveConversationState({
     };
   }
 
-  if (context.state === "WAITING_FOR_HUMAN") {
+  if (
+    context.state ===
+    "WAITING_FOR_HUMAN"
+  ) {
     return {
       handled: true,
       nextContext: context,
