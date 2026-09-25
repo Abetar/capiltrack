@@ -54,7 +54,7 @@ export async function saveInboundMessage({
     throw new Error("WhatsApp conversation not found");
   }
 
-  const now = new Date();
+  const now = new Date(); 
 
   return prisma.$transaction(async (tx) => {
     const message = await tx.whatsAppMessage.create({
