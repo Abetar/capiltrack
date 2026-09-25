@@ -36,8 +36,23 @@ async function main() {
 
   console.log("\n=== TURN RESULT ===");
 
+  /*
+   * Un proveedor puede reenviar exactamente el mismo
+   * mensaje. En ese caso el turno ya fue procesado y
+   * no debemos esperar un nuevo inbound/outbound.
+   */
+  if (result.duplicate) {
+    console.dir({
+      duplicate: true,
+      conversationId: result.conversationId,
+    });
+
+    return;
+  }
+
   console.dir(
     {
+      duplicate: false,
       conversationId: result.conversation.id,
 
       inboundMessage: result.inboundMessage

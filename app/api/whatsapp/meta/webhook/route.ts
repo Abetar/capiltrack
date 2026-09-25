@@ -212,6 +212,17 @@ export async function POST(req: Request) {
             });
 
           /*
+           * Meta puede reenviar exactamente el mismo
+           * mensaje más de una vez.
+           *
+           * Si ya fue procesado, no ejecutamos ninguna
+           * acción adicional ni generamos otro outbound.
+           */
+          if (inboundResult.duplicate) {
+            continue;
+          }
+
+          /*
            * Guardamos la respuesta producida por el agente.
            *
            * En este paso queda PENDING.
@@ -241,10 +252,6 @@ export async function POST(req: Request) {
       error,
     );
 
-    /*
-     * Por ahora devolvemos 500 para que un fallo real
-     * sea visible durante nuestras pruebas.
-     */
     return NextResponse.json(
       {
         received: false,

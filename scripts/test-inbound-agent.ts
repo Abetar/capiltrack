@@ -10,7 +10,9 @@ async function main() {
   });
 
   if (!clinic) {
-    throw new Error("No existe ninguna clínica para ejecutar la prueba.");
+    throw new Error(
+      "No existe ninguna clínica para ejecutar la prueba.",
+    );
   }
 
   const phoneNumber = "+5213398765432";
@@ -33,9 +35,26 @@ async function main() {
   });
 
   console.log("\n=== HANDLE INBOUND RESULT ===");
+
+  /*
+   * Si este providerMessageId ya fue procesado,
+   * no existe un nuevo inbound ni un nuevo resultado
+   * del agente para este intento.
+   */
+  if (result.duplicate) {
+    console.dir({
+      duplicate: true,
+      conversationId: result.conversationId,
+    });
+
+    return;
+  }
+
   console.dir(
     {
+      duplicate: false,
       conversationId: result.conversation.id,
+
       inboundMessage: {
         id: result.inboundMessage.id,
         direction: result.inboundMessage.direction,
@@ -46,6 +65,7 @@ async function main() {
         providerMessageId:
           result.inboundMessage.providerMessageId,
       },
+
       agentResult: result.agentResult,
     },
     {
@@ -64,6 +84,7 @@ async function main() {
         context: true,
         lastMessageAt: true,
         lastInboundAt: true,
+
         messages: {
           orderBy: {
             createdAt: "asc",
@@ -83,6 +104,7 @@ async function main() {
     });
 
   console.log("\n=== DATABASE AFTER ===");
+
   console.dir(conversation, {
     depth: null,
   });
