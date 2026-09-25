@@ -23,6 +23,11 @@ export async function handleInboundMessage({
   providerMessageId = null,
   rawPayload,
 }: HandleInboundMessageInput) {
+  console.log("[WA TRACE] handleInboundMessage START", {
+    providerMessageId,
+    text,
+  });
+
   if (!clinicId.trim()) {
     throw new Error("clinicId is required");
   }
@@ -31,13 +36,6 @@ export async function handleInboundMessage({
     throw new Error("phoneNumber is required");
   }
 
-  /*
-   * Meta puede reenviar el mismo webhook.
-   *
-   * Si ya procesamos este providerMessageId,
-   * no debemos guardar el mensaje ni ejecutar
-   * nuevamente el agente.
-   */
   if (providerMessageId?.trim()) {
     const existingMessage =
       await prisma.whatsAppMessage.findUnique({
@@ -50,7 +48,14 @@ export async function handleInboundMessage({
         },
       });
 
+    console.log("[WA TRACE] duplicate check", {
+      providerMessageId,
+      found: Boolean(existingMessage),
+    });
+
     if (existingMessage) {
+      console.log("[WA TRACE] DUPLICATE - returning early");
+
       return {
         duplicate: true as const,
         conversationId: existingMessage.conversationId,
@@ -58,10 +63,16 @@ export async function handleInboundMessage({
     }
   }
 
+  console.log("[WA TRACE] getting conversation");
+
   const conversation = await getOrCreateConversation({
     clinicId,
     phoneNumber,
     displayName,
+  });
+
+  console.log("[WA TRACE] conversation ready", {
+    conversationId: conversation.id,
   });
 
   const inboundMessage = await saveInboundMessage({
@@ -74,12 +85,28 @@ export async function handleInboundMessage({
     rawPayload,
   });
 
+  console.log("[WA TRACE] inbound SAVED", {
+    inboundMessageId: inboundMessage.id,
+  });
+
+  console.log(
+    "[WA TRACE] BEFORE processPersistedConversationInput",
+  );
+
   const agentResult =
     await processPersistedConversationInput({
       clinicId,
       conversationId: conversation.id,
       message: text,
     });
+
+  console.log(
+    "[WA TRACE] AFTER processPersistedConversationInput",
+    {
+      response: agentResult.response?.text ?? null,
+      state: agentResult.nextContext?.state ?? null,
+    },
+  );
 
   return {
     duplicate: false as const,
