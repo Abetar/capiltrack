@@ -189,6 +189,33 @@ export function resolveConversationState({
     };
   }
 
+  /*
+   * COMANDO GLOBAL DE NAVEGACIÓN
+   *
+   * Permite abandonar cualquier flujo y regresar al
+   * menú principal sin perder la referencia de una cita
+   * que ya exista en la conversación.
+   */
+  if (
+    normalizedMessage === "menu" ||
+    normalizedMessage === "menú" ||
+    normalizedMessage === "inicio" ||
+    normalizedMessage === "volver al menu" ||
+    normalizedMessage === "volver al menú"
+  ) {
+    const nextContext: ConversationContext = {
+      state: "MAIN_MENU",
+      timezone: context.timezone,
+      appointmentId: context.appointmentId,
+    };
+
+    return {
+      handled: true,
+      nextContext,
+      response: mainMenuResponse(),
+    };
+  }
+
   if (context.state === "MAIN_MENU") {
     if (
       normalizedMessage === "1" ||
