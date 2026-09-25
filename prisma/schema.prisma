@@ -33,6 +33,28 @@ model Clinic {
 
   whatsappConversations WhatsAppConversation[]
   whatsappMessages      WhatsAppMessage[]
+  whatsappIntegration   WhatsAppIntegration?
+}
+
+model WhatsAppIntegration {
+  id String @id @default(cuid())
+
+  clinicId String @unique
+  clinic   Clinic @relation(fields: [clinicId], references: [id], onDelete: Cascade)
+
+  provider String @default("META")
+
+  phoneNumberId      String  @unique
+  businessAccountId  String?
+  displayPhoneNumber String?
+
+  isActive Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([phoneNumberId])
+  @@index([businessAccountId])
 }
 
 model User {
