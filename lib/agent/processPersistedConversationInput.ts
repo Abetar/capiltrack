@@ -7,18 +7,13 @@ import { formatInTimeZone } from "date-fns-tz";
 import { interpretPatientInput } from "./ai/interpretPatientInput";
 import { validateInterpretedTime } from "./ai/validateInterpretedTime";
 import { buildBookingOptions } from "./buildBookingOptions";
-import {
-  getMainMenuResponse,
-} from "./conversation-state";
+import { getMainMenuResponse } from "./conversation-state";
 import { formatAppointmentDateTime } from "./formatAppointmentDateTime";
 import { getUpcomingConversationAppointments } from "./getUpcomingConversationAppointments";
 import { loadConversationContext } from "./loadConversationContext";
 import { processConversationInput } from "./processConversationInput";
 import { saveConversationContext } from "./saveConversationContext";
-import type {
-  AgentResponse,
-  ConversationContext,
-} from "./types/conversation";
+import type { AgentResponse, ConversationContext } from "./types/conversation";
 
 const DEFAULT_TIMEZONE = "America/Mexico_City";
 
@@ -36,8 +31,7 @@ function isBookingConfirmation({
   response: AgentResponse | null;
 }) {
   return (
-    previousContext.state === "BOOK_CONFIRM" &&
-    response?.text === "CONFIRMED"
+    previousContext.state === "BOOK_CONFIRM" && response?.text === "CONFIRMED"
   );
 }
 
@@ -49,8 +43,7 @@ function isCancellationConfirmation({
   response: AgentResponse | null;
 }) {
   return (
-    previousContext.state === "CANCEL_CONFIRM" &&
-    response?.text === "CONFIRMED"
+    previousContext.state === "CANCEL_CONFIRM" && response?.text === "CONFIRMED"
   );
 }
 
@@ -74,8 +67,7 @@ function getSelectedSlot(context: ConversationContext) {
 
   return (
     context.availableSlots?.find(
-      (slot) =>
-        slot.startAt === context.lastOfferedSlotStartAt,
+      (slot) => slot.startAt === context.lastOfferedSlotStartAt,
     ) ?? null
   );
 }
@@ -100,17 +92,9 @@ function formatUpcomingAppointment({
   startAt: Date;
   timezone: string;
 }) {
-  const localDate = formatInTimeZone(
-    startAt,
-    timezone,
-    "yyyy-MM-dd",
-  );
+  const localDate = formatInTimeZone(startAt, timezone, "yyyy-MM-dd");
 
-  const localTime = formatInTimeZone(
-    startAt,
-    timezone,
-    "HH:mm",
-  );
+  const localTime = formatInTimeZone(startAt, timezone, "HH:mm");
 
   return formatAppointmentDateTime({
     date: localDate,
@@ -232,56 +216,49 @@ export async function processPersistedConversationInput({
         ...result,
         nextContext,
         response: {
-          text:
-            "No pude recuperar el horario seleccionado. Por favor inicia nuevamente el proceso de agendado.",
+          text: "No pude recuperar el horario seleccionado. Por favor inicia nuevamente el proceso de agendado.",
         },
         requiresAiInterpretation: false,
       };
     }
 
-    const conversation =
-      await prisma.whatsAppConversation.findFirst({
-        where: {
-          id: conversationId,
-          clinicId,
-        },
-        select: {
-          id: true,
-          phoneNumber: true,
-          displayName: true,
+    const conversation = await prisma.whatsAppConversation.findFirst({
+      where: {
+        id: conversationId,
+        clinicId,
+      },
+      select: {
+        id: true,
+        phoneNumber: true,
+        displayName: true,
 
-          patient: {
-            select: {
-              id: true,
-              firstName: true,
-              lastName: true,
-              phone: true,
-              email: true,
-            },
+        patient: {
+          select: {
+            id: true,
+            firstName: true,
+            lastName: true,
+            phone: true,
+            email: true,
           },
         },
-      });
+      },
+    });
 
     if (!conversation) {
       throw new Error("WhatsApp conversation not found");
     }
 
     const patientName = conversation.patient
-      ? [
-          conversation.patient.firstName,
-          conversation.patient.lastName,
-        ]
+      ? [conversation.patient.firstName, conversation.patient.lastName]
           .filter(Boolean)
           .join(" ")
           .trim()
       : conversation.displayName?.trim() || "";
 
     const patientPhone =
-      conversation.patient?.phone?.trim() ||
-      conversation.phoneNumber;
+      conversation.patient?.phone?.trim() || conversation.phoneNumber;
 
-    const patientEmail =
-      conversation.patient?.email?.trim() || null;
+    const patientEmail = conversation.patient?.email?.trim() || null;
 
     if (!patientName) {
       return escalateConversationToHuman({
@@ -298,10 +275,7 @@ export async function processPersistedConversationInput({
     const startAt = new Date(selectedSlot.startAt);
     const endAt = new Date(selectedSlot.endAt);
 
-    if (
-      Number.isNaN(startAt.getTime()) ||
-      Number.isNaN(endAt.getTime())
-    ) {
+    if (Number.isNaN(startAt.getTime()) || Number.isNaN(endAt.getTime())) {
       throw new Error("Selected appointment slot is invalid");
     }
 
@@ -345,8 +319,7 @@ export async function processPersistedConversationInput({
         ...result,
         nextContext,
         response: {
-          text:
-            "Ese horario ya no está disponible. ¿Qué otro día te gustaría intentar?",
+          text: "Ese horario ya no está disponible. ¿Qué otro día te gustaría intentar?",
           requiresAiInterpretation: true,
         },
         requiresAiInterpretation: true,
@@ -378,24 +351,18 @@ export async function processPersistedConversationInput({
       },
     });
 
-    const formattedAppointmentDateTime =
-      formatAppointmentDateTime({
-        date: selectedSlot.localDate,
-        time: selectedSlot.localStartTime,
-        timezone,
-      });
+    const formattedAppointmentDateTime = formatAppointmentDateTime({
+      date: selectedSlot.localDate,
+      time: selectedSlot.localStartTime,
+      timezone,
+    });
 
     return {
       ...result,
       nextContext,
       response: {
-        text: `Tu cita quedó agendada para el ${formattedAppointmentDateTime}.`,
-        options: [
-          {
-            id: "1",
-            label: "Volver al menú",
-          },
-        ],
+        ...getMainMenuResponse(),
+        text: `Tu cita quedó agendada para el ${formattedAppointmentDateTime}.\n\n¿En qué más te puedo ayudar?`,
       },
       requiresAiInterpretation: false,
     };
@@ -427,8 +394,7 @@ export async function processPersistedConversationInput({
         nextContext,
         response: {
           ...getMainMenuResponse(),
-          text:
-            "No pude identificar la cita que querías cancelar.\n\n¿En qué más te puedo ayudar?",
+          text: "No pude identificar la cita que querías cancelar.\n\n¿En qué más te puedo ayudar?",
         },
         requiresAiInterpretation: false,
       };
@@ -459,8 +425,7 @@ export async function processPersistedConversationInput({
 
       switch (cancellationResult.reason) {
         case "ALREADY_CANCELLED":
-          failureMessage =
-            "Esta cita ya se encontraba cancelada.";
+          failureMessage = "Esta cita ya se encontraba cancelada.";
           break;
 
         case "COMPLETED":
@@ -475,8 +440,7 @@ export async function processPersistedConversationInput({
 
         case "NOT_FOUND":
         default:
-          failureMessage =
-            "No pude encontrar la cita que deseas cancelar.";
+          failureMessage = "No pude encontrar la cita que deseas cancelar.";
           break;
       }
 
@@ -491,13 +455,10 @@ export async function processPersistedConversationInput({
       };
     }
 
-    const formattedAppointmentDateTime =
-      formatUpcomingAppointment({
-        startAt: cancellationResult.appointment.startAt,
-        timezone:
-          cancellationResult.appointment.timezone ||
-          timezone,
-      });
+    const formattedAppointmentDateTime = formatUpcomingAppointment({
+      startAt: cancellationResult.appointment.startAt,
+      timezone: cancellationResult.appointment.timezone || timezone,
+    });
 
     const nextContext: ConversationContext = {
       state: "MAIN_MENU",
@@ -564,8 +525,7 @@ export async function processPersistedConversationInput({
         nextContext,
         response: {
           ...getMainMenuResponse(),
-          text:
-            "No pude identificar la cita que querías cambiar.\n\n¿En qué más te puedo ayudar?",
+          text: "No pude identificar la cita que querías cambiar.\n\n¿En qué más te puedo ayudar?",
         },
         requiresAiInterpretation: false,
       };
@@ -593,8 +553,7 @@ export async function processPersistedConversationInput({
         ...result,
         nextContext,
         response: {
-          text:
-            "No pude recuperar el nuevo horario seleccionado. ¿Para qué día te gustaría cambiar tu cita?",
+          text: "No pude recuperar el nuevo horario seleccionado. ¿Para qué día te gustaría cambiar tu cita?",
           requiresAiInterpretation: true,
         },
         requiresAiInterpretation: true,
@@ -604,13 +563,8 @@ export async function processPersistedConversationInput({
     const startAt = new Date(selectedSlot.startAt);
     const endAt = new Date(selectedSlot.endAt);
 
-    if (
-      Number.isNaN(startAt.getTime()) ||
-      Number.isNaN(endAt.getTime())
-    ) {
-      throw new Error(
-        "Selected reschedule slot is invalid",
-      );
+    if (Number.isNaN(startAt.getTime()) || Number.isNaN(endAt.getTime())) {
+      throw new Error("Selected reschedule slot is invalid");
     }
 
     /*
@@ -619,22 +573,21 @@ export async function processPersistedConversationInput({
      * rescheduleAppointment() usa validateAppointmentSlot()
      * excluyendo la propia cita original.
      */
-    const rescheduleResult =
-      await rescheduleAppointment({
-        clinicId,
-        appointmentId: context.appointmentId,
+    const rescheduleResult = await rescheduleAppointment({
+      clinicId,
+      appointmentId: context.appointmentId,
 
-        startAt,
-        endAt,
+      startAt,
+      endAt,
 
-        timezone,
+      timezone,
 
-        source: "WHATSAPP_AI",
-        actorUserId: null,
+      source: "WHATSAPP_AI",
+      actorUserId: null,
 
-        message:
-          "La cita fue reagendada por el paciente mediante el agente de WhatsApp.",
-      });
+      message:
+        "La cita fue reagendada por el paciente mediante el agente de WhatsApp.",
+    });
 
     if (!rescheduleResult.success) {
       const nextContext: ConversationContext = {
@@ -676,8 +629,7 @@ export async function processPersistedConversationInput({
           break;
 
         case "OVERLAPS_APPOINTMENT":
-          failureMessage =
-            "Ese horario acaba de ser ocupado por otra cita.";
+          failureMessage = "Ese horario acaba de ser ocupado por otra cita.";
           break;
 
         case "OVERLAPS_SCHEDULE_BLOCK":
@@ -686,14 +638,12 @@ export async function processPersistedConversationInput({
           break;
 
         case "INVALID_INTERVAL":
-          failureMessage =
-            "El horario seleccionado ya no es válido.";
+          failureMessage = "El horario seleccionado ya no es válido.";
           break;
 
         case "NOT_FOUND":
         default:
-          failureMessage =
-            "No pude encontrar la cita que deseas cambiar.";
+          failureMessage = "No pude encontrar la cita que deseas cambiar.";
           break;
       }
 
@@ -708,13 +658,10 @@ export async function processPersistedConversationInput({
       };
     }
 
-    const formattedAppointmentDateTime =
-      formatUpcomingAppointment({
-        startAt: rescheduleResult.appointment.startAt,
-        timezone:
-          rescheduleResult.appointment.timezone ||
-          timezone,
-      });
+    const formattedAppointmentDateTime = formatUpcomingAppointment({
+      startAt: rescheduleResult.appointment.startAt,
+      timezone: rescheduleResult.appointment.timezone || timezone,
+    });
 
     const nextContext: ConversationContext = {
       state: "MAIN_MENU",
@@ -756,19 +703,14 @@ export async function processPersistedConversationInput({
   /*
    * BÚSQUEDA DE CITAS EXISTENTES
    */
-  if (
-    result.nextContext.state ===
-    "MANAGE_FIND_APPOINTMENT"
-  ) {
-    const existingAppointments =
-      result.nextContext.availableAppointments ?? [];
+  if (result.nextContext.state === "MANAGE_FIND_APPOINTMENT") {
+    const existingAppointments = result.nextContext.availableAppointments ?? [];
 
     if (existingAppointments.length === 0) {
-      const appointments =
-        await getUpcomingConversationAppointments({
-          clinicId,
-          conversationId,
-        });
+      const appointments = await getUpcomingConversationAppointments({
+        clinicId,
+        conversationId,
+      });
 
       if (appointments.length === 0) {
         const nextContext: ConversationContext = {
@@ -785,8 +727,7 @@ export async function processPersistedConversationInput({
         return {
           nextContext,
           response: {
-            text:
-              "No encontré próximas citas asociadas a este número.\n\n¿En qué más te puedo ayudar?",
+            text: "No encontré próximas citas asociadas a este número.\n\n¿En qué más te puedo ayudar?",
             options: [
               {
                 id: "1",
@@ -803,15 +744,13 @@ export async function processPersistedConversationInput({
         };
       }
 
-      const availableAppointments =
-        appointments.map((appointment) => ({
-          id: appointment.id,
-          startAt: appointment.startAt.toISOString(),
-          endAt: appointment.endAt.toISOString(),
-          timezone:
-            appointment.timezone || timezone,
-          status: appointment.status,
-        }));
+      const availableAppointments = appointments.map((appointment) => ({
+        id: appointment.id,
+        startAt: appointment.startAt.toISOString(),
+        endAt: appointment.endAt.toISOString(),
+        timezone: appointment.timezone || timezone,
+        status: appointment.status,
+      }));
 
       if (availableAppointments.length === 1) {
         const appointmentContext: ConversationContext = {
@@ -820,11 +759,10 @@ export async function processPersistedConversationInput({
           availableAppointments,
         };
 
-        const selectionResult =
-          processConversationInput({
-            message: "1",
-            context: appointmentContext,
-          });
+        const selectionResult = processConversationInput({
+          message: "1",
+          context: appointmentContext,
+        });
 
         const nextContext: ConversationContext = {
           ...selectionResult.nextContext,
@@ -858,18 +796,14 @@ export async function processPersistedConversationInput({
       return {
         nextContext,
         response: {
-          text:
-            "Encontré varias próximas citas. ¿Cuál deseas consultar?",
-          options: appointments.map(
-            (appointment, index) => ({
-              id: String(index + 1),
-              label: formatUpcomingAppointment({
-                startAt: appointment.startAt,
-                timezone:
-                  appointment.timezone || timezone,
-              }),
+          text: "Encontré varias próximas citas. ¿Cuál deseas consultar?",
+          options: appointments.map((appointment, index) => ({
+            id: String(index + 1),
+            label: formatUpcomingAppointment({
+              startAt: appointment.startAt,
+              timezone: appointment.timezone || timezone,
             }),
-          ),
+          })),
         },
         handledDeterministically: true,
         requiresAiInterpretation: false,
@@ -902,8 +836,7 @@ export async function processPersistedConversationInput({
           status: "ESCALATED",
           currentIntent: "REQUEST_DOCTOR",
           requiresHuman: true,
-          escalationReason:
-            "El paciente solicitó hablar con la clínica.",
+          escalationReason: "El paciente solicitó hablar con la clínica.",
         },
       });
     }
@@ -922,17 +855,9 @@ export async function processPersistedConversationInput({
    */
   const now = new Date();
 
-  const currentDate = formatInTimeZone(
-    now,
-    timezone,
-    "yyyy-MM-dd",
-  );
+  const currentDate = formatInTimeZone(now, timezone, "yyyy-MM-dd");
 
-  const currentTime = formatInTimeZone(
-    now,
-    timezone,
-    "HH:mm",
-  );
+  const currentTime = formatInTimeZone(now, timezone, "HH:mm");
 
   const rawInterpretation = await interpretPatientInput({
     message,
@@ -958,8 +883,7 @@ export async function processPersistedConversationInput({
       reason:
         interpretation.normalizedText ||
         "El paciente solicitó atención de la clínica.",
-      message:
-        "Voy a avisar a la clínica para que puedan continuar contigo.",
+      message: "Voy a avisar a la clínica para que puedan continuar contigo.",
     });
   }
 
@@ -978,11 +902,8 @@ export async function processPersistedConversationInput({
    */
   if (
     context.state === "RESCHEDULE_SELECT_DATE" &&
-    (
-      interpretation.intent ===
-        "RESCHEDULE_APPOINTMENT" ||
-      interpretation.intent === "BOOK_APPOINTMENT"
-    )
+    (interpretation.intent === "RESCHEDULE_APPOINTMENT" ||
+      interpretation.intent === "BOOK_APPOINTMENT")
   ) {
     const bookingResult = await buildBookingOptions({
       clinicId,
@@ -1013,10 +934,8 @@ export async function processPersistedConversationInput({
         id: conversationId,
       },
       data: {
-        appointmentId:
-          context.appointmentId ?? null,
-        currentIntent:
-          "RESCHEDULE_APPOINTMENT",
+        appointmentId: context.appointmentId ?? null,
+        currentIntent: "RESCHEDULE_APPOINTMENT",
         status: "OPEN",
         requiresHuman: false,
         escalationReason: null,
@@ -1086,8 +1005,7 @@ export async function processPersistedConversationInput({
   return {
     nextContext: context,
     response: {
-      text:
-        "Por ahora puedo ayudarte a agendar una cita o comunicarte con la clínica.",
+      text: "Por ahora puedo ayudarte a agendar una cita o comunicarte con la clínica.",
       options: [
         {
           id: "1",
