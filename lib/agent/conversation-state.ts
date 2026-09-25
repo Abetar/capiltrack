@@ -473,7 +473,13 @@ export function resolveConversationState({
   }
 
   if (context.state === "RESCHEDULE_SELECT_TIME") {
-    if (normalizedMessage === "4") {
+    if (
+      normalizedMessage === "4" ||
+      normalizedMessage === "otro día" ||
+      normalizedMessage === "otro dia" ||
+      normalizedMessage === "elegir otro día" ||
+      normalizedMessage === "elegir otro dia"
+    ) {
       return {
         handled: true,
         nextContext: {
