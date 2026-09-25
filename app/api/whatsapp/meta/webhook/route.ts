@@ -3,6 +3,11 @@ import { NextResponse } from "next/server";
 import { handleInboundMessage } from "@/lib/agent/handleInboundMessage";
 import { handleOutboundResponse } from "@/lib/agent/handleOutboundResponse";
 import { getWhatsAppIntegrationByPhoneNumberId } from "@/lib/whatsapp/getWhatsAppIntegrationByPhoneNumberId";
+import { sendMetaWhatsAppMessage } from "@/lib/whatsapp/sendMetaWhatsAppMessage";
+import {
+  markOutboundMessageFailed,
+  markOutboundMessageSent,
+} from "@/lib/whatsapp/updateOutboundMessageDelivery";
 
 const VERIFY_MODE = "subscribe";
 
@@ -102,16 +107,8 @@ export async function POST(req: Request) {
     const payload =
       (await req.json()) as MetaWebhookPayload;
 
-    /*
-     * Meta puede mandar varios entries/changes/messages
-     * dentro de una sola petición.
-     */
     for (const entry of payload.entry ?? []) {
       for (const change of entry.changes ?? []) {
-        /*
-         * Ignoramos cualquier evento que no pertenezca
-         * al campo "messages".
-         */
         if (change.field !== "messages") {
           continue;
         }
@@ -125,12 +122,6 @@ export async function POST(req: Request) {
         const phoneNumberId =
           value.metadata?.phone_number_id?.trim();
 
-        /*
-         * Algunos webhooks de Meta solamente contienen
-         * statuses (sent, delivered, read, etc.).
-         *
-         * Todavía no procesamos esos eventos.
-         */
         const messages = value.messages ?? [];
 
         if (messages.length === 0) {
@@ -145,10 +136,6 @@ export async function POST(req: Request) {
           continue;
         }
 
-        /*
-         * Resolvemos qué clínica pertenece al número
-         * de WhatsApp que recibió el mensaje.
-         */
         const integration =
           await getWhatsAppIntegrationByPhoneNumberId(
             phoneNumberId,
@@ -163,10 +150,6 @@ export async function POST(req: Request) {
         }
 
         for (const message of messages) {
-          /*
-           * Primera versión:
-           * solamente procesamos mensajes de texto.
-           */
           if (message.type !== "text") {
             continue;
           }
@@ -178,11 +161,6 @@ export async function POST(req: Request) {
             continue;
           }
 
-          /*
-           * Buscamos el nombre enviado por Meta.
-           * Normalmente contacts[].wa_id coincide con
-           * message.from.
-           */
           const contact = value.contacts?.find(
             (item) => item.wa_id === from,
           );
@@ -190,10 +168,6 @@ export async function POST(req: Request) {
           const displayName =
             contact?.profile?.name?.trim() || null;
 
-          /*
-           * Guarda el inbound, obtiene/crea la conversación
-           * y ejecuta el agente persistente.
-           */
           const inboundResult =
             await handleInboundMessage({
               clinicId: integration.clinicId,
@@ -211,38 +185,85 @@ export async function POST(req: Request) {
               },
             });
 
-          /*
-           * Meta puede reenviar exactamente el mismo
-           * mensaje más de una vez.
-           *
-           * Si ya fue procesado, no ejecutamos ninguna
-           * acción adicional ni generamos otro outbound.
-           */
           if (inboundResult.duplicate) {
             continue;
           }
 
           /*
-           * Guardamos la respuesta producida por el agente.
-           *
-           * En este paso queda PENDING.
-           * Todavía NO se envía a Meta.
+           * Primero persistimos la respuesta del agente
+           * como OUTBOUND / PENDING.
            */
-          await handleOutboundResponse({
-            clinicId: integration.clinicId,
-            conversationId:
-              inboundResult.conversation.id,
-            response: inboundResult.agentResult.response,
-            provider: "META",
-          });
+          const outboundResult =
+            await handleOutboundResponse({
+              clinicId: integration.clinicId,
+              conversationId:
+                inboundResult.conversation.id,
+              response:
+                inboundResult.agentResult.response,
+              provider: "META",
+            });
+
+          if (
+            outboundResult.skipped ||
+            !outboundResult.message
+          ) {
+            continue;
+          }
+
+          /*
+           * Enviamos a Meta el mismo texto que acabamos
+           * de persistir.
+           */
+          try {
+            const metaResult =
+              await sendMetaWhatsAppMessage({
+                phoneNumberId:
+                  integration.phoneNumberId,
+                to: from,
+                text:
+                  outboundResult.message.text ??
+                  inboundResult.agentResult.response
+                    ?.text ??
+                  "",
+              });
+
+            /*
+             * Meta aceptó el mensaje.
+             * Actualizamos EL MISMO registro OUTBOUND.
+             */
+            await markOutboundMessageSent({
+              clinicId: integration.clinicId,
+              messageId: outboundResult.message.id,
+              providerMessageId:
+                metaResult.providerMessageId,
+              rawPayload: metaResult.rawResponse,
+            });
+          } catch (error) {
+            const errorMessage =
+              error instanceof Error
+                ? error.message
+                : "Unknown Meta WhatsApp error";
+
+            /*
+             * Conservamos el mensaje en BD, pero marcado
+             * como FAILED para poder diagnosticarlo o
+             * reintentarlo posteriormente.
+             */
+            await markOutboundMessageFailed({
+              clinicId: integration.clinicId,
+              messageId: outboundResult.message.id,
+              errorMessage,
+            });
+
+            console.error(
+              "Error sending WhatsApp outbound message:",
+              error,
+            );
+          }
         }
       }
     }
 
-    /*
-     * Meta necesita recibir 200 para considerar
-     * correctamente reconocido el webhook.
-     */
     return NextResponse.json({
       received: true,
     });
