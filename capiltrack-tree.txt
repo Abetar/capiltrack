@@ -1,0 +1,327 @@
+﻿capiltrack
+├── actions
+│   ├── deleteConsultation.ts
+│   ├── deletePatient.ts
+│   ├── deleteProcedure.ts
+│   └── deleteTreatment.ts
+├── app
+│   ├── (app)
+│   │   ├── admin
+│   │   │   └── page.tsx
+│   │   ├── agenda
+│   │   │   ├── [appointmentId]
+│   │   │   │   └── edit
+│   │   │   │       ├── EditAppointmentForm.tsx
+│   │   │   │       └── page.tsx
+│   │   │   ├── blocks
+│   │   │   │   └── new
+│   │   │   │       ├── NewScheduleBlockForm.tsx
+│   │   │   │       └── page.tsx
+│   │   │   ├── new
+│   │   │   │   ├── NewAppointmentForm.tsx
+│   │   │   │   └── page.tsx
+│   │   │   └── page.tsx
+│   │   ├── clinical-questions
+│   │   │   ├── [questionnaireId]
+│   │   │   │   ├── page.tsx
+│   │   │   │   └── QuestionnaireEditor.tsx
+│   │   │   └── page.tsx
+│   │   ├── consultations
+│   │   │   └── page.tsx
+│   │   ├── dashboard
+│   │   │   └── page.tsx
+│   │   ├── patients
+│   │   │   ├── [id]
+│   │   │   │   ├── clinical-record
+│   │   │   │   │   ├── page.tsx
+│   │   │   │   │   └── PatientClinicalRecordForm.tsx
+│   │   │   │   ├── compare
+│   │   │   │   │   ├── page.tsx
+│   │   │   │   │   ├── TimelineEditor.tsx
+│   │   │   │   │   └── TimelineEditorPhotoCard.tsx
+│   │   │   │   ├── consultations
+│   │   │   │   │   ├── [consultationId]
+│   │   │   │   │   │   ├── metrics
+│   │   │   │   │   │   │   └── new
+│   │   │   │   │   │   │       └── page.tsx
+│   │   │   │   │   │   ├── photos
+│   │   │   │   │   │   │   └── new
+│   │   │   │   │   │   │       └── page.tsx
+│   │   │   │   │   │   ├── prescriptions
+│   │   │   │   │   │   │   ├── [prescriptionId]
+│   │   │   │   │   │   │   │   └── edit
+│   │   │   │   │   │   │   │       └── page.tsx
+│   │   │   │   │   │   │   ├── new
+│   │   │   │   │   │   │   │   └── page.tsx
+│   │   │   │   │   │   │   └── page.tsx
+│   │   │   │   │   │   └── page.tsx
+│   │   │   │   │   ├── new
+│   │   │   │   │   │   └── page.tsx
+│   │   │   │   │   └── page.tsx
+│   │   │   │   ├── edit
+│   │   │   │   │   └── page.tsx
+│   │   │   │   ├── procedures
+│   │   │   │   │   ├── [procedureId]
+│   │   │   │   │   │   ├── edit
+│   │   │   │   │   │   │   └── page.tsx
+│   │   │   │   │   │   └── page.tsx
+│   │   │   │   │   ├── new
+│   │   │   │   │   │   └── page.tsx
+│   │   │   │   │   └── page.tsx
+│   │   │   │   ├── progress
+│   │   │   │   │   └── page.tsx
+│   │   │   │   ├── treatments
+│   │   │   │   │   ├── new
+│   │   │   │   │   │   └── page.tsx
+│   │   │   │   │   └── page.tsx
+│   │   │   │   ├── layout.tsx
+│   │   │   │   └── page.tsx
+│   │   │   ├── new
+│   │   │   │   └── page.tsx
+│   │   │   └── page.tsx
+│   │   ├── procedures
+│   │   │   └── page.tsx
+│   │   ├── settings
+│   │   │   ├── page.tsx
+│   │   │   └── SettingsForm.tsx
+│   │   └── layout.tsx
+│   ├── (auth)
+│   │   ├── forgot-password
+│   │   │   ├── page.tsx
+│   │   │   └── ResetPasswordClient.tsx
+│   │   ├── login
+│   │   │   └── page.tsx
+│   │   ├── register
+│   │   │   └── page.tsx
+│   │   ├── reset-password
+│   │   │   ├── page.tsx
+│   │   │   └── ResetPasswordClient.tsx
+│   │   └── layout.tsx
+│   ├── api
+│   │   ├── admin
+│   │   │   └── users
+│   │   │       └── route.ts
+│   │   ├── appointments
+│   │   │   ├── [appointmentId]
+│   │   │   │   └── route.ts
+│   │   │   ├── availability
+│   │   │   │   └── route.ts
+│   │   │   └── route.ts
+│   │   ├── auth
+│   │   │   ├── [...nextauth]
+│   │   │   │   └── route.ts
+│   │   │   ├── forgot-password
+│   │   │   │   └── route.ts
+│   │   │   ├── register
+│   │   │   │   └── route.ts
+│   │   │   └── reset-password
+│   │   │       └── route.ts
+│   │   ├── clinical-questions
+│   │   │   ├── [questionnaireId]
+│   │   │   │   └── questions
+│   │   │   │       └── route.ts
+│   │   │   └── questions
+│   │   │       └── [questionId]
+│   │   │           ├── move
+│   │   │           │   └── route.ts
+│   │   │           └── route.ts
+│   │   ├── consultations
+│   │   │   └── route.ts
+│   │   ├── metrics
+│   │   │   └── route.ts
+│   │   ├── patients
+│   │   │   ├── [id]
+│   │   │   │   ├── clinical-record
+│   │   │   │   │   └── route.ts
+│   │   │   │   ├── consultations
+│   │   │   │   │   ├── [consultationId]
+│   │   │   │   │   │   └── prescriptions
+│   │   │   │   │   │       └── [prescriptionId]
+│   │   │   │   │   │           └── pdf
+│   │   │   │   │   │               ├── PrescriptionPdfDocument.tsx
+│   │   │   │   │   │               └── route.tsx
+│   │   │   │   │   └── route.ts
+│   │   │   │   ├── pdf
+│   │   │   │   │   ├── PatientPdfDocument.tsx
+│   │   │   │   │   └── route.tsx
+│   │   │   │   ├── photos
+│   │   │   │   │   └── timeline
+│   │   │   │   │       └── route.ts
+│   │   │   │   └── route.ts
+│   │   │   └── route.ts
+│   │   ├── photos
+│   │   │   └── route.ts
+│   │   ├── schedule-blocks
+│   │   │   └── route.ts
+│   │   ├── settings
+│   │   │   └── route.ts
+│   │   ├── stripe
+│   │   │   ├── checkout
+│   │   │   │   └── route.ts
+│   │   │   └── webhook
+│   │   │       └── route.ts
+│   │   └── upload
+│   │       └── route.ts
+│   ├── contact
+│   │   └── page.tsx
+│   ├── demo
+│   │   └── page.tsx
+│   ├── photos
+│   ├── privacy
+│   │   └── page.tsx
+│   ├── terms
+│   │   └── page.tsx
+│   ├── transplants
+│   ├── treatments
+│   ├── favicon.ico
+│   ├── globals.css
+│   ├── layout.tsx
+│   └── page.tsx
+├── components
+│   ├── admin
+│   │   └── AdminUserActions.tsx
+│   ├── appointments
+│   │   ├── AppointmentActions.tsx
+│   │   └── AppointmentEventTimeline.tsx
+│   ├── consultations
+│   │   ├── ConsultationsStats.tsx
+│   │   └── DeleteConsultationButton.tsx
+│   ├── dashboard
+│   │   └── ClinicMetricsChart.tsx
+│   ├── layout
+│   │   ├── AppHeader.tsx
+│   │   ├── AppSidebar.tsx
+│   │   ├── MobileViewShell.tsx
+│   │   └── MobileViewToggleButton.tsx
+│   ├── metrics
+│   │   └── ProgressChart.tsx
+│   ├── patients
+│   │   └── DeletePatientButton.tsx
+│   ├── photos
+│   │   ├── BeforeAfterSlider.tsx.tsx
+│   │   ├── PhotoGrid.tsx
+│   │   └── TimelineComparisonSlider.tsx
+│   ├── procedures
+│   │   ├── DeleteProcedureButton.tsx
+│   │   └── ProceduresStats.tsx
+│   ├── treatments
+│   │   └── DeleteTreatmentButton.tsx
+│   ├── ui
+│   │   ├── AppDialog.tsx
+│   │   ├── Button.tsx
+│   │   ├── Card.tsx
+│   │   └── Input.tsx
+│   ├── AnimatedSection.tsx
+│   ├── AppSidebar.tsx
+│   └── LogoutButton.tsx
+├── config
+│   └── site.ts
+├── domain
+│   ├── consultations
+│   ├── patients
+│   ├── photos
+│   ├── transplants
+│   └── treatments
+├── lib
+│   ├── actions
+│   │   └── deletePatients.ts
+│   ├── appointments
+│   │   ├── createAppointment.ts
+│   │   ├── getAvailabilityContext.ts
+│   │   ├── getAvailableSlots.ts
+│   │   └── validateAppointmentSlot.ts
+│   ├── auth
+│   │   ├── auth.ts
+│   │   └── getCurrentUser.ts
+│   ├── db
+│   │   └── prisma.ts
+│   ├── generated
+│   │   └── prisma
+│   │       ├── internal
+│   │       │   ├── class.ts
+│   │       │   ├── prismaNamespace.ts
+│   │       │   └── prismaNamespaceBrowser.ts
+│   │       ├── models
+│   │       ├── browser.ts
+│   │       ├── client.ts
+│   │       ├── commonInputTypes.ts
+│   │       ├── enums.ts
+│   │       └── models.ts
+│   ├── patient
+│   │   └── getPatientTimeline.ts
+│   ├── utils
+│   │   ├── date.ts
+│   │   └── format.ts
+│   └── cloudinary.ts
+├── prisma
+│   ├── migrations
+│   │   ├── 20260313155950_init
+│   │   │   └── migration.sql
+│   │   ├── 20260313160548_auth
+│   │   │   └── migration.sql
+│   │   ├── 20260313170638_init
+│   │   │   └── migration.sql
+│   │   ├── 20260313171029_add_password_reset
+│   │   │   └── migration.sql
+│   │   ├── 20260317201246_subscription_system
+│   │   │   └── migration.sql
+│   │   ├── 20260320204656_stripe_unique_fields
+│   │   │   └── migration.sql
+│   │   ├── 20260323060434_fix_role_default
+│   │   │   └── migration.sql
+│   │   ├── 20260323202810_procedure_blocks
+│   │   │   └── migration.sql
+│   │   ├── 20260323205502_clinic_logo
+│   │   │   └── migration.sql
+│   │   ├── 20260517193113_clinical_questionnaire
+│   │   │   └── migration.sql
+│   │   ├── 20260518011421_procedure_follicle_totals
+│   │   │   └── migration.sql
+│   │   ├── 20260529041708_prescriptions
+│   │   │   └── migration.sql
+│   │   ├── 20260529150223_clinic_doctor_info
+│   │   │   └── migration.sql
+│   │   ├── 20260604031352_clinic_doctor_extra_info
+│   │   │   └── migration.sql
+│   │   ├── 20260701063211_photo_timeline_controls
+│   │   │   └── migration.sql
+│   │   ├── 20260714182458_add_agenda_module
+│   │   │   └── migration.sql
+│   │   ├── 20260715192242_add_appointment_events
+│   │   │   └── migration.sql
+│   │   └── migration_lock.toml
+│   ├── schema.prisma
+│   └── seed.ts
+├── public
+│   ├── capiltrack-comparison.jpg
+│   ├── capiltrack-dashboard.jpg
+│   ├── capiltrack-history.jpg
+│   ├── capiltrack-logo-2.png
+│   ├── capiltrack-logo-final.png
+│   ├── capiltrack-logo-landscape.png
+│   ├── capiltrack-procedures.jpg
+│   ├── file.svg
+│   ├── globe.svg
+│   ├── logo-capiltrack.png
+│   ├── next.svg
+│   ├── vercel.svg
+│   └── window.svg
+├── types
+│   ├── index.ts
+│   └── prisma.ts
+├── .env
+├── .gitignore
+├── dev.db
+├── eslint.config.mjs
+├── estructura.txt
+├── global.d.ts
+├── next.config.ts
+├── next-env.d.ts
+├── package.json
+├── pnpm-workspace.yaml
+├── postcss.config.mjs
+├── prisma.config.ts
+├── proxy.ts
+├── README.md
+├── tree.txt
+└── tsconfig.json
