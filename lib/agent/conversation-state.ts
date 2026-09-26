@@ -77,6 +77,20 @@ function parseNumericOption(value: string) {
   return Number.isInteger(parsed) ? parsed : null;
 }
 
+function parseExplicitOption(value: string) {
+  const match = value.match(
+    /^(?:(?:quiero|elijo|escojo|selecciono|dame|prefiero|me quedo con)\s+)?(?:(?:el|la)\s+)?(?:numero|número|opcion|opción)\s+(\d+)$/,
+  );
+
+  if (!match) {
+    return null;
+  }
+
+  const parsed = Number.parseInt(match[1], 10);
+
+  return Number.isInteger(parsed) ? parsed : null;
+}
+
 function parseOrdinalOption(value: string, visibleOptionCount: number) {
   const ordinalOptions: Record<string, number> = {
     primero: 1,
@@ -561,6 +575,7 @@ export function resolveConversationState({
      */
     const selectedIndex =
       parseNumericOption(normalizedMessage) ??
+      parseExplicitOption(normalizedMessage) ??
       parseOrdinalOption(normalizedMessage, visibleSlots.length);
 
     if (
