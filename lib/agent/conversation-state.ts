@@ -484,8 +484,27 @@ export function resolveConversationState({
       visibleSlots.length + (hasMoreSlots ? 2 : 1),
     );
 
+    /*
+     * Resolvemos primero selecciones explícitas como:
+     *
+     * "4"
+     * "opcion 4"
+     * "opción 4"
+     * "quiero la opción 4"
+     * "el número 5"
+     *
+     * Esto permite que las opciones auxiliares (Ver más horarios /
+     * Elegir otro día) utilicen el mismo parser que los horarios,
+     * sin volver a confundir expresiones como "3pm" con la opción 3.
+     */
+    const explicitOptionId =
+      parseNumericOption(normalizedMessage) ??
+      parseExplicitOption(normalizedMessage);
+
     const isMoreRequest =
-      (moreOptionId !== null && normalizedMessage === moreOptionId) ||
+      (moreOptionId !== null &&
+        explicitOptionId !== null &&
+        String(explicitOptionId) === moreOptionId) ||
       normalizedMessage === "ver más horarios" ||
       normalizedMessage === "ver mas horarios" ||
       normalizedMessage === "más horarios" ||
@@ -537,7 +556,8 @@ export function resolveConversationState({
     }
 
     const isOtherDayRequest =
-      normalizedMessage === otherDayOptionId ||
+      (explicitOptionId !== null &&
+        String(explicitOptionId) === otherDayOptionId) ||
       normalizedMessage === "otro día" ||
       normalizedMessage === "otro dia" ||
       normalizedMessage === "elegir otro día" ||
@@ -574,8 +594,7 @@ export function resolveConversationState({
      * accidentalmente la tercera opción.
      */
     const selectedIndex =
-      parseNumericOption(normalizedMessage) ??
-      parseExplicitOption(normalizedMessage) ??
+      explicitOptionId ??
       parseOrdinalOption(normalizedMessage, visibleSlots.length);
 
     if (
