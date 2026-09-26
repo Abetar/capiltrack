@@ -91,6 +91,38 @@ function parseExplicitOption(value: string) {
   return Number.isInteger(parsed) ? parsed : null;
 }
 
+function parseVisibleHourRequest(
+  value: string,
+  visibleSlots: Array<{ localStartTime: string }>,
+) {
+  const match = value.match(
+    /^(?:(?:quiero|prefiero|dame|me sirve|me quedo con)\s+)?(?:(?:el\s+)?de\s+)?a?\s*las\s+(1[0-2]|[1-9])(?:[:.]00)?(?:\s+por favor)?$/,
+  );
+
+  if (!match) {
+    return null;
+  }
+
+  const requestedHour = Number.parseInt(match[1], 10);
+
+  const matchingIndexes = visibleSlots
+    .map((slot, index) => {
+      const [hoursText, minutesText] = slot.localStartTime.split(":");
+      const hours = Number(hoursText);
+      const minutes = Number(minutesText);
+      const twelveHour = hours % 12 || 12;
+
+      return twelveHour === requestedHour && minutes === 0
+        ? index
+        : -1;
+    })
+    .filter((index) => index >= 0);
+
+  return matchingIndexes.length === 1
+    ? matchingIndexes[0] + 1
+    : null;
+}
+
 function parseOrdinalOption(value: string, visibleOptionCount: number) {
   const ordinalOptions: Record<string, number> = {
     primero: 1,
@@ -595,7 +627,8 @@ export function resolveConversationState({
      */
     const selectedIndex =
       explicitOptionId ??
-      parseOrdinalOption(normalizedMessage, visibleSlots.length);
+      parseOrdinalOption(normalizedMessage, visibleSlots.length) ??
+      parseVisibleHourRequest(normalizedMessage, visibleSlots);
 
     if (
       selectedIndex !== null &&
